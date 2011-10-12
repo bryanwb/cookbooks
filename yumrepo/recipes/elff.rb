@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+# ELFF is defunct, leaving this here to clean up ELFF files for now.
+
 cookbook_file "#{node[:yumrepo][:key_path]}/RPM-GPG-KEY-ELFF"
 
 yum_key "RPM-GPG-KEY-ELFF" do
@@ -25,8 +27,5 @@ yum_key "RPM-GPG-KEY-ELFF" do
 end
 
 yum_repository "elff" do
-  description "Enterprise Linux Fast Forward"
-  key "RPM-GPG-KEY-ELFF"
-  url "http://download.elff.bravenet.com/#{node[:platform_version].split('.')[0]}/$basearch"
   action :remove
 end

@@ -23,5 +23,12 @@
 default[:yum][:exclude] = Array.new
 default[:yum][:installonlypkgs] = Array.new
 
-# boolean attribute to update system
-default[:yum][:upgrade] = false 
+default['yum']['epel_release'] = case node['platform_version'].to_i
+                                  when 6
+                                    "6-5"
+                                  when 5
+                                    "5-4"
+                                  when 4
+                                    "4-10"
+                                  end
+default['yum']['ius_release'] = '1.0-8'

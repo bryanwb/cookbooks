@@ -1,9 +1,9 @@
 #
-# Cookbook Name:: yum
-# Recipe:: yum 
+# Cookbook Name:: yumrepo
+# Recipe:: epel 
 #
-# Copyright 2011, Eric G. Wolfe
-# Copyright 2011, Opscode, Inc.
+# Copyright 2010, Eric G. Wolfe
+# Copyright 2010, Tippr Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,18 @@
 # limitations under the License.
 #
 
-template "/etc/yum.conf" do
-  source "yum-rhel#{node[:platform_version].to_i}.conf.erb"
-  owner "root"
-  group "root"
-  mode 0644
+base_url = "http://rbel.frameos.org/stable"
+rbel_key = "RPM-GPG-KEY-RBEL"
+
+cookbook_file "#{node["yumrepo"]["key_path"]}/#{rbel_key}"
+
+yum_key rbel_key do
+  action :add
+end
+
+yum_repository "rbel#{node["platform_version"].to_i}" do
+  description "RBEL #{node["platform_version"].to_i} repo"
+  key rbel_key
+  url "http://rbel.frameos.org/stable/el#{node["platform_version"].to_i}/$basearch"
+  action :add
 end

@@ -16,7 +16,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-if node[:yum][:upgrade]
-  execute "yum -y upgrade"
-end
