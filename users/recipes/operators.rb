@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: users
-# Recipe:: sysadmins
+# Recipe:: operators.rb 
 #
-# Copyright 2009-2011, Opscode, Inc.
+# Copyright 2011, Bryan W. Berry 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,22 +17,20 @@
 # limitations under the License.
 #
 
-sysadmin_group = Array.new
+operators = Array.new
+operators_data_bags = search(:users, 'sudo_cmds:* AND groups:operators')
 
-search(:users, 'groups:sysadmin') do |u|
-  sysadmin_group << u['id']
-
-  if node[:apache] and node[:apache][:allowed_openids]
-    Array(u['openid']).compact.each do |oid|
-      node[:apache][:allowed_openids] << oid unless node[:apache][:allowed_openids].include?(oid)
-    end
-  end
-
-	if u['uid'] == 0
-		home_dir = "/root"
-	else
-		home_dir = "/home/#{u['id']}"
+if operators_data_bags != nil
+	operators_data_bags.each do |d|
+			operators << d.raw_data
 	end
+end
+
+
+operators.each do |u|
+
+ 
+	home_dir = "/home/#{u['id']}"
 
   # fixes CHEF-1699
   ruby_block "reset group list" do
@@ -68,17 +66,12 @@ search(:users, 'groups:sysadmin') do |u|
     mode "0600"
     variables :ssh_keys => u['ssh_keys']
   end
-
 end
 
-group "sysadmin" do
-  gid 2300
-  members sysadmin_group
-end
-
-template "/etc/sudoers.d/sysadmins" do
-	source "sysadmins_sudoers"
+template "/etc/sudoers.d/prodctl" do
+	source "prodctl_sudoers.erb"
   mode 0440
   owner "root"
   group "root"
+	variables( :sudoers => operators )
 end
