@@ -74,8 +74,7 @@ very simple and barely deserves being called a package resource.
 Essentially, you provide the java_cpr with the URL to a tarball and
 the commands within the extracted result that you want symlinked to /usr/bin/
 
-By default, the extracted directory is extracted to
-#{app_root}/extracted_dir_name and symlinked to #{app_root}/default
+By default, the extracted directory is extracted to app_root/extracted_dir_name and symlinked to app_root/default
 
 # Actions
 
@@ -106,23 +105,23 @@ By default, the extracted directory is extracted to
 
 # Examples
 
-  # install jdk6 from Oracle
-  java_cpr "jdk" do
-    url 'http://download.oracle.com/otn-pub/java/jdk/6u29-b11/jdk-6u29-linux-x64.bin'
-    checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
-    app_root '/usr/local/java'
-    bin_cmds ["java", "javac"]
-    action :install
-  end
+    # install jdk6 from Oracle
+    java_cpr "jdk" do
+        url 'http://download.oracle.com/otn-pub/java/jdk/6u29-b11/jdk-6u29-linux-x64.bin'
+        checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
+        app_root '/usr/local/java'
+        bin_cmds ["java", "javac"]
+        action :install
+    end
 
-  # installs maven2
-  java_cpr "maven2" do
-    url "http://www.apache.org/dist/maven/binaries/apache-maven-2.2.1-bin.tar.gz"
-    checksum  "b9a36559486a862abfc7fb2064fd1429f20333caae95ac51215d06d72c02d376"
-    app_root "/usr/local/maven"
-    bin_cmds ["mvn"]
-    action :install
-  end
+    # installs maven2
+    java_cpr "maven2" do
+        url "http://www.apache.org/dist/maven/binaries/apache-maven-2.2.1-bin.tar.gz"
+        checksum  "b9a36559486a862abfc7fb2064fd1429f20333caae95ac51215d06d72c02d376"
+        app_root "/usr/local/maven"
+        bin_cmds ["mvn"]
+        action :install
+    end
     
     
 
