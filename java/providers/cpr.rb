@@ -58,14 +58,13 @@ action :install do
 
     puts "cache location is #{Chef::Config[:file_cache_path]}/#{tarball_name}"
     puts "checksum is #{new_resource.checksum} "
-    r = remote_file "#{Chef::Config[:file_cache_path]}/#{tarball_name}" do
+    remote_file "#{Chef::Config[:file_cache_path]}/#{tarball_name}" do
       source new_resource.url
       checksum new_resource.checksum
       mode 0755
-      action :nothing
+      action :create
     end
-    r.run_action(:create_if_missing)
-    
+        
     require 'tmpdir'
     
     tmpdir = Dir.mktmpdir
