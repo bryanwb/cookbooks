@@ -1,10 +1,9 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
-# Cookbook Name:: oracle
-# Recipe:: sun
+# Cookbook Name:: java
+# Recipe:: oracle
 #
-# Copyright 2010-2011, Opscode, Inc.
+# Copyright 2011, Bryan w. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,88 +18,35 @@
 # limitations under the License.
 
 
-case node['platform']
-when "ubuntu", "debian"
-  update_alternatives_cmd = "update-java-alternatives -s java-6-sun"
-when "centos", "redhat", "fedora"
-  java_home = node['java']["java_home"]
-  update_alternatives_cmd =  "update-alternatives --install /usr/bin/java java #{java_home}/bin/java 1;" +
-    "update-alternatives --set java #{java_home}/bin/java"
+java_home = node['java']["java_home"]
+java_root = java_home.split('/')[0..-2].join('/')
+  
+arch = node[:kernel][:machine] == 'x86_64' ? 'x86_64' : 'i586'
+
+jdk_version = node['java']['jdk_version']
+
+#convert version number to a string if it isn't already
+if jdk_version.instance_of? Fixnum
+  jdk_version = jdk_version.to_s
 end
 
-pkgs = value_for_platform(
-  ["centos","redhat","fedora"] => {
-    "default" => ["jdk-#{node['java']['version']}-linux-#{node['java']['arch']}.rpm"]
-  },
-  ["debian","ubuntu"] => {
-    "default" => ["sun-java6-jdk"]
-  }
-)
-
-case node['platform']
-when "ubuntu"
-
-  apt_repository "ubuntu-partner" do
-    uri "http://archive.canonical.com/ubuntu"
-    distribution node['lsb']['codename']
-    components ['partner']
-    action :add
-  end
-  # update-java-alternatives doesn't work with only sun java installed
-  node.set['java']['java_home'] = "/usr/lib/jvm/java-6-sun"
-
-when "debian"
-
-  apt_repository "debian-non-free" do
-    uri "http://http.us.debian.org/debian"
-    distribution "stable"
-    components ['main','contrib','non-free']
-    action :add
-  end
-  # update-java-alternatives doesn't work with only sun java installed
-  node.set['java']['java_home'] = "/usr/lib/jvm/java-6-sun"
-
-when "centos", "redhat", "fedora"
-
-  pkgs.each do |pkg|
-    if node['java'].attribute?('rpm_url')
-      remote_file "#{Chef::Config[:file_cache_path]}/#{pkg}" do
-        source "#{node['java']['rpm_url']}/#{pkg}"
-        checksum node['java']['rpm_checksum']
-        mode "0644"
-      end
-     
-    else
-      cookbook_file "#{Chef::Config[:file_cache_path]}/#{pkg}" do
-        source pkg
-        mode "0644"
-        action :create_if_missing
-      end
-    end
-  end
-
-else
-  Chef::Log.error("Installation of Sun Java packages not supported on this platform.")
+case jdk_version
+when "6"
+  tarball_url = node[:java][:jdk]['6'][arch][:url]
+  tarball_checksum = node[:java][:jdk]['6'][arch][:checksum]
+when "7"
+  tarball_url = node[:java][:jdk]['7'][arch][:url]
+  tarball_checksum = node[:java][:jdk]['7'][arch][:checksum]
 end
 
-execute "update-java-alternatives" do
-  command update_alternatives_cmd
-  returns [0,2]
-  action :nothing
-end
+puts "the arch is #{arch}"
+puts "here is the tarball url #{tarball_url} "
 
-pkgs.each do |pkg|
-  package pkg do
-    case node['platform']
-    when "ubuntu", "debian"
-      response_file "java.seed"
-    when "centos", "redhat", "fedora"
-      source "#{Chef::Config[:file_cache_path]}/#{pkg}"
-      options "--nogpgcheck" # sun/oracle doesn't sign their
-      # RPMs o_O
-    end
-    action :install
-    notifies :run, "execute[update-java-alternatives]"
-  end
+java_cpr "jdk" do
+  url tarball_url
+  checksum tarball_checksum
+  app_root java_root
+  bin_cmds ["java"]
+  action :install
 end
 

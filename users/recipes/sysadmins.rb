@@ -28,7 +28,11 @@ search(:users, 'groups:sysadmin') do |u|
     end
   end
 
-  home_dir = "/home/#{u['id']}"
+	if u['uid'] == 0
+		home_dir = "/root"
+	else
+		home_dir = "/home/#{u['id']}"
+	end
 
   # fixes CHEF-1699
   ruby_block "reset group list" do
@@ -38,15 +42,18 @@ search(:users, 'groups:sysadmin') do |u|
     action :nothing
   end
 
-  user u['id'] do
-    uid u['uid']
-    gid u['gid']
-    shell u['shell']
-    comment u['comment']
-    supports :manage_home => true
-    home home_dir
-    notifies :create, "ruby_block[reset group list]", :immediately
-  end
+	user u['id'] do
+		uid u['uid']
+		gid u['gid']
+		shell u['shell']
+		comment u['comment']
+		supports :manage_home => true
+		home home_dir
+		if u['password']
+			password u['password']	
+		end
+		notifies :create, "ruby_block[reset group list]", :immediately
+	end
 
   directory "#{home_dir}/.ssh" do
     owner u['id']
@@ -61,9 +68,17 @@ search(:users, 'groups:sysadmin') do |u|
     mode "0600"
     variables :ssh_keys => u['ssh_keys']
   end
+
 end
 
 group "sysadmin" do
   gid 2300
   members sysadmin_group
+end
+
+template "/etc/sudoers.d/sysadmins" do
+	source "sysadmins_sudoers"
+  mode 0440
+  owner "root"
+  group "root"
 end

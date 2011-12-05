@@ -1,7 +1,7 @@
 Description
 ===========
 
-Installs a Java. Uses OpenJDK by default but supports installation of the Sun's Java.
+Installs a Java. Uses OpenJDK by default but supports installation of the Oracle's Java.
 
 ---
 Requirements
@@ -16,13 +16,17 @@ Platform
 Cookbooks
 ---------
 
-* apt
+* java
 
 ---
 Attributes
 ==========
 
 * `node["java"]["install_flavor"]` - Flavor of JVM you would like installed (`oracle` or `openjdk`), default `openjdk`.
+* `node['java']['java_home']`
+* `node['java']['tarball']` - name of the tarball to retrieve from your corporate repository default `jdk1.6.0_29_i386.tar.gz`
+* `node['java']['tarball_checksum']` - checksum for the tarball, if you use a different tarball, you also need to create a new sha256 checksum
+
 
 ---
 Recipes
@@ -41,20 +45,24 @@ This recipe installs the `openjdk` flavor of Java.
 oracle
 ---
 
-This recipe installs the `oracle` flavor of Java.  
+This recipe installs the `oracle` flavor of Java. This recipe does not
+use distribution packages as Oracle changed the licensing terms with
+JDK 1.6u27 and prohibited the practice for both the debian and EL worlds.
 
-On Debian and Ubuntu systems the recipe will add the correct apt repository (`non-free` on Debian or `partner` on Ubuntu), pre-seed the package and update java alternatives.
+For both debian and centos/rhel, this recipe pulls the binary
+distribution from the Oracle website, and installs it in the default
+JAVA_HOME for each distribution. For debian/ubuntu, this is
+/usr/lib/jvm. For Centos/RHEL, this is /usr/java/
 
-On Red Hat flavored Linux (RHEL, CentOS, Fedora), the installation of the Oracle flavor of Java is slightly more complicated as the `rpm` package is not readily available in any public Yum repository.  The Oracle JDK `rpm` package can be downloaded directly from Oracle but comes wrapped as a compressed bin file.  After the file has been downloaded, decompressed and license accepted the `rpm` package (names something like `jdk-6u25-ea-linux-amd64.rpm`) can be retrieved by this recipe using the `remote_file` or `cookbook_file` resources.  The recipe will choose the correct resource based on the existence (or non-existence) of the `node['oracle']['rpm_url']` attribute.  See below for an example role using this attribute in the proper way.  If you would like to deliver the `rpm` package file as part of this cookbook place the `rpm` package file in the `files/default` directory and the cookbook will retrieve the file during installation.
+After putting the binaries in place, the oracle recipe updates
+/usr/bin/java to point to the installed JDK using the update-alternatives script
 
-To obtain the jdk rpms for Enterprise Linux go to http://www.oracle.com/technetwork/java/javase/downloads/index.html and download the jdk...-rpm.bin for your desired version of the jdk. To extract the rpms from binary file do the following.
+oracle-i386
+-----------
 
-BEWARE, it also installs the jdk on your system if your don't already have it
+This recipe installs the 32-bit Java virtual machine without setting it as the default. This can be useful if you have applications on the same machine that require different versions of the JVM.
 
-$ chmod +x jdk...-rpm.bin
-$ ./jdk...-rpm.bin -noregister
-
-All the rpms from the jdk should be in your current working directory
+This recipe will look for the tarball at node['repo']['corp']['url']
 
 ---
 Usage
@@ -95,6 +103,7 @@ License and Author
 ==================
 
 Author:: Seth Chisamore (<schisamo@opscode.com>)
+Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 
 Copyright:: 2008-2011, Opscode, Inc
 
