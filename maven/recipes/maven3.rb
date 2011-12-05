@@ -30,3 +30,8 @@ java_cpr "maven3" do
   bin_cmds ["mvn"]
   action :install
 end
+
+template "/etc/mavenrc" do
+  source "mavenrc.erb"
+  mode "0755"
+end
