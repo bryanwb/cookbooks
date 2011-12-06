@@ -33,7 +33,9 @@ else
 end
 
 # find out nagios user's sudo commands
-sudo_cmds = search(:users, "id:#{node['nagios']['user']}")[0][:sudo_cmds]
+search(:users, "id:#{node['nagios']['user']}").each do |item|
+  sudo_cmds =  item[:sudo_cmds]
+end
 
 # some of the nagios plugins require this package
 if platform? ["centos", "redhat", "ubuntu" ]
@@ -71,12 +73,14 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
 end
 
 # add sudoers
-template "/etc/sudoers.d/nagios" do
-  source "nagios_sudoers.erb"
-  owner "root"
-  group "root"
-  variables( :sudo_cmds => sudo_cmds)
-  mode "0440"
+if defined? sudo_cmds
+  template "/etc/sudoers.d/nagios" do
+    source "nagios_sudoers.erb"
+    owner "root"
+    group "root"
+    variables( :sudo_cmds => sudo_cmds)
+    mode "0440"
+  end
 end
 
 template "/etc/xinetd.d/nrpe" do
