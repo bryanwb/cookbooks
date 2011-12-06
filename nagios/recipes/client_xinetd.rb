@@ -18,8 +18,6 @@
 # limitations under the License.
 #
 
-include_recipe "sudo::sudoers_d"
-
 mon_host = ['127.0.0.1']
 
 if node['nagios_server']

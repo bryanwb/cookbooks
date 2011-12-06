@@ -88,9 +88,6 @@ The following attributes are used for the client NRPE checks for warning and cri
 client_xinetd
 -------------
 
-This recipe requires that the /etc/sudoers.d/ directory exist and be
-included using the "#includedir" directive.
-
 This recipe runs the nagios nrpe client under the xinetd service
 rather than as an independent daemon. 
 
@@ -109,6 +106,12 @@ node['nagios']['user'] that looks like this
 
 This recipe will create entries in the /etc/sudoers.d/nagios file for
 each command with the :NOPASSWD option.
+
+If do use sudo_cmds for the nagios user, this recipe will cause an
+error if the /etc/sudoers.d directory does not exist.
+
+Further, it will have no effect if the #includedir directive is not
+included in you /etc/sudoers file,
 
 
 server
