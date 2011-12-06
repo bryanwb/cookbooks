@@ -18,12 +18,12 @@
 # limitations under the License.
 #
 
-
+include_recipe "sudo::sudoers_d"
 
 mon_host = ['127.0.0.1']
 
 if node['nagios_server']
-	mon_host << node['nagios_server']
+  mon_host << node['nagios_server']
 elsif node.run_list.roles.include?(node['nagios']['server_role'])
   mon_host << node['ipaddress']
 else
@@ -32,14 +32,21 @@ else
   end
 end
 
+# find out nagios user's sudo commands
+sudo_cmds = search(:users, "id:#{node['nagios']['user']}")[0][:sudo_cmds]
+
 # some of the nagios plugins require this package
 if platform? ["centos", "redhat", "ubuntu" ]
-	package "sysstat"
+  package "sysstat"
 end
 
-include_recipe "nagios-xinetd::client_#{node['nagios']['client']['install_method']}"
+include_recipe "nagios::client_#{node['nagios']['client']['install_method']}"
 
 package "xinetd"
+
+service "xinetd" do
+  action [:enable, :start]
+end
 
 # disable the service, we are using xinetd instead
 service "nagios-nrpe-server" do
@@ -68,21 +75,22 @@ template "/etc/sudoers.d/nagios" do
   source "nagios_sudoers.erb"
   owner "root"
   group "root"
+  variables( :sudo_cmds => sudo_cmds)
   mode "0440"
 end
 
 template "/etc/xinetd.d/nrpe" do
-	source "nrpe.xinetd.erb"
-	owner "root"
-	group "root"
-	mode "0644"
-	variables( :mon_host => mon_host )
-	notifies :restart, "service[xinetd]"
+  source "nrpe.xinetd.erb"
+  owner "root"
+  group "root"
+  mode "0644"
+  variables( :mon_host => mon_host )
+  notifies :restart, "service[xinetd]"
 end
 
-# xinetd won't load nrpe on rhel6 w/out this
+# xinetd won't load nrpe on rhel 5-6 w/out this
 execute "etc_services_entry" do
-	command	"echo 'nrpe            5666/tcp      # nrpe' >> /etc/services"
-	returns	0
-	not_if		"egrep '^nrpe.*$' /etc/services"
+  command "echo 'nrpe  5666/tcp      # nrpe' >> /etc/services"
+  returns 0
+  not_if "egrep '^nrpe.*$' /etc/services"
 end

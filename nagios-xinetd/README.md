@@ -37,7 +37,7 @@ Cookbooks
 ---------
 
 * build-essential
-* xinetd
+
 
 Attributes
 ==========
