@@ -49,7 +49,8 @@ action :install do
   
   unless ::File.exists?(app_dir)
     Chef::Log.info "Adding #{new_resource.name} to #{app_dir}"
-
+    require 'fileutils'
+    
     puts "app_root is #{new_resource.app_root}"
     unless ::File.exists?(new_resource.app_root)
       FileUtils.mkdir new_resource.app_root, :mode => new_resource.app_root_mode
@@ -83,9 +84,10 @@ action :install do
     end
 
     if new_resource.default
-      FileUtils.mv "#{tmpdir}/#{app_dir_name}", app_dir
+      puts "#{tmpdir}/#{app_dir_name} and #{new_resource.app_root}"
+      %x[ mv "#{tmpdir}/#{app_dir_name}" #{app_dir} ]
     else
-      FileUtils.mv "#{tmpdir}/#{app_dir_name}", "#{app_dir}_alt"
+      %x[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}_alt" ]
     end
     FileUtils.rm_r tmpdir
 
@@ -93,6 +95,7 @@ action :install do
     if new_resource.default
       FileUtils.rm_f app_home
       FileUtils.ln_s app_dir, app_home, :force => true
+      puts "app_home is #{app_home} and app_dir is #{app_dir}"
       if new_resource.bin_cmds
         new_resource.bin_cmds.each do |cmd|
           %x[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;

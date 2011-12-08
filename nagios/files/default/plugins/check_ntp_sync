@@ -1,0 +1,33 @@
+#!/bin/bash
+
+CRIT_VAL=$2
+
+# get path to plugins directory
+if [ -d /usr/lib/nagios/plugins ] ; then
+	plugins_dir=/usr/lib/nagios/plugins
+else
+	plugins_dir=/usr/local/nagios/libexec
+fi
+
+cmd=$plugins_dir/check_ntp_time
+suffix=".fao.org"
+
+# see if this machine is on dmz network
+is_faodomain=$(ifconfig eth0 | grep 168.202)
+if [ -z "$is_faodomain" ]; then
+	suffix=".ext.fao.org"
+fi
+
+ntp_server1="ntp1"$suffix
+ntp_server2="ntp2"$suffix
+
+$cmd -H $ntp_server1 -c "$CRIT_VAL" -t 30
+exit_code1=$?
+$cmd -H $ntp_server2 -c "$CRIT_VAL" -t 30 
+exit_code2=$?
+
+if [ $exit_code1 -eq 0 ] || [ $exit_code2 -eq 0 ]; then
+	exit 0
+else
+	exit 2
+fi

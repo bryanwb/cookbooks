@@ -38,6 +38,8 @@ command[check_open_files]=<%= node['nagios']['plugin_dir'] %>/check_open_files.p
 ### NETWORK CONNECTIONS ###
 command[check_netstat]=<%= node['nagios']['plugin_dir'] %>/check_netstat.pl -p $ARG1$ $ARG2$
 
-# FAO BWB checks HP hardware
+# checks HP hardware
 command[check_hpasm]=sudo <%= node['nagios']['plugin_dir'] %>/check_hpasm -v
 
+### Check if in sync with ntp servers ###
+command[check_ntp_sync]= /usr/lib/nagios/plugins/check_ntp_sync $ARG1$

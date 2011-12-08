@@ -20,7 +20,7 @@
 include_recipe "java"
 
 include_recipe "java"
-maven_home = node['maven']["maven_home"]
+maven_home = node['maven']["m2_home"]
 maven_root = maven_home.split('/')[0..-2].join('/')
 
 java_cpr "maven3" do
