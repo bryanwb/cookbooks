@@ -19,10 +19,10 @@
 
 default['java']['install_flavor'] = "openjdk"
 default['java']['jdk_version'] = '6'
+default['java']['arch'] = kernel['machine'] =~ /x86_64/ ? "x86_64" : "i586"
 
 case platform
 when "centos","redhat","fedora"
-  default['java']['arch'] = kernel['machine'] =~ /x86_64/ ? "amd64" : "i586"
   set['java']['java_home'] = "/usr/lib/jvm/java"
 else
   set['java']['java_home'] = "/usr/lib/jvm/default-java"

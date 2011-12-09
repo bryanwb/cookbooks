@@ -81,14 +81,20 @@ action :install do
     end
 
     %x[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" ]
-    FileUtils.rm_r tmpdir
+    FileUtils.rm_r tmpdir   
+  end
 
-    #update-alternatives
-    if new_resource.default
-      FileUtils.rm_f app_home
-      FileUtils.ln_s app_dir, app_home, :force => true
-      if new_resource.bin_cmds
-        new_resource.bin_cmds.each do |cmd|
+  #update-alternatives
+  if new_resource.default
+    current_link = ::File.readlink(app_home)
+    if current_link != app_dir
+      FileUtils.ln_sf app_dir, app_home
+    end
+    if new_resource.bin_cmds
+      new_resource.bin_cmds.each do |cmd|
+        current_link = ::File.readlink("/usr/bin/#{cmd}")
+        should_be_link = "#{app_home}/bin/#{cmd}"
+        if current_link != should_be_link
           %x[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;
               update-alternatives --set #{cmd} #{app_home}/bin/#{cmd}  ]
         end

@@ -23,6 +23,8 @@ java_root = java_home.split('/')[0..-2].join('/')
 arch = node['java']['arch']
 jdk_version = node['java']['jdk_version']
 
+puts "java_home is #{java_home}"
+
 #convert version number to a string if it isn't already
 if jdk_version.instance_of? Fixnum
   jdk_version = jdk_version.to_s
