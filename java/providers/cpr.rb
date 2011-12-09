@@ -44,6 +44,7 @@ action :install do
   if new_resource.default
     app_home = new_resource.app_root + '/' + "default"
   else
+    app_dir = app_dir  + "_alt"
     app_home = app_dir
   end
   
@@ -51,14 +52,11 @@ action :install do
     Chef::Log.info "Adding #{new_resource.name} to #{app_dir}"
     require 'fileutils'
     
-    puts "app_root is #{new_resource.app_root}"
     unless ::File.exists?(new_resource.app_root)
       FileUtils.mkdir new_resource.app_root, :mode => new_resource.app_root_mode
       FileUtils.chown new_resource.owner, new_resource.owner, new_resource.app_root
     end
 
-    puts "cache location is #{Chef::Config[:file_cache_path]}/#{tarball_name}"
-    puts "checksum is #{new_resource.checksum} "
     r = remote_file "#{Chef::Config[:file_cache_path]}/#{tarball_name}" do
       source new_resource.url
       checksum new_resource.checksum
@@ -79,23 +77,16 @@ action :install do
     when /^.*\.zip/
       %x[ unzip "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -d "#{tmpdir}" ]
     when /^.*\.tar.gz/
-      puts "now we're extracting #{tarball_name} to #{tmpdir}"
       %x[ tar xvzf "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -C "#{tmpdir}" ]
     end
 
-    if new_resource.default
-      puts "#{tmpdir}/#{app_dir_name} and #{new_resource.app_root}"
-      %x[ mv "#{tmpdir}/#{app_dir_name}" #{app_dir} ]
-    else
-      %x[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}_alt" ]
-    end
+    %x[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" ]
     FileUtils.rm_r tmpdir
 
     #update-alternatives
     if new_resource.default
       FileUtils.rm_f app_home
       FileUtils.ln_s app_dir, app_home, :force => true
-      puts "app_home is #{app_home} and app_dir is #{app_dir}"
       if new_resource.bin_cmds
         new_resource.bin_cmds.each do |cmd|
           %x[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;
@@ -109,6 +100,7 @@ end
 action :remove do
   app_dir_name, tarball_name = parse_app_dir_name(new_resource.url)
   app_dir = new_resource.app_root + '/' + app_dir_name
+
   
   if ::File.exists?(app_dir)
     Chef::Log.info "Removing #{new_resource.name} at #{app_dir}"

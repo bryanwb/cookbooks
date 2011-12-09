@@ -17,20 +17,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+version = node['java']['jdk_version']
+java_home = node['java']['java_home']
+
 pkgs = value_for_platform(
-  ["centos","redhat","fedora"] => {
-    "default" => ["java-1.6.0-openjdk","java-1.6.0-openjdk-devel"]
-  },
-  "default" => ["openjdk-6-jdk","default-jdk"]
-)
+                          ["centos","redhat","fedora"] => {
+                            "default" => ["java-1.#{version}.0-openjdk","java-1.#{version}.0-openjdk-devel"]
+                          },
+                          "default" => ["openjdk-#{version}-jdk"]
+                          )
 
-execute "update-java-alternatives" do
-  command "update-java-alternatives -s java-6-openjdk"
-  returns [0,2]
-  action :nothing
-  only_if { platform?("ubuntu", "debian") }
+if platform? "ubuntu", "debian"
+  execute "update-java-alternatives" do
+    command "update-java-alternatives -s java-#{version}-openjdk"
+    returns [0,2]
+    action :nothing
+  end
+else
+  execute "update-java-alternatives" do
+    command "update-alternatives --install /usr/bin/java java #{java_home}/bin/java 1;
+             update-alternatives --set java #{java_home}/bin/java"  
+    returns [0,2]
+    action :nothing
+  end
 end
-
+  
 pkgs.each do |pkg|
   package pkg do
     action :install

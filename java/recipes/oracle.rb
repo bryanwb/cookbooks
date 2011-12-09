@@ -20,9 +20,7 @@
 
 java_home = node['java']["java_home"]
 java_root = java_home.split('/')[0..-2].join('/')
-  
-arch = node[:kernel][:machine] == 'x86_64' ? 'x86_64' : 'i586'
-
+arch = node['java']['arch']
 jdk_version = node['java']['jdk_version']
 
 #convert version number to a string if it isn't already
@@ -38,9 +36,6 @@ when "7"
   tarball_url = node[:java][:jdk]['7'][arch][:url]
   tarball_checksum = node[:java][:jdk]['7'][arch][:checksum]
 end
-
-puts "the arch is #{arch}"
-puts "here is the tarball url #{tarball_url} "
 
 java_cpr "jdk" do
   url tarball_url

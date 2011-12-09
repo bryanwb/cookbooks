@@ -21,12 +21,17 @@ java_home = node['java']["java_home"]
 java_root = java_home.split('/')[0..-2].join('/')
   
 case node['java']['jdk_version']
-when "jdk6"
+when "6"
   tarball_url = node[:java][:jdk]['6'][:i586][:url]
   tarball_checksum = node[:java][:jdk]['6'][:i586][:checksum]
-when "jdk7"
+when "7"
   tarball_url = node[:java][:jdk]['7'][:i586][:url]
   tarball_checksum = node[:java][:jdk]['7'][:i586][:checksum]
+end
+
+yum_package "glibc" do
+  arch "i686"
+#  provider Chef::Provider::Package::Yum
 end
 
 java_cpr "jdk-alt" do
