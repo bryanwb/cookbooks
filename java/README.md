@@ -55,7 +55,7 @@ JDK 1.6u27 and prohibited the practice for both the debian and EL worlds.
 For both debian and centos/rhel, this recipe pulls the binary
 distribution from the Oracle website, and installs it in the default
 JAVA_HOME for each distribution. For debian/ubuntu, this is
-/usr/local/java/default. For Centos/RHEL, this is /usr/java/default
+/usr/lib/jvm/default-java. For Centos/RHEL, this is /usr/lib/jvm/java
 
 After putting the binaries in place, the oracle recipe updates
 /usr/bin/java to point to the installed JDK using the update-alternatives script
@@ -88,12 +88,12 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
   currently supported
 - checksum: sha256 checksum, not used for security but avoid
   redownloading the archive on each chef-client run
-- app_root: the root for all installations of this type of
-  application, for example /usr/java/, /usr/local/tomcat where there
-  may be multiple installations of different versions of tomcat and
-  the jvm on a single machine (esp. in legacy setups).
-  #{app_root}/default will point to the default installation
-- app_root_mode: file mode for app_root, is an integer
+- app_home: the default for installations of this type of
+  application, for example, /usr/lib/tomcat/default. If your
+  application is not set to the default, it will be placed at the same
+  level in the directory hierarchy but the directory name will be
+   app_root/extracted_directory_name + "_alt"
+- app_home_mode: file mode for app_home, is an integer
 - bin_cmds: array of binary commands that should be symlinked to
   /usr/bin, examples are mvn, java, javac, etc. These cmds must be in
   the bin/ subdirectory of the extracted folder. Will be ignored if this
@@ -109,7 +109,7 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
     java_cpr "jdk" do
         url 'http://download.oracle.com/otn-pub/java/jdk/6u29-b11/jdk-6u29-linux-x64.bin'
         checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
-        app_root '/usr/local/java'
+        app_home '/usr/local/java/default'
         bin_cmds ["java", "javac"]
         action :install
     end
@@ -118,7 +118,7 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
     java_cpr "maven2" do
         url "http://www.apache.org/dist/maven/binaries/apache-maven-2.2.1-bin.tar.gz"
         checksum  "b9a36559486a862abfc7fb2064fd1429f20333caae95ac51215d06d72c02d376"
-        app_root "/usr/local/maven"
+        app_home "/usr/local/maven/default"
         bin_cmds ["mvn"]
         action :install
     end
