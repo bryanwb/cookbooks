@@ -18,7 +18,6 @@
 # limitations under the License.
 
 java_home = node['java']["java_home"]
-java_root = java_home.split('/')[0..-2].join('/')
   
 case node['java']['jdk_version']
 when "6"
@@ -37,7 +36,7 @@ end
 java_cpr "jdk-alt" do
   url tarball_url
   checksum tarball_checksum
-  app_root java_root
+  app_home java_home
   default false
   action :install
 end

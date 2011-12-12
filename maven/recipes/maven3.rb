@@ -18,15 +18,12 @@
 #
 
 include_recipe "java"
-
-include_recipe "java"
 maven_home = node['maven']["m2_home"]
-maven_root = maven_home.split('/')[0..-2].join('/')
 
 java_cpr "maven3" do
   url node['maven']['3']['url']
   checksum node['maven']['3']['checksum']
-  app_root maven_root
+  app_home maven_home
   bin_cmds ["mvn"]
   action :install
 end

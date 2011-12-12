@@ -19,7 +19,6 @@
 
 
 java_home = node['java']["java_home"]
-java_root = java_home.split('/')[0..-2].join('/')
 arch = node['java']['arch']
 jdk_version = node['java']['jdk_version']
 
@@ -42,7 +41,7 @@ end
 java_cpr "jdk" do
   url tarball_url
   checksum tarball_checksum
-  app_root java_root
+  app_home java_home
   bin_cmds ["java"]
   action :install
 end

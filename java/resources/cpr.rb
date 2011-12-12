@@ -22,8 +22,8 @@ actions :install, :remove
 attribute :url, :regex => /^http:\/\/.*(tar.gz|bin|zip)$/, :default => nil
 attribute :mirrorlist, :kind_of => Array, :default => nil
 attribute :checksum, :regex => /^[a-zA-Z0-9]{64}$/, :default => nil
-attribute :app_root, :kind_of => String, :default => nil
-attribute :app_root_mode, :kind_of => Integer, :default => 0755
+attribute :app_home, :kind_of => String, :default => nil
+attribute :app_home_mode, :kind_of => Integer, :default => 0755
 attribute :bin_cmds, :kind_of => Array, :default => nil
 attribute :owner, :default => "root"
 attribute :default, :equal_to => [true, false], :default => true

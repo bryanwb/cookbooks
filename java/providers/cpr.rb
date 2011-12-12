@@ -39,22 +39,23 @@ end
 
 action :install do
   app_dir_name, tarball_name = parse_app_dir_name(new_resource.url)
-  app_dir = new_resource.app_root + '/' + app_dir_name
+  app_root = new_resource.app_home.split('/')[0..-2].join('/')
+  app_dir = app_root + '/' + app_dir_name
 
-  if new_resource.default
-    app_home = new_resource.app_root + '/' + "default"
-  else
+  if not new_resource.default
     app_dir = app_dir  + "_alt"
     app_home = app_dir
+  else
+    app_home = new_resource.app_home
   end
   
   unless ::File.exists?(app_dir)
     Chef::Log.info "Adding #{new_resource.name} to #{app_dir}"
     require 'fileutils'
     
-    unless ::File.exists?(new_resource.app_root)
-      FileUtils.mkdir new_resource.app_root, :mode => new_resource.app_root_mode
-      FileUtils.chown new_resource.owner, new_resource.owner, new_resource.app_root
+    unless ::File.exists?(app_root)
+      FileUtils.mkdir app_root, :mode => new_resource.app_home_mode
+      FileUtils.chown new_resource.owner, new_resource.owner, app_root
     end
 
     r = remote_file "#{Chef::Config[:file_cache_path]}/#{tarball_name}" do
@@ -86,15 +87,28 @@ action :install do
 
   #update-alternatives
   if new_resource.default
-    current_link = ::File.readlink(app_home)
+    Chef::Log.debug "app_home is #{app_home} and app_dir is #{app_dir}"
+    if ::File.exists? app_home
+      current_link = ::File.readlink(app_home)
+    else
+      current_link = false
+    end
+    Chef::Log.debug "current_link is #{current_link}"
+    current_link = "#{app_root}/#{current_link}"
     if current_link != app_dir
+      Chef::Log.debug "symlinking #{app_dir} to #{app_home}"
+      FileUtils.rm_f app_home
       FileUtils.ln_sf app_dir, app_home
     end
     if new_resource.bin_cmds
       new_resource.bin_cmds.each do |cmd|
-        current_link = ::File.readlink("/usr/bin/#{cmd}")
+        if ::File.exists? "/usr/bin/#{cmd}"
+          current_bin_link = ::File.readlink("/usr/bin/#{cmd}")
+        else
+          current_bin_link = false
+        end
         should_be_link = "#{app_home}/bin/#{cmd}"
-        if current_link != should_be_link
+        if current_bin_link != should_be_link
           %x[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;
               update-alternatives --set #{cmd} #{app_home}/bin/#{cmd}  ]
         end
@@ -105,7 +119,7 @@ end
 
 action :remove do
   app_dir_name, tarball_name = parse_app_dir_name(new_resource.url)
-  app_dir = new_resource.app_root + '/' + app_dir_name
+  app_dir = app_root + '/' + app_dir_name
 
   
   if ::File.exists?(app_dir)
