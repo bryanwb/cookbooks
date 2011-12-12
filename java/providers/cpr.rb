@@ -119,17 +119,20 @@ end
 
 action :remove do
   app_dir_name, tarball_name = parse_app_dir_name(new_resource.url)
+  app_root = new_resource.app_home.split('/')[0..-2].join('/')
   app_dir = app_root + '/' + app_dir_name
 
-  
   if ::File.exists?(app_dir)
+    new_resource.bin_cmds.each do |cmd|
+      cmd = execute "update_alternatives" do
+        command "update-alternatives --remove #{cmd} #{app_dir} "
+        returns [0,2]
+        action :nothing
+      end
+      cmd.run_action(:run)
+    end
     Chef::Log.info "Removing #{new_resource.name} at #{app_dir}"
     FileUtils.rm_rf app_dir
-    new_resource.bin_cmds.each do |cmd|
-      execute "update_alternatives" do
-        command "update-alternatives --remove #{cmd} #{app_dir} "
-      end
-    end 
     new_resource.updated_by_last_action(true)
   end
 end
