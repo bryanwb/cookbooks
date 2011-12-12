@@ -86,7 +86,7 @@ action :install do
 
   #update-alternatives
   if new_resource.default
-    current_link = ::File.readlink(app_home)
+    current_link = ::File.symlink?(app_home) ? ::File.readlink(app_home) : nil
     if current_link != app_dir
       FileUtils.ln_sf app_dir, app_home
     end
