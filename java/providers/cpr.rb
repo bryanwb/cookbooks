@@ -88,13 +88,7 @@ action :install do
   #update-alternatives
   if new_resource.default
     Chef::Log.debug "app_home is #{app_home} and app_dir is #{app_dir}"
-    if ::File.exists? app_home
-      current_link = ::File.readlink(app_home)
-    else
-      current_link = false
-    end
-    Chef::Log.debug "current_link is #{current_link}"
-    current_link = "#{app_root}/#{current_link}"
+    current_link = ::File.symlink?(app_home) ? ::File.readlink(app_home) : nil
     if current_link != app_dir
       Chef::Log.debug "symlinking #{app_dir} to #{app_home}"
       FileUtils.rm_f app_home
