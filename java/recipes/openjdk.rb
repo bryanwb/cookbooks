@@ -19,6 +19,14 @@
 
 version = node['java']['jdk_version']
 java_home = node['java']['java_home']
+# specific to Ubuntu
+if version == "7"
+  arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
+  java_link_name = "java-1.#{version}.0-openjdk-#{arch}"
+else
+  java_link_name = "java-1.#{version}.0-openjdk"
+end
+
 
 pkgs = value_for_platform(
                           ["centos","redhat","fedora"] => {
@@ -29,7 +37,7 @@ pkgs = value_for_platform(
 
 if platform? "ubuntu", "debian"
   execute "update-java-alternatives" do
-    command "update-java-alternatives -s java-#{version}-openjdk"
+    command "update-java-alternatives -s #{java_link_name}"
     returns [0,2]
     action :nothing
   end
