@@ -31,8 +31,8 @@ else
   set['nagios']['client']['install_method'] = 'source'
 end
 
-set['nagios']['nrpe']['home']       = "/usr/lib/nagios"
-set['nagios']['nrpe']['conf_dir']   = "/etc/nagios"
+default['nagios']['nrpe']['home']       = "/usr/lib/nagios"
+default['nagios']['nrpe']['conf_dir']   = "/etc/nagios"
 
 # for plugin from source installation
 default['nagios']['plugins']['url']      = 'http://prdownloads.sourceforge.net/sourceforge/nagiosplug'
