@@ -64,12 +64,12 @@ Note that the template for the sudoers file has the group "sysadmin" with ALL:AL
 sudo_ers lwrp
 =============
 
-   sudo_ers "nagios" do
-     user "nagios"
-     cmds [ "check_init_service",  "check_hpasm" ]
-     pattern "app"
-     action :install
-   end
+    sudo_ers "nagios" do
+      user "nagios"
+      cmds [ "check_init_service",  "check_hpasm" ]
+      pattern "app"
+      action :install
+    end
 
 LICENSE AND AUTHOR
 ==================
