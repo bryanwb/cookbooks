@@ -22,4 +22,5 @@ actions :install, :remove
 attribute :user, :kind_of => String, :default => nil
 attribute :group, :kind_of => String, :default => nil
 attribute :cmds, :kind_of => Array, :default => nil
-attribute :passwordless, :kind_of => [TrueClass, FalseClass], :default => true
+attribute :passwordless, :equal_to => [true, false], :default => true
+attribute :pattern, :equal_to => ["super", "app", "act_as_all"], :default => "act_as_all"

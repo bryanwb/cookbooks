@@ -17,17 +17,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-action :install do
-  # if both group and user nil, throw an exception
-  if new_resource.user == nil and new_resource.group == nil
+def check_inputs user, group
+    # if both group and user nil, throw an exception
+  if user == nil and group == nil
     Chef::Application.fatal!("You must provide a user or a group")
-  elsif new_resource.user != nil and new_resource.group != nil
+  elsif user != nil and group != nil
     Chef::Application.fatal!("You cannot specify both a user and a group. You" +
                              " can only specify one or the other")
   end
+end
 
-  # should throw error if #includedir not in sudoers
+
+action :install do
+  user = new_resource.user
+  group = new_resource.group
+  pattern = new_resource.pattern
+  cmds = new_resource.cmds
+  check_inputs user, group
+
+  if user
+    sudoers_name = user
+    group_prefix = false
+  else 
+    sudoers_name = group
+    group_prefix = true
+  end
+  
+  # if one of the commands is all, set pattern to super pattern
+  if cmds.grep(/all/i).length > 0
+    pattern = "super"
+  end
   
   # create sudoers.d directory if it doesn't exist
   dir = directory "/etc/sudoers.d" do
@@ -39,7 +58,7 @@ action :install do
   dir.run_action(:create)
   
   # create readme if it doesn't exist
-  tmpl = template "/etc/sudoers.d/README" do
+  ckbk_file = cookbook_file "/etc/sudoers.d/README" do
     cookbook "sudo"
     source "README.sudoers"
     mode 0440
@@ -47,34 +66,46 @@ action :install do
     group "root"
     action :nothing
   end
-  tmpl.run_action(:create)
+  ckbk_file.run_action(:create)
 
-  if user
-    sudoers_file "/etc/sudoers.d/#{user}"
-    # throw error if file already exists
-    if ::File.exists? sudoers_file
-      Chef::Application.fatal!("sudoers file #{sudoers_file} already exists ")
+  # add #includedir if not already present in /etc/sudoers
+  begin
+    f = ::File.open "/etc/sudoers", "r+"
+    sudoers_d_refs = f.grep(/^#includedir \/etc\/sudoers\.d.*$/).length
+    if sudoers_d_refs = 0
+      f.seek(0, IO::SEEK_END)
+      f.puts '#includedir /etc/sudoers.d'
     end
-      
-    template sudoers_file do
-      cookbook "sudo"
-      source ""
-      mode 0440
-      owner "root"
-      group "root"
-      variables ( :cmds => new_resource.cmds )
-      action :create
-    end
-  else
-    
-
-
+  ensure
+    f.close
   end
 
+  sudoers_path = "/etc/sudoers.d/#{sudoers_name}"
+     
+  tmpl = template sudoers_path do
+    cookbook "sudo"
+    source "#{pattern}.erb"
+    mode 0440
+    owner "root"
+    group "root"
+    variables ( :cmds => cmds,
+                :name => sudoers_name
+                :passwordless => new_resource.passwordless
+                :pattern => pattern
+                :group_prefix => group_prefix
+                )
+    action :nothing
+  end
+  tmpl.run_action(:create)
   
 end
 
 action :remove do
-
-
+  user = new_resource.user
+  group = new_resource.group
+  check_inputs user, group
+  sudoers_file_name = user ? user : group
+  sudoers_path = "/etc/sudoers.d/#{sudoers_file_name}"
+  require 'fileutils'
+  FileUtils.rm_f sudoers_path
 end
