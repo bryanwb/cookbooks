@@ -73,12 +73,10 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
   variables :mon_host => mon_host
 end
 
-Chef::Log.debug "sudo_cmds are #{sudo_cmds}"
 sudo_ers "nagios" do
   user "nagios"
   cmds sudo_cmds
   pattern "app"
-  action :install
 end
   
 template "/etc/xinetd.d/nrpe" do

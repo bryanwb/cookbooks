@@ -32,7 +32,7 @@ action :install do
   user = new_resource.user
   group = new_resource.group
   pattern = new_resource.pattern
-  cmds = new_resource.cmds
+  cmds = new_resource.cmds || []
   check_inputs user, group
 
   if user

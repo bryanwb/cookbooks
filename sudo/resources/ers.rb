@@ -24,3 +24,11 @@ attribute :group, :kind_of => String, :default => nil
 attribute :cmds, :kind_of => Array, :default => nil
 attribute :passwordless, :equal_to => [true, false], :default => true
 attribute :pattern, :equal_to => ["super", "app", "act_as_all"], :default => "act_as_all"
+
+# we have to set default for the supports attribute
+# in initializer since it is a 'reserved' attribute name
+def initialize(*args)
+  super
+  @action = :install
+  @supports = {:report => true, :exception => true}
+end

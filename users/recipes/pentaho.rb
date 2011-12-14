@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "sudo"
+
 pentaho_user = "pentaho"
 
 # find all members of the pentaho group, so we can make them members
@@ -55,12 +57,9 @@ group pentaho_user do
 end
 
 # add sudoers
-template "/etc/sudoers.d/pentaho" do
-  source "app_sudoers.erb"
-  variables ({ :user => pentaho_user, :service => pentaho_user })
-  mode 0440
-  owner "root"
-  group "root"
+sudo_ers "pentaho" do
+  group pentaho_user
+  pattern "app"
 end
 
 
