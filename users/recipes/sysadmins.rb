@@ -75,10 +75,3 @@ group "sysadmin" do
   gid 2300
   members sysadmin_group
 end
-
-template "/etc/sudoers.d/sysadmins" do
-	source "sysadmins_sudoers"
-  mode 0440
-  owner "root"
-  group "root"
-end

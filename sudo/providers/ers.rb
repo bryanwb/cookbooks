@@ -42,13 +42,24 @@ action :install do
     sudoers_name = group
     group_prefix = true
   end
+
+  if pattern == "app"
+    if new_resource.service
+      service = new_resource.service
+    else
+      service = group
+    end
+  else
+    service = nil
+  end
   
   # if one of the commands is all, set pattern to super pattern
   if cmds.grep(/all/i).length > 0
     pattern = "super"
   end
   sudoers_path = "/etc/sudoers.d/#{new_resource.name}"
-    
+
+  Chef::Log.debug "The pattern is #{pattern}"
   tmpl = template sudoers_path do
     cookbook "sudo"
     source "#{pattern}.erb"
@@ -56,10 +67,11 @@ action :install do
     owner "root"
     group "root"
     variables( :cmds => cmds,
-                :name => sudoers_name,
-                :passwordless => new_resource.passwordless,
-                :pattern => pattern,
-                :group_prefix => group_prefix
+               :name => sudoers_name,
+               :passwordless => new_resource.passwordless,
+               :pattern => pattern,
+               :service => service,
+               :group_prefix => group_prefix
                )
     action :nothing
   end

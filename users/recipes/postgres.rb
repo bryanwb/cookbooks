@@ -50,10 +50,8 @@ group postgres_user do
 end
 
 # add sudoers
-template "/etc/sudoers.d/postgres" do
-  source "app_sudoers.erb"
-  variables ({ :user => postgres_user, :service => "postgresql" })
-  mode 0440
-  owner "root"
-  group "root"
+sudo_ers "postgres" do
+  group postgres_user
+  service "postgresql"
+  pattern "app"
 end
