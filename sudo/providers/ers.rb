@@ -47,7 +47,7 @@ action :install do
   if cmds.grep(/all/i).length > 0
     pattern = "super"
   end
-  sudoers_path = "/etc/sudoers.d/#{sudoers_name}"
+  sudoers_path = "/etc/sudoers.d/#{new_resource.name}"
     
   tmpl = template sudoers_path do
     cookbook "sudo"

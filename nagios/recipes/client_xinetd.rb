@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "sudo"
+
 mon_host = ['127.0.0.1']
 
 if node['nagios_server']
@@ -30,6 +32,7 @@ else
   end
 end
 
+sudo_cmds = ""
 # find out nagios user's sudo commands
 search(:users, "id:#{node['nagios']['user']}").each do |item|
   sudo_cmds =  item[:sudo_cmds]
@@ -70,17 +73,14 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
   variables :mon_host => mon_host
 end
 
-# add sudoers
-if defined? sudo_cmds
-  template "/etc/sudoers.d/nagios" do
-    source "nagios_sudoers.erb"
-    owner "root"
-    group "root"
-    variables( :sudo_cmds => sudo_cmds)
-    mode "0440"
-  end
+Chef::Log.debug "sudo_cmds are #{sudo_cmds}"
+sudo_ers "nagios" do
+  user "nagios"
+  cmds sudo_cmds
+  pattern "app"
+  action :install
 end
-
+  
 template "/etc/xinetd.d/nrpe" do
   source "nrpe.xinetd.erb"
   owner "root"
