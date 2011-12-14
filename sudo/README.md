@@ -23,7 +23,9 @@ If you prefer to use passwordless sudo just set the following attribute to true:
     node['authorization']['sudo']['passwordless']
 
 This attribute controls whether or not to include the /etc/sudoers.d
-directory, it default to false
+directory, it default to false. If you set it to true, the default
+recipe will create the directory /etc/sudoers.d and put the
+placeholder file README there
 
  node['authorization']['sudo']['include_sudoers_d']
 

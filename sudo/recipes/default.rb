@@ -22,10 +22,21 @@ package "sudo" do
 end
 
 if node['authorization']['sudo']['include_sudoers_d']
-
-
+  directory "/etc/sudoers.d" do
+    mode 0755
+    owner "root"
+    group "root"
+    action :create
+  end
+  cookbook_file "/etc/sudoers.d/README" do
+    cookbook "sudo"
+    source "README.sudoers"
+    mode 0440
+    owner "root"
+    group "root"
+    action :create
+  end
 end
-
 
 template "/etc/sudoers" do
   source "sudoers.erb"

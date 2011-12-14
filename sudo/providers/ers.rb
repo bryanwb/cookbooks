@@ -47,53 +47,20 @@ action :install do
   if cmds.grep(/all/i).length > 0
     pattern = "super"
   end
-  
-  # create sudoers.d directory if it doesn't exist
-  dir = directory "/etc/sudoers.d" do
-    mode 0755
-    owner "root"
-    group "root"
-    action :nothing
-  end
-  dir.run_action(:create)
-  
-  # create readme if it doesn't exist
-  ckbk_file = cookbook_file "/etc/sudoers.d/README" do
-    cookbook "sudo"
-    source "README.sudoers"
-    mode 0440
-    owner "root"
-    group "root"
-    action :nothing
-  end
-  ckbk_file.run_action(:create)
-
-  # add #includedir if not already present in /etc/sudoers
-  begin
-    f = ::File.open "/etc/sudoers", "r+"
-    sudoers_d_refs = f.grep(/^#includedir \/etc\/sudoers\.d.*$/).length
-    if sudoers_d_refs = 0
-      f.seek(0, IO::SEEK_END)
-      f.puts '#includedir /etc/sudoers.d'
-    end
-  ensure
-    f.close
-  end
-
   sudoers_path = "/etc/sudoers.d/#{sudoers_name}"
-     
+    
   tmpl = template sudoers_path do
     cookbook "sudo"
     source "#{pattern}.erb"
     mode 0440
     owner "root"
     group "root"
-    variables ( :cmds => cmds,
-                :name => sudoers_name
-                :passwordless => new_resource.passwordless
-                :pattern => pattern
+    variables( :cmds => cmds,
+                :name => sudoers_name,
+                :passwordless => new_resource.passwordless,
+                :pattern => pattern,
                 :group_prefix => group_prefix
-                )
+               )
     action :nothing
   end
   tmpl.run_action(:create)
