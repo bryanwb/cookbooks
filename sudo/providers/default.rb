@@ -76,6 +76,8 @@ action :install do
     if pattern == "app"
       if new_resource.service
         service = new_resource.service
+      elsif user
+        service = user
       else
         service = group
       end

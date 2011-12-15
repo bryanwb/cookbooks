@@ -52,12 +52,9 @@ group "tcdr-sysadmins" do
   members tcdr_sysadmins_group
 end
 
-template "/etc/sudoers.d/tcdr-sysadmins" do
-  source "sysadmins_sudoers.erb"
-  variables :group_name => "tcdr-sysadmins"
-  mode 0440
-  owner "root"
-  group "root"
+sudo "tcdr-sysadmins" do
+  group "tcdr-sysadmins"
+  pattern "super"
 end
 
 

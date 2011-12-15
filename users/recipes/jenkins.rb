@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "sudo"
+
 hudson_user = "hudson"
 
 # find all members of the hudson group, so we can make them members
@@ -42,18 +44,11 @@ ruby_block "find_local_users" do
 end
 
 group hudson_user do
-  # find all users that currently exist on the machine
-  # then only add those hudson_members that already have
-  # user accounts
-   members hudson_members
+  members hudson_members
   action :modify
 end
 
-# add sudoers
-template "/etc/sudoers.d/hudson" do
-  source "app_sudoers.erb"
-  variables ({ :user => hudson_user, :service => "hudson" })
-  mode 0440
-  owner "root"
-  group "root"
+sudo hudson_user do
+  user hudson_user
+  pattern "app"
 end

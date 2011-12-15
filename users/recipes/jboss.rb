@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "sudo"
+
 jboss_user = "jboss"
 
 # find all members of the jboss group, so we can make them members
@@ -42,20 +44,12 @@ ruby_block "find_local_users" do
 end
 
 group jboss_user do
-  # find all users that currently exist on the machine
-  # then only add those jboss_members that already have
-  # user accounts
    members jboss_members
   action :modify
 end
 
-# add sudoers
-template "/etc/sudoers.d/jboss" do
-  source "app_sudoers.erb"
-  variables ({ :user => jboss_user, :service => jboss_user })
-  mode 0440
-  owner "root"
-  group "root"
+sudo jboss_user do
+  user jboss_user
+  pattern "app"
 end
-
 

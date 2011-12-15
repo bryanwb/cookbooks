@@ -17,6 +17,8 @@
 # limitations under the License.
 #
 
+include_recipe "sudo"
+
 geo_user = "geo"
 
 # find all members of the geo group, so we can make them members
@@ -49,11 +51,7 @@ group geo_user do
   action :modify
 end
 
-# add sudoers
-template "/etc/sudoers.d/geo" do
-  source "app_super_sudoers.erb"
-  variables ({ :user => geo_user, :service => "geo" })
-  mode 0440
-  owner "root"
-  group "root"
+sudo geo_user do
+  user geo_user
+  pattern "app"
 end

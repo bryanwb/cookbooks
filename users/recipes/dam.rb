@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+include_recipe "sudo"
 
 dam_user = "dam"
 
@@ -49,11 +50,7 @@ group dam_user do
   action :modify
 end
 
-# add sudoers
-template "/etc/sudoers.d/dam" do
-  source "app_sudoers.erb"
-  variables ({ :user => dam_user, :service => "dam" })
-  mode 0440
-  owner "root"
-  group "root"
+sudo dam_user do
+  user dam_user
+  pattern "app"
 end
