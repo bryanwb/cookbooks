@@ -73,7 +73,7 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
   variables :mon_host => mon_host
 end
 
-sudo_ers "nagios" do
+sudo "nagios" do
   user "nagios"
   cmds sudo_cmds
   pattern "app"

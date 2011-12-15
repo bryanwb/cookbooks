@@ -1,7 +1,7 @@
 #
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Cookbook Name:: sudo
-# Provider:: ers
+# Provider:: default
 #
 # Copyright 2011, Bryan w. Berry
 #

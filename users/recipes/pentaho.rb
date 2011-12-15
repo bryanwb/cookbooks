@@ -57,7 +57,7 @@ group pentaho_user do
 end
 
 # add sudoers
-sudo_ers "pentaho" do
+sudo "pentaho" do
   group pentaho_user
   pattern "app"
 end

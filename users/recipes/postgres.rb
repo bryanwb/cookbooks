@@ -50,7 +50,7 @@ group postgres_user do
 end
 
 # add sudoers
-sudo_ers "postgres" do
+sudo "postgres" do
   group postgres_user
   service "postgresql"
   pattern "app"

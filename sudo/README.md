@@ -61,10 +61,10 @@ In JSON (role.json or on the node object):
 
 Note that the template for the sudoers file has the group "sysadmin" with ALL:ALL permission, though the group by default does not exist.
 
-sudo_ers lwrp
+sudo lwrp
 =============
 
-    sudo_ers "nagios" do
+    sudo "nagios" do
       user "nagios"
       cmds [ "check_init_service",  "check_hpasm" ]
       pattern "app"
