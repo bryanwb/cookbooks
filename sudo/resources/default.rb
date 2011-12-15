@@ -25,6 +25,8 @@ attribute :service, :kind_of => String, :default => nil
 attribute :cmds, :kind_of => Array, :default => nil
 attribute :passwordless, :equal_to => [true, false], :default => true
 attribute :pattern, :equal_to => ["super", "app", "act_as_all"], :default => "act_as_all"
+attribute :template, :regex => /^[a-z_]+.erb$/, :default => nil
+attribute :variables, :kind_of => Hash, :default => nil
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name

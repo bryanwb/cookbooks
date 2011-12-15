@@ -17,66 +17,100 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def check_inputs user, group
-    # if both group and user nil, throw an exception
-  if user == nil and group == nil
-    Chef::Application.fatal!("You must provide a user or a group")
-  elsif user != nil and group != nil
-    Chef::Application.fatal!("You cannot specify both a user and a group. You" +
-                             " can only specify one or the other")
+require 'fileutils'
+
+def check_inputs user, group, foreign_template, foreign_vars
+    # if group, user, and template are nil, throw an exception
+  if user == nil and group == nil and foreign_template == nil
+    Chef::Application.fatal!("You must provide a user, group, or template")
+  elsif user != nil and group != nil and template != nil
+    Chef::Application.fatal!("You cannot specify user, group or template")
   end
 end
 
+def visudo_check tmpl_name
+  success = system("visudo -cf #{tmpl_name}")
+  if not success
+    Chef::Application.fatal!("Sudoers fragment failed parsing check!")
+  end
+end
+
+def render_from_foreign_template name, foreign_template, foreign_vars
+  Dir.mktmpdir do |tmpdir|
+    template_path = "#{tmpdir}/#{name}"
+    tmpl = template template_path do
+      source "#{foreign_template}"
+      mode 0440
+      owner "root"
+      group "root"
+      variables foreign_vars
+      action :nothing
+    end
+    tmpl.run_action(:create)
+    visudo_check template_path
+    FileUtils.mv template_path, "/etc/sudoers.d/"
+  end
+end
 
 action :install do
+  name = new_resource.name
   user = new_resource.user
   group = new_resource.group
   pattern = new_resource.pattern
   cmds = new_resource.cmds || []
-  check_inputs user, group
-
-  if user
-    sudoers_name = user
-    group_prefix = false
+  foreign_template = new_resource.template
+  foreign_vars = new_resource.variables
+  check_inputs user, group, foreign_template, foreign_vars
+     
+  if foreign_template
+    render_from_foreign_template name, foreign_template, foreign_vars
   else 
-    sudoers_name = group
-    group_prefix = true
-  end
-
-  if pattern == "app"
-    if new_resource.service
-      service = new_resource.service
-    else
-      service = group
+    if user
+      sudoers_name = user
+      group_prefix = false
+    else 
+      sudoers_name = group
+      group_prefix = true
     end
-  else
-    service = nil
-  end
-  
-  # if one of the commands is all, set pattern to super pattern
-  if cmds.grep(/all/i).length > 0
-    pattern = "super"
-  end
-  sudoers_path = "/etc/sudoers.d/#{new_resource.name}"
 
-  Chef::Log.debug "The pattern is #{pattern}"
-  tmpl = template sudoers_path do
-    cookbook "sudo"
-    source "#{pattern}.erb"
-    mode 0440
-    owner "root"
-    group "root"
-    variables( :cmds => cmds,
-               :name => sudoers_name,
-               :passwordless => new_resource.passwordless,
-               :pattern => pattern,
-               :service => service,
-               :group_prefix => group_prefix
-               )
-    action :nothing
+    if pattern == "app"
+      if new_resource.service
+        service = new_resource.service
+      else
+        service = group
+      end
+    else
+      service = nil
+    end
+    
+    # if one of the commands is all, set pattern to super pattern
+    if cmds.grep(/all/i).length > 0
+      pattern = "super"
+    end
+    
+    Chef::Log.debug "The pattern is #{pattern}"
+    Dir.mktmpdir do |tmpdir|
+      template_path = "#{tmpdir}/#{name}"
+      tmpl = template template_path do
+        cookbook "sudo"
+        source "#{pattern}.erb"
+        mode 0440
+        owner "root"
+        group "root"
+        variables( :cmds => cmds,
+                   :name => sudoers_name,
+                   :passwordless => new_resource.passwordless,
+                   :pattern => pattern,
+                   :service => service,
+                   :group_prefix => group_prefix
+                   )
+        action :nothing
+      end
+      tmpl.run_action(:create)
+      visudo_check template_path
+      FileUtils.mv template_path, "/etc/sudoers.d/"
+    end
   end
-  tmpl.run_action(:create)
-  
 end
 
 action :remove do

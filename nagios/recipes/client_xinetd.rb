@@ -74,9 +74,8 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
 end
 
 sudo "nagios" do
-  user "nagios"
-  cmds sudo_cmds
-  pattern "app"
+  template "nagios_sudoers.erb"
+  variables( :sudo_cmds => sudo_cmds )
 end
   
 template "/etc/xinetd.d/nrpe" do
