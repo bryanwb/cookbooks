@@ -28,6 +28,12 @@ when "7"
   tarball_checksum = node['java']['jdk']['7']['i586']['checksum']
 end
 
+ruby_block  "set-env-java-home" do
+  block do
+    ENV["JAVA_HOME"] = java_home
+  end
+end
+
 yum_package "glibc" do
   arch "i686"
 #  provider Chef::Provider::Package::Yum
