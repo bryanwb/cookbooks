@@ -30,7 +30,7 @@ end
 
 def visudo_check tmpl_name
   success = system("visudo -cf #{tmpl_name}")
-  if not success
+  unless success
     Chef::Application.fatal!("Sudoers fragment failed parsing check!")
   end
 end

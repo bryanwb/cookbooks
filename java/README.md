@@ -3,7 +3,7 @@ Description
 
 Installs a Java. Uses Oracle's JDK by default but supports installation of the OpenJDK.
 
-This cookbook also provides the java_cpr LWRP which other java
+This cookbook also provides the java_ark LWRP which other java
 cookbooks can use to install java-related applications from binary
 packages.
 
@@ -69,10 +69,12 @@ Resources/Providers
 ===================
 
 This LWRP provides an easy way to manage java applications. It uses
-the LWRP CPR (crappy package resource). It is "crappy" because it is
-very simple and barely deserves being called a package resource.
-Essentially, you provide the java_cpr with the URL to a tarball and
+the LWRP arkive (deliberately misspelled). It is an arkive and not an
+"archive" because the java_ark lwrp is not the same as a java archive
+or "jar". Essentially, you provide the java_ark with the URL to a tarball and
 the commands within the extracted result that you want symlinked to /usr/bin/
+
+If you have a better name for this lwrp please contact the maintainer.
 
 By default, the extracted directory is extracted to app_root/extracted_dir_name and symlinked to app_root/default
 
@@ -97,7 +99,7 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
 - bin_cmds: array of binary commands that should be symlinked to
   /usr/bin, examples are mvn, java, javac, etc. These cmds must be in
   the bin/ subdirectory of the extracted folder. Will be ignored if this
-  java_cpr is not the default
+  java_ark is not the default
 - owner: owner of extracted directory, set to "root" by default
 - default: whether this the default installation of this package,
   boolean true or false
@@ -106,7 +108,7 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
 # Examples
 
     # install jdk6 from Oracle
-    java_cpr "jdk" do
+    java_ark "jdk" do
         url 'http://download.oracle.com/otn-pub/java/jdk/6u29-b11/jdk-6u29-linux-x64.bin'
         checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
         app_home '/usr/local/java/default'
@@ -115,7 +117,7 @@ By default, the extracted directory is extracted to app_root/extracted_dir_name 
     end
 
     # installs maven2
-    java_cpr "maven2" do
+    java_ark "maven2" do
         url "http://www.apache.org/dist/maven/binaries/apache-maven-2.2.1-bin.tar.gz"
         checksum  "b9a36559486a862abfc7fb2064fd1429f20333caae95ac51215d06d72c02d376"
         app_home "/usr/local/maven/default"

@@ -20,7 +20,7 @@
 include_recipe "java"
 maven_home = node['maven']["m2_home"]
 
-java_cpr "maven2" do
+java_ark "maven2" do
   url node['maven']['2']['url']
   checksum node['maven']['2']['checksum']
   app_home maven_home

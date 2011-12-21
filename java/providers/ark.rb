@@ -1,7 +1,7 @@
 #
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Cookbook Name:: java
-# Provider:: java
+# Provider:: ark
 #
 # Copyright 2011, Bryan w. Berry
 #
@@ -42,7 +42,7 @@ action :install do
   app_root = new_resource.app_home.split('/')[0..-2].join('/')
   app_dir = app_root + '/' + app_dir_name
 
-  if not new_resource.default
+  unless new_resource.default
     app_dir = app_dir  + "_alt"
     app_home = app_dir
   else
@@ -71,18 +71,39 @@ action :install do
     tmpdir = Dir.mktmpdir
     case tarball_name
     when /^.*\.bin/
-      %x[ cd "#{tmpdir}";
-          cp "#{Chef::Config[:file_cache_path]}/#{tarball_name}" . ;
-          bash ./#{tarball_name} -noregister
-        ]
+      cmd = Chef::ShellOut.new(
+                          %Q[ cd "#{tmpdir}";
+                             cp "#{Chef::Config[:file_cache_path]}/#{tarball_name}" . ;
+                             bash ./#{tarball_name} -noregister
+                           ]
+                               ).run_command
+      unless cmd.exitstatus != 0
+        Chef::Application.fatal!("Failed to extract file #{tarball_name}!")
+      end
     when /^.*\.zip/
-      %x[ unzip "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -d "#{tmpdir}" ]
+      cmd = Chef::ShellOut.new(
+                         %Q[ unzip "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -d "#{tmpdir}" ]
+                               ).run_command
+      unless cmd.exitstatus != 0
+        Chef::Application.fatal!("Failed to extract file #{tarball_name}!")
+      end
     when /^.*\.tar.gz/
-      %x[ tar xvzf "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -C "#{tmpdir}" ]
+      cmd = Chef::ShellOut.new(
+                         %Q[ tar xvzf "#{Chef::Config[:file_cache_path]}/#{tarball_name}" -C "#{tmpdir}" ]
+                               ).run_command
+      unless cmd.exitstatus != 0
+        Chef::Application.fatal!("Failed to extract file #{tarball_name}!")
+      end
     end
 
-    %x[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" ]
-    FileUtils.rm_r tmpdir   
+    cmd = Chef::ShellOut.new(
+                       %Q[ mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" ]
+                             ).run_command
+    unless cmd.exitstatus != 0
+        Chef::Application.fatal!(%Q[ Command \' mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" \' failed ])
+      end
+    FileUtils.rm_r tmpdir
+    new_resource.updated_by_last_action(true)
   end
 
   #update-alternatives
@@ -103,8 +124,13 @@ action :install do
         end
         should_be_link = "#{app_home}/bin/#{cmd}"
         if current_bin_link != should_be_link
-          %x[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;
-              update-alternatives --set #{cmd} #{app_home}/bin/#{cmd}  ]
+          cmd = Chef::ShellOut.new(
+                                   %Q[ update-alternatives --install /usr/bin/#{cmd} #{cmd} #{app_home}/bin/#{cmd} 1;
+                                       update-alternatives --set #{cmd} #{app_home}/bin/#{cmd}  ]
+                                   ).run_command
+          unless cmd.exitstatus != 0
+            Chef::Application.fatal!(%Q[ update alternatives  failed ])
+          end
         end
       end
     end

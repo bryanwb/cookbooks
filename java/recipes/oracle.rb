@@ -36,7 +36,7 @@ when "7"
   tarball_checksum = node[:java][:jdk]['7'][arch][:checksum]
 end
 
-java_cpr "jdk" do
+java_ark "jdk" do
   url tarball_url
   checksum tarball_checksum
   app_home java_home

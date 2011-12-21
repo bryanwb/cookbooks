@@ -33,7 +33,7 @@ yum_package "glibc" do
 #  provider Chef::Provider::Package::Yum
 end
 
-java_cpr "jdk-alt" do
+java_ark "jdk-alt" do
   url tarball_url
   checksum tarball_checksum
   app_home java_home
