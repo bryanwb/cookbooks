@@ -29,11 +29,11 @@ end
 
 case jdk_version
 when "6"
-  tarball_url = node[:java][:jdk]['6'][arch][:url]
-  tarball_checksum = node[:java][:jdk]['6'][arch][:checksum]
+  tarball_url = node['java']['jdk']['6'][arch]['url']
+  tarball_checksum = node['java']['jdk']['6'][arch]['checksum']
 when "7"
-  tarball_url = node[:java][:jdk]['7'][arch][:url]
-  tarball_checksum = node[:java][:jdk]['7'][arch][:checksum]
+  tarball_url = node['java']['jdk']['7'][arch]['url']
+  tarball_checksum = node['java']['jdk']['7'][arch]['checksum']
 end
 
 java_ark "jdk" do

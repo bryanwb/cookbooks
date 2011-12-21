@@ -18,14 +18,14 @@
 # limitations under the License.
 
 java_home = node['java']["java_home"]
-  
+
 case node['java']['jdk_version']
 when "6"
-  tarball_url = node[:java][:jdk]['6'][:i586][:url]
-  tarball_checksum = node[:java][:jdk]['6'][:i586][:checksum]
+  tarball_url = node['java']['jdk']['6']['i586']['url']
+  tarball_checksum = node['java']['jdk']['6']['i586']['checksum']
 when "7"
-  tarball_url = node[:java][:jdk]['7'][:i586][:url]
-  tarball_checksum = node[:java][:jdk]['7'][:i586][:checksum]
+  tarball_url = node['java']['jdk']['7']['i586']['url']
+  tarball_checksum = node['java']['jdk']['7']['i586']['checksum']
 end
 
 yum_package "glibc" do

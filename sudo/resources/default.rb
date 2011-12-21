@@ -21,10 +21,10 @@ actions :install, :remove
 
 attribute :user, :kind_of => String, :default => nil
 attribute :group, :kind_of => String, :default => nil
-attribute :service, :kind_of => String, :default => nil
-attribute :cmds, :kind_of => Array, :default => nil
-attribute :passwordless, :equal_to => [true, false], :default => true
-attribute :pattern, :equal_to => ["super", "app", "act_as_all"], :default => "act_as_all"
+attribute :commands, :kind_of => [ Array, Hash ], :default => nil
+attribute :host, :kind_of => String, :default => "ALL"
+attribute :runas, :kind_of => Strig, :default => "ALL"
+attribute :nopasswd, :equal_to => [true, false], :default => true
 attribute :template, :regex => /^[a-z_]+.erb$/, :default => nil
 attribute :variables, :kind_of => Hash, :default => nil
 
