@@ -42,7 +42,7 @@ def render_sudo_template new_resource
   Dir.mktmpdir do |tmpdir|
     template_path = "#{tmpdir}/#{new_resource.name}"
     tmpl = template template_path do
-      source "#{new_resource.template}"
+      source new_resource.template
       mode 0440
       owner "root"
       group "root"
@@ -53,6 +53,7 @@ def render_sudo_template new_resource
     sudo_test template_path
     FileUtils.mv template_path, "/etc/sudoers.d/"
   end
+  new_resource.updated_by_last_action(true)
 end
 
 def render_sudo_attributes new_resource
@@ -93,7 +94,8 @@ def render_sudo_attributes new_resource
   sudo_test tmpfile_path
   FileUtils.chmod 0440, tmpfile_path
   FileUtils.mv tmpfile_path, "/etc/sudoers.d/"
-
+  new_resource.updated_by_last_action(true)
+  
 end
 
 action :install do
@@ -110,4 +112,5 @@ action :remove do
   sudoers_path = "/etc/sudoers.d/#{new_resource.name}"
   require 'fileutils'
   FileUtils.rm_f sudoers_path
+  new_resource.updated_by_last_action(true)
 end
