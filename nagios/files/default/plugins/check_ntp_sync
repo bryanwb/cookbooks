@@ -1,15 +1,8 @@
 #!/bin/bash
-
 CRIT_VAL=$2
+current_dir="$(dirname $0)"
 
-# get path to plugins directory
-if [ -d /usr/lib/nagios/plugins ] ; then
-	plugins_dir=/usr/lib/nagios/plugins
-else
-	plugins_dir=/usr/local/nagios/libexec
-fi
-
-cmd=$plugins_dir/check_ntp_time
+cmd=$current_dir/check_ntp_time
 suffix=".fao.org"
 
 # see if this machine is on dmz network

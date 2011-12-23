@@ -7,7 +7,7 @@ service nrpe
    user            = nagios
    group           = nagios
    server          = /usr/bin/nrpe
-   server_args     = -c /etc/nagios/nrpe.cfg --inetd
+   server_args     = -c <%= node['nagios']['nrpe']['conf_dir']"/nrpe.cfg" %>  --inetd
    log_type        = FILE /var/log/nrpe.log
 	 log_on_failure  = USERID HOST ATTEMPT
    disable         = no
