@@ -54,7 +54,8 @@ end
 
 sudo "tcdr-sysadmins" do
   group "tcdr-sysadmins"
-  pattern "super"
+  nopasswd true
+  commands [ "ALL" ]
 end
 
 

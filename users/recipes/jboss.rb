@@ -48,8 +48,13 @@ group jboss_user do
   action :modify
 end
 
+# add sudoers
 sudo jboss_user do
-  user jboss_user
-  pattern "app"
+  template "app.erb"
+  variables(
+            {
+              "name" => jboss_user,
+              "service" => jboss_user
+            }
+            )
 end
-

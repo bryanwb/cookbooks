@@ -51,7 +51,13 @@ group geo_user do
   action :modify
 end
 
+# add sudoers
 sudo geo_user do
-  user geo_user
-  pattern "app"
+  template "app.erb"
+  variables(
+            {
+              "name" => geo_user,
+              "service" => geo_user
+            }
+            )
 end

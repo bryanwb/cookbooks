@@ -31,6 +31,7 @@ end
 
 sudo "prodctl" do
   user "prodctl"
-  cmds prodctl_db[:sudo_cmds]
+  commands prodctl_db[:sudo_cmds]
 end
+
 

@@ -48,7 +48,13 @@ group hudson_user do
   action :modify
 end
 
+# add sudoers
 sudo hudson_user do
-  user hudson_user
-  pattern "app"
+  template "app.erb"
+  variables(
+            {
+              "name" => hudson_user,
+              "service" => hudson_user
+            }
+            )
 end

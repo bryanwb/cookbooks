@@ -55,3 +55,15 @@ sudo "postgres" do
   service "postgresql"
   pattern "app"
 end
+
+
+# add sudoers
+sudo postgres_user do
+  template "app.erb"
+  variables(
+            {
+              "name" => postgres_user,
+              "service" => "postgresql"
+            }
+            )
+end

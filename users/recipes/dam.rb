@@ -50,7 +50,14 @@ group dam_user do
   action :modify
 end
 
+# add sudoers
 sudo dam_user do
-  user dam_user
-  pattern "app"
+  template "app.erb"
+  variables(
+            {
+              "name" => dam_user,
+              "service" => dam_user
+            }
+            )
 end
+
