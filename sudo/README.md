@@ -32,6 +32,10 @@ placeholder file README there
 USAGE
 =====
 
+You can create sudoer entries in two ways, 
+# populating the node['authorization']['sudo']  properties 
+# using the sudo lwrp
+
 To use this cookbook, set the attributes above on the node via a role or the node object itself. In a role.rb:
 
     "authorization" => {
@@ -106,38 +110,22 @@ In either case, the following file would be generated in /etc/sudoers.d/tomcat
 Description of all attributes
 
 * :name -- name of the file to be created in /etc/sudoers.d/ ,
-  defaults to the name you use for the resource
+  defaults to the name you use for the resource. An exception will be
+  thrown if th
 * :user -- user to provide sudo privileges to
 * :group -- same as user except "%" is prepended to the name in
 case it is not already
-* :service -- specific to the "app" pattern, used when the service to
-be manipulated has an different name than the user it runs as
-* :cmds -- an array of commands that the user/group can execute using
+* :commands -- an array of commands that the user/group can execute using
 sudo, must use the full path for each command, otherwise the resulting
 fragment will fail validation
-* :passwordless -- whether or not a password must be supplied when
+* :nopasswd -- whether or not a password must be supplied when
 invoking sudo
-* :pattern -- use a template built into the sudo cookbook, the default
-is "act_as_all"
 * :template -- a template file in the current cookbook (not the sudo
 cookbook), currently must be an erb template
 * :variables -- variables to use with the template
 
-attribute :user, :kind_of => String, :default => nil
-attribute :group, :kind_of => String, :default => nil
-attribute :commands, :kind_of => [ Array, Hash ], :default => nil
-attribute :host, :kind_of => String, :default => "ALL"
-attribute :runas, :kind_of => Strig, :default => "ALL"
-attribute :nopasswd, :equal_to => [true, false], :default => true
-attribute :template, :regex => /^[a-z_]+.erb$/, :default => nil
-attribute :variables, :kind_of => Hash, :default => nil
-
-
-
-TODO
-====
-
-* Allow user and group to accept an array 
+If you use the template attribute, all other attributes will be
+ignored except for the variables attribute.
 
 
 LICENSE AND AUTHOR

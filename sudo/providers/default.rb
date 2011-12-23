@@ -24,103 +24,90 @@ def check_inputs user, group, foreign_template, foreign_vars
   if user == nil and group == nil and foreign_template == nil
     Chef::Application.fatal!("You must provide a user, group, or template")
   elsif user != nil and group != nil and template != nil
-    Chef::Application.fatal!("You cannot specify user, group or template")
+    Chef::Application.fatal!("You cannot specify user, group, and template")
   end
 end
 
-def visudo_check tmpl_name
-  success = system("visudo -cf #{tmpl_name}")
-  unless success
-    Chef::Application.fatal!("Sudoers fragment failed parsing check!")
+def sudo_test tmpl_name
+  cmd = Chef::ShellOut.new(
+                           %Q[ visudo -cf #{tmpl_name} ]
+                           ).run_command
+  unless cmd.exitstatus != 0
+    FileUtils.rm_f tmpl_name
+    Chef::Application.fatal!("sudoers template #{tmpl_name} failed parsing validation!")
   end
 end
 
-def render_from_foreign_template name, foreign_template, foreign_vars
+def render_sudo_template new_resource
   Dir.mktmpdir do |tmpdir|
-    template_path = "#{tmpdir}/#{name}"
+    template_path = "#{tmpdir}/#{new_resource.name}"
     tmpl = template template_path do
-      source "#{foreign_template}"
+      source "#{new_resource.template}"
       mode 0440
       owner "root"
       group "root"
-      variables foreign_vars
+      variables new_resource.variables
       action :nothing
     end
     tmpl.run_action(:create)
-    visudo_check template_path
+    sudo_test template_path
     FileUtils.mv template_path, "/etc/sudoers.d/"
   end
 end
 
-action :install do
-  name = new_resource.name
-  user = new_resource.user
-  group = new_resource.group
-  pattern = new_resource.pattern
-  cmds = new_resource.cmds || []
-  foreign_template = new_resource.template
-  foreign_vars = new_resource.variables
-  check_inputs user, group, foreign_template, foreign_vars
-     
-  if foreign_template
-    render_from_foreign_template name, foreign_template, foreign_vars
-  else 
-    if user
-      sudoers_name = user
-      group_prefix = false
-    else 
-      sudoers_name = group
-      group_prefix = true
-    end
-
-    if pattern == "app"
-      if new_resource.service
-        service = new_resource.service
-      elsif user
-        service = user
-      else
-        service = group
-      end
+def render_sudo_attributes new_resource
+  require 'tempfile'
+  sudo_user = new_resource.user
+  sudo_group = new_resource.group
+  commands = new_resource.commands
+  host = new_resource.host
+  runas = new_resource.runas
+  nopasswd = new_resource.nopasswd
+  sudo_entries = Array.new
+  
+  if sudo_group
+    # prepend % to name if group name if it isn't already there
+    if sudo_group !~ /^%.*$/
+      sudo_name = "%#{sudo_group}"
     else
-      service = nil
+      sudo_name = sudo_group
     end
-    
-    # if one of the commands is all, set pattern to super pattern
-    if cmds.grep(/all/i).length > 0
-      pattern = "super"
+  else
+    sudo_name = sudo_user
+  end
+  commands.each do |cmd|
+    entry = ""
+    entry << sudo_name
+    entry << " ALL=(#{runas}) "
+    if nopasswd
+      entry << "NOPASSWD:"
     end
-    
-    Chef::Log.debug "The pattern is #{pattern}"
-    Dir.mktmpdir do |tmpdir|
-      template_path = "#{tmpdir}/#{name}"
-      tmpl = template template_path do
-        cookbook "sudo"
-        source "#{pattern}.erb"
-        mode 0440
-        owner "root"
-        group "root"
-        variables( :cmds => cmds,
-                   :name => sudoers_name,
-                   :passwordless => new_resource.passwordless,
-                   :pattern => pattern,
-                   :service => service,
-                   :group_prefix => group_prefix
-                   )
-        action :nothing
-      end
-      tmpl.run_action(:create)
-      visudo_check template_path
-      FileUtils.mv template_path, "/etc/sudoers.d/"
-    end
+    entry << cmd
+    sudo_entries << entry
+  end
+
+  tmpfile = Tempfile.new "d"
+  tmpfile_path = tmpfile.path
+  tmpfile.write sudo_entries.join "\n"
+  tmpfile.close
+  sudo_test tmpfile_path
+  FileUtils.chmod 0440, tmpfile_path
+  FileUtils.mv tmpfile_path, "/etc/sudoers.d/"
+
+end
+
+action :install do
+  if new_resource.template
+    Chef::Log.debug "template attribute provided to sudo lwrp, all other attributes ignored" +
+      " except for variables attribute"
+    render_sudo_template new_resource
+  else
+    render_sudo_attributes new_resource
   end
 end
 
 action :remove do
-  user = new_resource.user
-  group = new_resource.group
-  check_inputs user, group
-  sudoers_file_name = user ? user : group
-  sudoers_path = "/etc/sudoers.d/#{sudoers_file_name}"
+  sudoers_path = "/etc/sudoers.d/#{new_resource.name}"
   require 'fileutils'
   FileUtils.rm_f sudoers_path
 end
