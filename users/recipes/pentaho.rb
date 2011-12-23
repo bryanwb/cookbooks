@@ -57,9 +57,14 @@ group pentaho_user do
 end
 
 # add sudoers
-sudo "pentaho" do
-  group pentaho_user
-  pattern "app"
+sudo pentaho_user do
+  template "app.erb"
+  variables(
+            {
+              "name" => pentaho_user,
+              "service" => pentaho_user
+            }
+            )
 end
 
 
