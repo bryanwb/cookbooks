@@ -3,8 +3,12 @@ CRIT_VAL=$2
 current_dir="$(dirname $0)"
 
 cmd=$current_dir/check_ntp_time
+
 suffix="$(hostname --domain)"
 
+if [ $suffix == "hq.un.fao.org" ]; then
+    suffix="fao.org"
+fi
 
 ntp_server1="ntp1."$suffix
 ntp_server2="ntp2."$suffix

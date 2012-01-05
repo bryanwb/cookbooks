@@ -2,6 +2,5 @@
 
 # NEEDED TO ALLOW NAGIOS TO CHECK SERVICE STATUS
 <% @sudo_cmds.each do |cmd| -%>
-<%= node['nagios']['user'] %>
-ALL=NOPASSWD:<%="#{node['nagios']['plugin_dir']}/#{cmd}"%>
+<%= node['nagios']['user'] %> ALL=NOPASSWD:<%="#{node['nagios']['plugin_dir']}/#{cmd}"%>
 <% end -%>
