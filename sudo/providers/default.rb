@@ -32,7 +32,7 @@ def sudo_test tmpl_name
   cmd = Chef::ShellOut.new(
                            %Q[ visudo -cf #{tmpl_name} ]
                            ).run_command
-  unless cmd.exitstatus != 0
+  unless cmd.exitstatus == 0
     FileUtils.rm_f tmpl_name
     Chef::Application.fatal!("sudoers template #{tmpl_name} failed parsing validation!")
   end
