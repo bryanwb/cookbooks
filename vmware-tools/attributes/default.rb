@@ -26,3 +26,5 @@ when "0xE72C0"
   set['esx']['tarball'] = "VMwareTools-8.6.0-446312.tar.gz"
   set['esx']['checksum'] = "5118df75830e416ca20e2939e4934b4ebb8b9e29160e3fbed225aaa832345712"
 end
+
+Chef::Log.debug("esx tarball is #{node['esx']['tarball']}")
