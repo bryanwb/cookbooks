@@ -6,6 +6,9 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "1.3.1"
 recipe "users::sysadmin", "searches users data bag for sysadmins and creates users"
 
+depends "sudo"
+
 %w{ ubuntu debian redhat centos fedora freebsd}.each do |os|
   supports os
 end
+
