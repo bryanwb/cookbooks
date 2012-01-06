@@ -29,6 +29,13 @@ pkgs = value_for_platform(
                           "default" => ["openjdk-#{version}-jdk"]
                           )
 
+# done by special request for rberger
+ruby_block  "set-env-java-home" do
+  block do
+    ENV["JAVA_HOME"] = java_home
+  end
+end
+
 ruby_block "update-java-alternatives" do
   block do
     require "fileutils"
