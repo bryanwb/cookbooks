@@ -33,7 +33,8 @@ def sudo_test tmpl_name
                            %Q[ visudo -cf #{tmpl_name} ]
                            ).run_command
   unless cmd.exitstatus == 0
-    FileUtils.rm_f tmpl_name
+    Chef::Log.debug('sudoers fragment failed validation. Here it is for your viewing pleasure')
+    Chef::Log.debug("\n" + ::File.open(tmpl_name).read + "\n")
     Chef::Application.fatal!("sudoers template #{tmpl_name} failed parsing validation!")
   end
 end
@@ -84,16 +85,16 @@ def render_sudo_attributes new_resource
       entry << "NOPASSWD:"
     end
     entry << cmd
-    sudo_entries << entry
+    sudo_entries << entry + "\n"
   end
 
   tmpfile = Tempfile.new "d"
   tmpfile_path = tmpfile.path
-  tmpfile.write sudo_entries.join "\n"
+  tmpfile.write sudo_entries.join
   tmpfile.close
   sudo_test tmpfile_path
   FileUtils.chmod 0440, tmpfile_path
-  FileUtils.mv tmpfile_path, "/etc/sudoers.d/"
+  FileUtils.mv tmpfile_path, "/etc/sudoers.d/#{new_resource.name}"
   new_resource.updated_by_last_action(true)
   
 end
