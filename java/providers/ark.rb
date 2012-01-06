@@ -43,6 +43,7 @@ action :install do
   app_dir = app_root + '/' + app_dir_name
 
   unless new_resource.default
+    Chef::Log.debug("processing alternate jdk")
     app_dir = app_dir  + "_alt"
     app_home = app_dir
   else

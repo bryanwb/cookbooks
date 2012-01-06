@@ -1,4 +1,4 @@
-#
+# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
 # Cookbook Name:: java
 # Recipe:: openjdk
@@ -19,14 +19,8 @@
 
 version = node['java']['jdk_version']
 java_home = node['java']['java_home']
-# specific to Ubuntu
-if version == "7"
-  arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
-  java_link_name = "java-1.#{version}.0-openjdk-#{arch}"
-else
-  java_link_name = "java-1.#{version}.0-openjdk"
-end
-
+java_home_parent = File.dirname java_home
+jdk_home = ""
 
 pkgs = value_for_platform(
                           ["centos","redhat","fedora"] => {
@@ -35,24 +29,46 @@ pkgs = value_for_platform(
                           "default" => ["openjdk-#{version}-jdk"]
                           )
 
-if platform? "ubuntu", "debian"
-  execute "update-java-alternatives" do
-    command "update-java-alternatives -s #{java_link_name}"
-    returns [0,2]
-    action :nothing
+ruby_block "update-java-alternatives" do
+  block do
+    require "fileutils"
+    arch = node['kernel']['machine'] =~ /x86_64/ ? "x86_64" : "i386"
+    Chef::Log.debug("glob is #{java_home_parent}/java*#{version}*openjdk*")
+    jdk_home = Dir.glob("#{java_home_parent}/java*#{version}*openjdk?{,#{arch}}")[0]
+    Chef::Log.debug("jdk_home is #{jdk_home}")
+    # delete the symlink if it already exists
+    if File.exists? java_home
+      FileUtils.rm_f java_home
+    end
+    FileUtils.ln_sf jdk_home, java_home
+    
+    if platform?("ubuntu", "debian") and version == 6
+      # specific to Ubuntu, this finds the file which specifies all
+      # the symlinks to be updated
+      java_link_name = Dir.glob("#{java_home_parent}/.java*#{version}*openjdk.jinfo")[0]
+      java_link_name = File.basename(java_link_name).split('.')[1..-2].join('.')
+      cmd = Chef::ShellOut.new(
+                               "update-java-alternatives -s #{java_link_name}"
+                               ).run_command
+      unless cmd.exitstatus == 0 or  cmd.exitstatus == 2
+        Chef::Application.fatal!("Failed to update-alternatives for openjdk!")
+      end
+    else
+      cmd = Chef::ShellOut.new(
+         %Q[ update-alternatives --install /usr/bin/java java #{java_home}/bin/java 1;
+             update-alternatives --set java #{java_home}/bin/java  ]
+                             ).run_command
+      unless cmd.exitstatus == 0 or  cmd.exitstatus == 2
+        Chef::Application.fatal!("Failed to update-alternatives for openjdk!")
+      end
+    end
   end
-else
-  execute "update-java-alternatives" do
-    command "update-alternatives --install /usr/bin/java java #{java_home}/bin/java 1;
-             update-alternatives --set java #{java_home}/bin/java"  
-    returns [0,2]
-    action :nothing
-  end
+  action :nothing
 end
   
 pkgs.each do |pkg|
   package pkg do
     action :install
-    notifies :run, "execute[update-java-alternatives]"
+    notifies :create, "ruby_block[update-java-alternatives]"
   end
 end
