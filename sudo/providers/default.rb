@@ -39,6 +39,20 @@ def sudo_test tmpl_name
   end
 end
 
+def sudoers_updated?(tmpfile_path, sudoers_file)
+  require 'digest/sha1'
+  sudoers_path = "/etc/sudoers.d/#{sudoers_file}"
+
+  tmpfile_digest = Digest::Sha1.digest(File.read(tmpfile_digest))
+  if File.exist? sudoers_path
+    sudoers_file_digest = Digest::Sha1.digest(File.read(sudoers_path))
+  else
+    # it doesn't already exist, so true
+    return true
+  end
+  tmpfile_digest != sudoers_file_digest ? true : false
+end
+
 def render_sudo_template new_resource
   Dir.mktmpdir do |tmpdir|
     template_path = "#{tmpdir}/#{new_resource.name}"
@@ -52,9 +66,16 @@ def render_sudo_template new_resource
     end
     tmpl.run_action(:create)
     sudo_test template_path
-    FileUtils.mv template_path, "/etc/sudoers.d/"
+    # check if the sudoers file already exists, and only
+    # overwrite if the sudoers file has been changed
+    if sudoers_updated? tmpfile_path, new_resource.name
+      FileUtils.mv tmpfile_path, "/etc/sudoers.d/#{new_resource.name}"
+      new_resource.updated_by_last_action(true)
+    else
+      # resource not updated, do nothing
+      FileUtils.rm_f tmpfile_path
+    end
   end
-  new_resource.updated_by_last_action(true)
 end
 
 def render_sudo_attributes new_resource
@@ -94,8 +115,14 @@ def render_sudo_attributes new_resource
   tmpfile.close
   sudo_test tmpfile_path
   FileUtils.chmod 0440, tmpfile_path
-  FileUtils.mv tmpfile_path, "/etc/sudoers.d/#{new_resource.name}"
-  new_resource.updated_by_last_action(true)
+  
+  if sudoers_updated? tmpfile_path, new_resource.name
+    FileUtils.mv tmpfile_path, "/etc/sudoers.d/#{new_resource.name}"
+    new_resource.updated_by_last_action(true)
+  else
+    # resource not updated, do nothing
+    FileUtils.rm_f tmpfile_path
+  end
   
 end
 
