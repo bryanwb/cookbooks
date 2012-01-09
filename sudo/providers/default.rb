@@ -43,9 +43,9 @@ def sudoers_updated?(tmpfile_path, sudoers_file)
   require 'digest/sha1'
   sudoers_path = "/etc/sudoers.d/#{sudoers_file}"
 
-  tmpfile_digest = Digest::Sha1.digest(File.read(tmpfile_digest))
-  if File.exist? sudoers_path
-    sudoers_file_digest = Digest::Sha1.digest(File.read(sudoers_path))
+  tmpfile_digest = Digest::SHA1.digest(::File.read(tmpfile_path))
+  if ::File.exist? sudoers_path
+    sudoers_file_digest = Digest::SHA1.digest(::File.read(sudoers_path))
   else
     # it doesn't already exist, so true
     return true
@@ -54,9 +54,9 @@ def sudoers_updated?(tmpfile_path, sudoers_file)
 end
 
 def render_sudo_template new_resource
-  Dir.mktmpdir do |tmpdir|
-    template_path = "#{tmpdir}/#{new_resource.name}"
-    tmpl = template template_path do
+  ::Dir.mktmpdir do |tmpdir|
+    tmpfile_path = "#{tmpdir}/#{new_resource.name}"
+    tmpl = template tmpfile_path do
       source new_resource.template
       mode 0440
       owner "root"
@@ -65,7 +65,7 @@ def render_sudo_template new_resource
       action :nothing
     end
     tmpl.run_action(:create)
-    sudo_test template_path
+    sudo_test tmpfile_path
     # check if the sudoers file already exists, and only
     # overwrite if the sudoers file has been changed
     if sudoers_updated? tmpfile_path, new_resource.name
@@ -73,6 +73,7 @@ def render_sudo_template new_resource
       new_resource.updated_by_last_action(true)
     else
       # resource not updated, do nothing
+      Chef::Log.debug("Sudo resource not updated, doing nothing")
       FileUtils.rm_f tmpfile_path
     end
   end
