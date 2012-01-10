@@ -10,6 +10,7 @@ recipe "nagios::client", "Installs and configures a nagios client with nrpe"
 recipe "nagios::server", "Installs and configures a nagios server"
 
 depends "build-essential"
+depends "logrotate"
 
 %w{ debian ubuntu redhat centos fedora scientific}.each do |os|
   supports os
