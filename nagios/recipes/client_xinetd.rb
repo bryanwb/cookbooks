@@ -19,6 +19,7 @@
 #
 
 include_recipe "sudo"
+include_recipe "logrotate"
 
 mon_host = ['127.0.0.1']
 
@@ -93,3 +94,18 @@ execute "etc_services_entry" do
   returns 0
   not_if "egrep '^nrpe.*$' /etc/services"
 end
+
+# you don't want xinetd to log successes, will fill up the log
+execute "dont_log_success" do
+  command "sed -i 's/^.*log_on_success.*$/\#&1/' /etc/xinetd.conf"
+  returns 0
+  not_if "egrep '^#.*log_on_success.*$' /etc/xinetd.conf"
+end
+
+logrotate_app "nrpe" do
+  cookbook "logrotate"
+  path "/var/log/nrpe.log"
+  frequency "daily"
+  create "644 root root"
+  rotate 30
+end 
