@@ -8,6 +8,8 @@ suffix="$(hostname --domain)"
 
 if [ $suffix == "hq.un.fao.org" ]; then
     suffix="fao.org"
+elif [ -z $suffix ]; then
+    suffix="fao.org"
 fi
 
 ntp_server1="ntp1."$suffix
