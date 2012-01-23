@@ -18,6 +18,7 @@
 #
 
 cookbook_file "#{node[:yumrepo][:key_path]}/RPM-GPG-KEY-ELGIS"
+major_num = node["platform_version"].to_i.to_s
 
 yum_key "RPM-GPG-KEY-ELGIS" do
   action :add
@@ -26,6 +27,6 @@ end
 yum_repository "elgis" do
   description "EL GIS"
   key "RPM-GPG-KEY-ELGIS"
-  url "http://elgis.argeo.org/repos/$releasever/elgis-plus/$basearch"
+  url "http://elgis.argeo.org/repos/#{major_num}/elgis-plus/$basearch"
   action :add
 end
