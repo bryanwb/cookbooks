@@ -19,7 +19,7 @@ end
 
 default[:pgbouncer][:logfile] = "/var/log/postgresql/pgbouncer.log"
 
-# Where to wait for clients
+# Where to wait for clients 
 default[:pgbouncer][:listen_addr] = "127.0.0.1"
 default[:pgbouncer][:listen_port] = "6432"
 
