@@ -9,11 +9,12 @@ if platform?("redhat", "centos", "scientific", "fedora")
   default[:pgbouncer][:initfile] = "/etc/pgbouncer.ini"
   default[:pgbouncer][:additional_config_file] = "/etc/sysconfig/pgbouncer"
   default[:pgbouncer][:pidfile] = "/var/run/pgbouncer/pgbouncer.pid"
-
+  default[:pgbouncer][:unix_socket_dir] = "/tmp"
 else
   default[:pgbouncer][:initfile] = "/etc/pgbouncer/pgbouncer.ini"
   default[:pgbouncer][:additional_config_file] = "/etc/default/pgbouncer"
   default[:pgbouncer][:pidfile] = "/var/run/postgresql/pgbouncer.pid"
+  default[:pgbouncer][:unix_socket_dir] = "/var/run/postgresql"
 end
 
 default[:pgbouncer][:logfile] = "/var/log/postgresql/pgbouncer.log"
@@ -21,7 +22,6 @@ default[:pgbouncer][:logfile] = "/var/log/postgresql/pgbouncer.log"
 # Where to wait for clients
 default[:pgbouncer][:listen_addr] = "127.0.0.1"
 default[:pgbouncer][:listen_port] = "6432"
-default[:pgbouncer][:unix_socket_dir] = "/var/run/postgresql"
 
 # Authentication settings
 default[:pgbouncer][:auth_type] = "trust"
