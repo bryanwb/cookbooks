@@ -40,7 +40,7 @@ directory "/etc/pgbouncer" do
   mode  "644"
 end
 
-template default[:pgbouncer][:initfile] do
+template node[:pgbouncer][:initfile] do
   source "pgbouncer.ini.erb"
   owner "root"
   group "root"
@@ -51,19 +51,12 @@ end
 # add users (clients) that will access this bouncer
 ruby_block "get_users" do
   block do
-    #!/usr/bin/ruby
-
-    ENV["PSQLOPTS"] = node[:pgbouncer]['PSQLOPTS'] 
-    ENV["PGHOST"] = node[:pgbouncer]['PGHOST']
-    ENV["PGHOSTADDR"] = node[:pgbouncer]["PGHOSTADDR"]
-    ENV["PGPORT"] = node[:pgbouncer]["PGPORT"] 
-    ENV["PGDATABASE"] = node[:pgbouncer]["PGDATABASE"] 
-    ENV["PGUSER"] = node[:pgbouncer]["PGUSER"]
-    ENV["PGPASSWORD"] = node[:pgbouncer]["PGPASSWORD"]
-    ENV["PGPASSFILE"] = node[:pgbouncer]["PGPASSFILE"]
-
     cmd = Chef::ShellOut.new(%Q[ su - postgres;
-                         psql -h ${PGHOST} -p ${PGPORT} -U ${PGUSER}  ${PSQLOPTS} -c 'SELECT $$"$$ || \
+                         psql -h #{node[:pgbouncer]['PGHOST']} \
+                         -p #{node[:pgbouncer]["PGPORT"]} \
+                         -U #{node[:pgbouncer]["PGUSER"]}  \
+                         #{node[:pgbouncer]['PSQLOPTS']} \
+                         -c 'SELECT $$"$$ || \
 			 replace( usename, $$"$$, $$""$$) || \
 			 $$" "$$ || replace( passwd, $$"$$, $$""$$ ) || \
 			 $$"$$ from pg_shadow where passwd is not null and \
@@ -84,7 +77,7 @@ template node[:pgbouncer][:auth_file] do
   notifies :reload, resources(:service => "pgbouncer")
 end
 
-template default[:pgbouncer][:additional_config_file] do
+template node[:pgbouncer][:additional_config_file] do
   source "pgbouncer.sysconfig.erb"
   owner "root"
   group "root"

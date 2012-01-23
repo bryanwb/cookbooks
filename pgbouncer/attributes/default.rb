@@ -7,7 +7,7 @@ if platform?("redhat", "centos", "scientific", "fedora")
   # this value is hardcoded into rpm from yum.postgresql.org
   # yet still required as commandline parameter WTF
   default[:pgbouncer][:initfile] = "/etc/pgbouncer.ini"
-  default[:pgbouncer][:additional_config_file]  "/etc/sysconfig/pgbouncer"
+  default[:pgbouncer][:additional_config_file] = "/etc/sysconfig/pgbouncer"
   default[:pgbouncer][:pidfile] = "/var/run/pgbouncer/pgbouncer.pid"
 
 else
