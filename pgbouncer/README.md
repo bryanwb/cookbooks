@@ -106,8 +106,10 @@ License and Author
 ==================
 
 Author:: Christoph Krybus (<ckrybus@googlemail.com>)
+Author:: Bryan Berry (<bryan.berry@gmail.com>)
 
 Copyright:: 2011, Christoph Krybus
+Copyright:: 2011, Bryan W. Berry
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
