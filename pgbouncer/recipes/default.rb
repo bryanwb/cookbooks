@@ -36,52 +36,23 @@ end
 # EL rpms don't create this directory automatically
 directory "/etc/pgbouncer" do
   owner "root"
-  group "root"
-  mode  "644"
+  group "postgres"
+  mode  "774"
 end
 
 template node[:pgbouncer][:initfile] do
   source "pgbouncer.ini.erb"
   owner "root"
-  group "root"
-  mode "644"
-  notifies :reload, resources(:service => "pgbouncer")
-end
-
-# add users (clients) that will access this bouncer
-ruby_block "get_users" do
-  block do
-    cmd = Chef::ShellOut.new(%Q[ su - postgres;
-                         psql -h #{node[:pgbouncer]['PGHOST']} \
-                         -p #{node[:pgbouncer]["PGPORT"]} \
-                         -U #{node[:pgbouncer]["PGUSER"]}  \
-                         #{node[:pgbouncer]['PSQLOPTS']} \
-                         -c 'SELECT $$"$$ || \
-			 replace( usename, $$"$$, $$""$$) || \
-			 $$" "$$ || replace( passwd, $$"$$, $$""$$ ) || \
-			 $$"$$ from pg_shadow where passwd is not null and \
-			 (usename = '"'"'postgres'"'"' or \
-			 usename like '"'"'%_ds'"'"') order by 1' ]).run_command
-    unless cmd.exitstatus == 0
-      Chef::Application.fatal!(%Q[ Failed to build userlist for pgbouncer."\n" STDERR is #{cmd.stderr} ])
-    end
-    node['pgbouncer']['userlist'] = cmd.stdout.split("\n")
-  end
-end
-
-template node[:pgbouncer][:auth_file] do
-  source "userlist.txt.erb"
-  owner "root"
-  group "root"
-  mode "644"
+  group "postgres"
+  mode "664"
   notifies :reload, resources(:service => "pgbouncer")
 end
 
 template node[:pgbouncer][:additional_config_file] do
   source "pgbouncer.sysconfig.erb"
   owner "root"
-  group "root"
-  mode "644"
+  group "postgres"
+  mode "664"
   notifies :reload, resources(:service => "pgbouncer")
 end
 

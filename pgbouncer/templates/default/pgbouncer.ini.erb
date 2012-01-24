@@ -71,17 +71,20 @@ server_reset_query = <%= @node['pgbouncer']['server_reset_query'] %>
 ; in startup packet.  Newer JDBC versions require the
 ; extra_float_digits here.
 ;
-;ignore_startup_parameters = extra_float_digits
-
+<% if @node['pgbouncer']['ignore_startup_parameters'] %>
+ignore_startup_parameters = <%= @node['pgbouncer']['ignore_startup_parameters'] %> 
+<% end %>
 ;
 ; When taking idle server into use, this query is ran first.
 ;   SELECT 1
 ;
-server_check_query = <%= @node['pgbouncer']['server_check_query'] %>
+server_check_query = select 1
 
 ; If server was used more recently that this many seconds ago,
 ; skip the check query.  Value 0 may or may not run in immidiately.
+<% if @node['pgbouncer']['server_check_delay']  %>
 server_check_delay = <%= @node['pgbouncer']['server_check_delay'] %>
+<% end %>
 
 ;;;
 ;;; Connection limits
@@ -92,13 +95,23 @@ max_client_conn = <%= @node['pgbouncer']['max_client_conn'] %>
 default_pool_size = <%= @node['pgbouncer']['default_pool_size'] %>
 
 ; how many additional connection to allow in case of trouble
-;reserve_pool_size = 5
+<% if @node['pgbouncer']['reserve_pool_size'] %>
+reserve_pool_size = <%= @node['pgbouncer']['reserve_pool_size'] %>
+<% end %>
 
 ; if a clients needs to wait more than this many seconds, use reserve pool
-;reserve_pool_timeout = 3
+<% if @node['pgbouncer']['reserve_pool_timeout'] %>
+reserve_pool_timeout = <%= @node['pgbouncer']['reserve_pool_timeout'] %>
+<% end %>
 
+
+<% if @node['pgbouncer']['log_connections'] %>
 log_connections = <%= @node['pgbouncer']['log_connections'] %>
+<% end %>
+
+<% if @node['pgbouncer']['log_disconnections'] %>
 log_disconnections = <%= @node['pgbouncer']['log_disconnections'] %>
+<% end %>
 
 ; log error messages pooler sends to clients
 log_pooler_errors = <%= @node['pgbouncer']['log_pooler_errors'] %>
@@ -116,10 +129,18 @@ log_pooler_errors = <%= @node['pgbouncer']['log_pooler_errors'] %>
 
 ;; Close server connection if its not been used in this time.
 ;; Allows to clean unneccessary connections from pool after peak.
-;server_idle_timeout = 60
+<% if @node['pgbouncer']['server_idle_timeout'] %>
+server_idle_timeout = <%= @node['pgbouncer']['server_idle_timeout'] %>
+<% end %>
+
+
 
 ;; Cancel connection attepmt if server does not answer takes longer.
 ;server_connect_timeout = 15
+<% if @node['pgbouncer']['server_connect_timeout'] %>
+server_connect_timeout = <%= @node['pgbouncer']['server_connect_timeout'] %>
+<% end %>
+
 
 ;; If server login failed (server_connect_timeout or auth failure)
 ;; then wait this many second.
