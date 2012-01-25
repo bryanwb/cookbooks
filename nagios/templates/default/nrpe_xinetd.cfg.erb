@@ -42,4 +42,4 @@ command[check_netstat]=<%= node['nagios']['plugin_dir'] %>/check_netstat.pl -p $
 command[check_hpasm]=sudo <%= node['nagios']['plugin_dir'] %>/check_hpasm -v
 
 ### Check if in sync with ntp servers ###
-command[check_ntp_sync]=<%= node['nagios']['plugin_dir'] %>/check_ntp_sync $ARG1$
+command[check_ntp_sync]= /usr/lib/nagios/plugins/check_ntp_sync $ARG1$

@@ -18,26 +18,9 @@
 # limitations under the License.
 #
 
-include_recipe "sudo"
-include_recipe "logrotate"
+mon_host = ['168.202.4.146']
 
-mon_host = ['127.0.0.1']
-
-if node['nagios_server']
-  mon_host << node['nagios_server']
-elsif node.run_list.roles.include?(node['nagios']['server_role'])
-  mon_host << node['ipaddress']
-else
-  search(:node, "role:#{node['nagios']['server_role']} AND chef_environment:#{node.chef_environment}") do |n|
-    mon_host << n['ipaddress']
-  end
-end
-
-sudo_cmds = ""
-# find out nagios user's sudo commands
-search(:users, "id:#{node['nagios']['user']}").each do |item|
-  sudo_cmds =  item[:sudo_cmds]
-end
+sudo_cmds = [ "check_init_service", "check_hpasm" ]
 
 # some of the nagios plugins require this package
 if platform? ["centos", "redhat", "ubuntu" ]
@@ -71,14 +54,26 @@ template "#{node['nagios']['nrpe']['conf_dir']}/nrpe.cfg" do
   owner "root"
   group "root"
   mode "0644"
-  variables :mon_host => mon_host
+  variables( :mon_host => mon_host )
 end
 
-sudo "nagios" do
-  template "nagios_sudoers.erb"
-  variables( :sudo_cmds => sudo_cmds )
+# add sudoers
+if defined? sudo_cmds
+  directory "/etc/sudoers.d/" do
+    owner "root"
+    group "root"
+    mode "0440"
+  end
+
+  template "/etc/sudoers.d/nagios" do
+    source "nagios_sudoers.erb"
+    owner "root"
+    group "root"
+    variables( :sudo_cmds => sudo_cmds)
+    mode "0440"
+  end
 end
-  
+
 template "/etc/xinetd.d/nrpe" do
   source "nrpe.xinetd.erb"
   owner "root"
@@ -94,18 +89,3 @@ execute "etc_services_entry" do
   returns 0
   not_if "egrep '^nrpe.*$' /etc/services"
 end
-
-# you don't want xinetd to log successes, will fill up the log
-execute "dont_log_success" do
-  command "sed -i 's/^.*log_on_success.*$/\#&1/' /etc/xinetd.conf"
-  returns 0
-  not_if "egrep '^#.*log_on_success.*$' /etc/xinetd.conf"
-end
-
-logrotate_app "nrpe" do
-  cookbook "logrotate"
-  path "/var/log/nrpe.log"
-  frequency "daily"
-  create "644 root root"
-  rotate 30
-end 
