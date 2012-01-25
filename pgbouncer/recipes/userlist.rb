@@ -27,14 +27,18 @@ psql_cmd = %Q[psql -h #{node[:pgbouncer]['pghost']} \
 
 shell_cmd = %Q[ su - postgres; #{psql_cmd} ]
 
-cron_cmd = %Q[ tmpfile=$(mktemp);
-               #{psql_cmd} > $tmpfile;
-               tmp_sum=$(md5sum $tmpfile)
-               cur_sum=$(md5sum $tmpfile)
-               if [  $tmpsum != $cur_sum ] ; then
-                  cat $tmpfile > #{node[:pgbouncer][:authfile]}
-               fi
-             ]
+cron_cmd = %Q[
+# this file was placed by chef
+
+tmpfile=$(mktemp);
+#{psql_cmd} > $tmpfile;
+tmp_sum=$(md5sum $tmpfile)
+cur_sum=$(md5sum $tmpfile)
+if [  "$tmpsum" != "$cur_sum" ] ; then
+  cat $tmpfile > #{node[:pgbouncer][:auth_file]}
+fi
+  
+]
                    
 # add users (clients) that will access this bouncer
 ruby_block "initial_get_userlist" do
@@ -46,7 +50,6 @@ ruby_block "initial_get_userlist" do
     list_of_users = []
     cmd.stdout.split("\n").each do |entry|
         user, md5hash = entry.scan(/\w+/)
-        puts "user is #{user} hash is #{md5hash}"
         list_of_users << [user, md5hash]
     end
     node['pgbouncer']['userlist'] = list_of_users
@@ -61,9 +64,32 @@ template node[:pgbouncer][:auth_file] do
   notifies :reload, resources(:service => "pgbouncer")
 end
 
-cron "build_userlist" do
+file "/usr/local/bin/cron_userlist.sh" do
+  owner "postgres"
+  group "postgres"
+  mode "0755"
+  content <<EOS
+
+# this file was placed by chef, manual changes will be overwritten
+
+tmpfile=$(mktemp);
+#{psql_cmd} > $tmpfile;
+tmp_sum=$(md5sum $tmpfile | awk '{print $1}')
+cur_sum=$(md5sum #{node[:pgbouncer][:auth_file]} | awk '{print $1}')
+if [  "$tmp_sum" != "$cur_sum" ] ; then
+  cat $tmpfile > #{node[:pgbouncer][:auth_file]}
+fi
+
+rm -f $tmpfile
+  
+EOS
+  action :create_if_missing
+end
+
+cron "pgbouncer" do
   hour "*"
   minute "0"
   user "postgres"
-  command cron_cmd
+  shell "/bin/bash"
+  command "/usr/local/bin/cron_userlist.sh"
 end
