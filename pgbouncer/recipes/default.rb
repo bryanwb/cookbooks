@@ -19,6 +19,8 @@
 # limitations under the License.
 #
 
+include_recipe "logrotate"
+
 case node['platform']
 when "redhat","centos","scientific","fedora","suse"
   include_recipe "yumrepo::postgresql9"
@@ -59,3 +61,11 @@ end
 service "pgbouncer" do
   action [:enable, :start]
 end
+
+logrotate_app "pgbouncer" do
+  cookbook "logrotate"
+  path "/var/log/pgbouncer.log"
+  frequency "daily"
+  create "644 root root"
+  rotate 30
+end 
