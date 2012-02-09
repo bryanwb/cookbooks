@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: users
-# Recipe:: hudson
+# Recipe:: liferay
 #
 # Copyright 2009-2011, Opscode, Inc.
 #
@@ -19,18 +19,18 @@
 
 include_recipe "sudo"
 
-hudson_user = "hudson"
+liferay_user = "liferay"
 
-# find all members of the hudson group, so we can make them members
-hudson_members = Array.new
-hudson_members << hudson_user
+# find all members of the liferay group, so we can make them members
+liferay_members = Array.new
+liferay_members << liferay_user
 
-search(:users, "groups:hudson").each do |u|
-  hudson_members << u.id
+search(:users, "groups:liferay").each do |u|
+  liferay_members << u.id
 end
 
 # create user
-user hudson_user
+user liferay_user
 
 ruby_block "find_local_users" do
   block do
@@ -38,23 +38,33 @@ ruby_block "find_local_users" do
     node['etc']['passwd'].each do |name,values|
       local_users << name
     end
-    hudson_members = hudson_members & local_users
+    liferay_members = liferay_members & local_users
   end
   action :create
 end
 
-group hudson_user do
-  members hudson_members
+group liferay_user do
+  # find all users that currently exist on the machine
+  # then only add those liferay_members that already have
+  # user accounts
+  local_users = Array.new
+  node['etc']['passwd'].each do |name,values|
+    local_users << name
+  end
+  liferay_members = liferay_members & local_users
+  members liferay_members
   action :modify
 end
 
 # add sudoers
-sudo hudson_user do
+sudo liferay_user do
   template "app.erb"
   variables(
             {
-              "name" => hudson_user,
-              "service" => "jenkins"
+              "name" => liferay_user,
+              "service" => liferay_user
             }
             )
 end
+
+

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: users
-# Recipe:: hudson
+# Recipe:: artifactory
 #
 # Copyright 2009-2011, Opscode, Inc.
 #
@@ -19,18 +19,18 @@
 
 include_recipe "sudo"
 
-hudson_user = "hudson"
+artifactory_user = "artifactory"
 
-# find all members of the hudson group, so we can make them members
-hudson_members = Array.new
-hudson_members << hudson_user
+# find all members of the artifactory group, so we can make them members
+artifactory_members = Array.new
+artifactory_members << artifactory_user
 
-search(:users, "groups:hudson").each do |u|
-  hudson_members << u.id
+search(:users, "groups:artifactory").each do |u|
+  artifactory_members << u.id
 end
 
 # create user
-user hudson_user
+user artifactory_user
 
 ruby_block "find_local_users" do
   block do
@@ -38,23 +38,23 @@ ruby_block "find_local_users" do
     node['etc']['passwd'].each do |name,values|
       local_users << name
     end
-    hudson_members = hudson_members & local_users
+    artifactory_members = artifactory_members & local_users
   end
   action :create
 end
 
-group hudson_user do
-  members hudson_members
+group artifactory_user do
+  members artifactory_members
   action :modify
 end
 
 # add sudoers
-sudo hudson_user do
+sudo artifactory_user do
   template "app.erb"
   variables(
             {
-              "name" => hudson_user,
-              "service" => "jenkins"
+              "name" => artifactory_user,
+              "service" => artifactory_user
             }
             )
 end
