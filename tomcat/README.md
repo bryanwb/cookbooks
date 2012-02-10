@@ -3,6 +3,7 @@ Description
 
 Installs and configures the Tomcat, Java servlet engine and webserver.
 
+
 Requirements
 ============
 
@@ -19,39 +20,39 @@ Attributes
 ==========
 
 * prefix_dir - /usr/local/, /var/lib/, etc.
-* catalina_home - prefix_dir/tomcat${version}
-* http_port
-* https_port
-* ajp_port
-* shutdown_port
-
 
 Recipes
 ==========
 
-The ROOT and manager webapps are removed in both recipes.
+* default.rb -- installs tomcat via debian package only on a
+debian based distribution. Otherwise installs via tomcat7_binary.rb
+* package.rb -- installs tomcat7 unless node['tomcat']['version'] set
+to 6. The package typically installs a system service.
+* binary.rb  installs the tomcat from the binary provided by
+tomcat.apache.org, will use version 7 unless node['tomcat']['version'] set
+to 6. No tomcat service is installed.
 
-default
--------
+All of the default webapps such as "ROOT" and "manager" are removed in the tomcat_binary recipe
 
-This recipe is for use with the tomcat_war and tomcat_webapp lwrps. It
-creates an installation of tomcat to prefix_dir and adds an init
-script to /etc/init.d/
+binary
+------
+
+It creates an installation of tomcat to prefix_dir. It does very
+little besides that.
 
 By default it uses the tomcat 7 by including tomcat7 recipe
 
-tomcat6, tomcat7
-----------------
+This recipe is intended to be used together with the CATALINA_BASE method to install
+multiple tomcat instances that use the same set of tomcat installation
+files. This recipe does not add any services. It is intended to be used together with the tomcat lwrp.
 
-installs tomcat6 or tomcat7
+${prefix_dir}/tomcat/tomcat{6,7}  # CATALINA_HOME
 
-tomcat6_base, tomcat7_base
---------------------------
+and creates a symlink to that directory
 
-These recipes are for use with the tomcat lwrp. This recipe only
-installs those files that will be share among multiple tomcat instances.
+${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
 
-Use the tomcat lwrp with this recipe
+
 
 Resources/Providers
 ===================
@@ -60,56 +61,62 @@ tomcat
 
 # Actions
 
-- :install: 
-- :remove:
-- :update:
-
+- :install: install
+- :remove: remove the instance
+- :stop: stop the instance
+- :enable:
+- :disable:
+- :start: start the instance
+- :restart: restarts the tomcat instance
+- :webapps: returns location of the webapps directory, typically for
+  use with a deploy or maven lwrp (coming soon)
 
 # Attribute Parameters
 
-- http_port: port_num or true/false, default to true
-- ajp_port:  port_num or true/false, default to true
-- https_port: port_num or true/false, default to true
+- http_port: port_num or true/false, default to true and 8080
+- ajp_port:  port_num or true/false, default to true and ?
+- https_port: port_num or true/false, default to true and 8443
 - shutdown_port: port_num or true/false, default to true
 - host_name: name for Host element, defaults to localhost
-- webapp_dir: defaults to webapps
 - unpack_wars: defaults to true
 - auto_deploy: defaults to true
 - version: 6 or 7 
-- webapps_url: url to tarball or to a single .war file. The tarball
-  may hold multiple war files
+- webapp_url: url to tarball or to a single .war file. The tarball
+  may hold multiple war files #TODO add maven support
+- webapps_dir: location of the webapps directory
+- tmpdir: location of temporary directory
+- java_opts: hash of options for the JVM
+- jmx_opts: hash of JMX monitoring options
+- webapps_opts: hash of directives passed to the webapp
+- user: user to run the tomcat as
+- java_home: location of JDK
 
-tomcat_war
 
-# Actions
+An exception will be thrown if one of the values specified by *_port
+is already in use by another tomcat lwrp
 
-- :install: 
-- :remove:
-- :update:
+All *_OPTS attributes are combined into the variable CATALINA_OPTS.
+Duplicate options are removed.
 
-
-# Attribute Parameters
-
-- version: 6 or 7
-- url: url to a single .war file. .war file can be compressed
-  as .tar, .tar.gz
-
-# Examples
+# Example
 
     tomcat "pentaho" do
       http_port  false
       https_port "8443"
       version    "7"
-      webapps_url "http://download.example.com/pentaho_wars.tar.gz"
     end
 
-    tomcat_war "foobar" do
-      version   "6"
-      url       "http://download.example.com/foobar_war.tar.gz"
-    end
+To deploy a webapp to the new tomcat, you use a deploy resource or a
+maven resource (coming soon).
 
-Usage
-=====
+# Example
+
+   deploy "pentaho" do  
+     deploy_root tomcat['pentaho']['webapps']
+     repository "github.com/bryanwb/pentaho.git"
+     revision   "1.0.2"
+     restart_command tomcat['pentaho'] :restart
+   end
 
 
 TODO

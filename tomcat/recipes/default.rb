@@ -21,7 +21,7 @@ include_recipe "java"
 
 case node.platform
 when "centos","redhat","fedora"
-  include_recipe "jpackage"
+  
 end
 
 tomcat_pkgs = value_for_platform(
