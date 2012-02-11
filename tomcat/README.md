@@ -28,11 +28,11 @@ Recipes
 debian based distribution. Otherwise installs via tomcat7_binary.rb
 * package.rb -- installs tomcat7 unless node['tomcat']['version'] set
 to 6. The package typically installs a system service.
-* binary.rb  installs the tomcat from the binary provided by
+* ark.rb  installs the tomcat from the binary provided by
 tomcat.apache.org, will use version 7 unless node['tomcat']['version'] set
 to 6. No tomcat service is installed.
 
-All of the default webapps such as "ROOT" and "manager" are removed in the tomcat_binary recipe
+All of the default webapps such as "ROOT" and "manager" are removed in the tomcat::ark recipe
 
 binary
 ------
@@ -84,7 +84,8 @@ tomcat
 - webapp_url: url to tarball or to a single .war file. The tarball
   may hold multiple war files #TODO add maven support
 - webapps_dir: location of the webapps directory
-- tmpdir: location of temporary directory
+- tmp_dir: location of temporary directory
+- work_dir: location of work directory
 - java_opts: hash of options for the JVM
 - jmx_opts: hash of JMX monitoring options
 - webapps_opts: hash of directives passed to the webapp

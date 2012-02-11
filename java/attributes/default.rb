@@ -1,5 +1,6 @@
 #
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
+# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Cookbook Name:: java
 # Attributes:: ark
 #

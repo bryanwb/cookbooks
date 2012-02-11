@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: tomcat
-# Recipe:: default
+# Recipe:: ark
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2010, Opscode, Inc.
 # Copyright 2012, Bryan W. Berry
@@ -18,12 +18,7 @@
 # limitations under the License.
 #
 
-include_recipe "java"
-
-case node.platform
-when "centos","redhat","fedora"
-  include_recipe "tomcat::ark"
-when "debian","ubuntu"
-  include_recipe "tomcat::package"
+if platform? [ "centos","redhat","fedora"]
+  package "redhat-lsb"
 end
 

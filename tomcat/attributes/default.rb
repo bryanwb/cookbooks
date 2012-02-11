@@ -1,6 +1,7 @@
 #
-# Cookbook Name:: jetty
+# Cookbook Name:: tomcat
 # Attributes:: default
+# Author:: Bryan Berry (<bryan.berry@gmail.com>)
 #
 # Copyright 2010, Opscode, Inc.
 #
@@ -16,44 +17,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+default["tomcat"]["version"] = "6"
+default["tomcat"]["prefix_dir"] = "/usr/local"
 default["tomcat"]["port"] = 8080
 default["tomcat"]["ssl_port"] = 8443
 default["tomcat"]["ajp_port"] = 8009
-default["tomcat"]["java_options"] = "-Xmx128M -Djava.awt.headless=true"
+default["tomcat"]["java_opts"] = "-Xmx128M -Djava.awt.headless=true"
 default["tomcat"]["use_security_manager"] = false
 
 case platform
 when "centos","redhat","fedora"
-  set["tomcat"]["user"] = "tomcat"
-  set["tomcat"]["group"] = "tomcat"
-  set["tomcat"]["home"] = "/usr/share/tomcat6"
-  set["tomcat"]["base"] = "/usr/share/tomcat6"
-  set["tomcat"]["config_dir"] = "/etc/tomcat6"
-  set["tomcat"]["log_dir"] = "/var/log/tomcat6"
-  set["tomcat"]["tmp_dir"] = "/var/cache/tomcat6/temp"
-  set["tomcat"]["work_dir"] = "/var/cache/tomcat6/work"
-  set["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
-  set["tomcat"]["webapp_dir"] = "/var/lib/tomcat6/webapps"
+  default["tomcat"]["user"] = "tomcat"
+  default["tomcat"]["group"] = "tomcat"
+  default["tomcat"]["home"] = "/usr/share/tomcat6"
+  default["tomcat"]["base"] = "/usr/share/tomcat6"
+  default["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
 when "debian","ubuntu"
-  set["tomcat"]["user"] = "tomcat6"
-  set["tomcat"]["group"] = "tomcat6"
-  set["tomcat"]["home"] = "/usr/share/tomcat6"
-  set["tomcat"]["base"] = "/var/lib/tomcat6"
-  set["tomcat"]["config_dir"] = "/etc/tomcat6"
-  set["tomcat"]["log_dir"] = "/var/log/tomcat6"
-  set["tomcat"]["tmp_dir"] = "/tmp/tomcat6-tmp"
-  set["tomcat"]["work_dir"] = "/var/cache/tomcat6"
-  set["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
-  set["tomcat"]["webapp_dir"] = "/var/lib/tomcat6/webapps"
-else
-  set["tomcat"]["user"] = "tomcat6"
-  set["tomcat"]["group"] = "tomcat6"
-  set["tomcat"]["home"] = "/usr/share/tomcat6"
-  set["tomcat"]["base"] = "/var/lib/tomcat6"
-  set["tomcat"]["config_dir"] = "/etc/tomcat6"
-  set["tomcat"]["log_dir"] = "/var/log/tomcat6"
-  set["tomcat"]["tmp_dir"] = "/tmp/tomcat6-tmp"
-  set["tomcat"]["work_dir"] = "/var/cache/tomcat6"
-  set["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
-  set["tomcat"]["webapp_dir"] = "/var/lib/tomcat6/webapps"
+  default["tomcat"]["user"] = "tomcat6"
+  default["tomcat"]["group"] = "tomcat6"
+  default["tomcat"]["home"] = "/usr/share/tomcat6"
+  default["tomcat"]["base"] = "/var/lib/tomcat6"
+  default["tomcat"]["config_dir"] = "/etc/tomcat6"
+  default["tomcat"]["log_dir"] = "/var/log/tomcat6"
+  default["tomcat"]["tmp_dir"] = "/tmp/tomcat6-tmp"
+  default["tomcat"]["work_dir"] = "/var/cache/tomcat6"
+  default["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
+  default["tomcat"]["webapp_dir"] = "/var/lib/tomcat6/webapps"
 end
+
+default['tomcat']['6']['url'] = ''
+default['tomcat']['6']['checksum'] = ''
+default['tomcat']['7']['url'] = ''
+default['tomcat']['7']['checksum'] = ''
