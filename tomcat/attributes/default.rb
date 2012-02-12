@@ -4,6 +4,7 @@
 # Author:: Bryan Berry (<bryan.berry@gmail.com>)
 #
 # Copyright 2010, Opscode, Inc.
+# Copyright 2012, Bryan W. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,35 +18,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-default["tomcat"]["version"] = "6"
+default["tomcat"]["version"] = "7"
+version = node["tomcat"]["version"]
 default["tomcat"]["prefix_dir"] = "/usr/local"
+prefix_dir = node["tomcat"]["prefix_dir"]
+default["tomcat"]["home"] = "#{prefix_dir}/tomcat/tomcat#{version}"
+default["tomcat"]["base"] = "#{prefix_dir}/tomcat/tomcat#{version}"
+tomcat_base = node["tomcat"]["base"]
+default["tomcat"]["context_dir"] = "#{tomcat_base}/conf/Catalina/localhost"
+default["tomcat"]["log_dir"] = "#{tomcat_base}/logs"
+default["tomcat"]["tmp_dir"] = "#{tomcat_base}/temp"
+default["tomcat"]["work_dir"] = "#{tomcat_base}/work"
+default["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
+
+# runtime settings
+default["tomcat"]["use_security_manager"] = false
+default["tomcat"]["user"] = "tomcat"
+default["tomcat"]["group"] = "tomcat"
 default["tomcat"]["port"] = 8080
 default["tomcat"]["ssl_port"] = 8443
 default["tomcat"]["ajp_port"] = 8009
+default["tomcat"]["shutdown_port"] = 8005
+default["tomcat"]["unpack_wars"] = true
+default["tomcat"]["auto_deploy"] = true
+
+# all the *_opts are later combined into CATALINA_OPTS
 default["tomcat"]["java_opts"] = "-Xmx128M -Djava.awt.headless=true"
-default["tomcat"]["use_security_manager"] = false
+default["tomcat"]["jmx_opts"] = ""
+default["tomcat"]["webapp_opts"] = ""
+default["tomcat"]["more_opts"] = ""
 
-case platform
-when "centos","redhat","fedora"
-  default["tomcat"]["user"] = "tomcat"
-  default["tomcat"]["group"] = "tomcat"
-  default["tomcat"]["home"] = "/usr/share/tomcat6"
-  default["tomcat"]["base"] = "/usr/share/tomcat6"
-  default["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
-when "debian","ubuntu"
-  default["tomcat"]["user"] = "tomcat6"
-  default["tomcat"]["group"] = "tomcat6"
-  default["tomcat"]["home"] = "/usr/share/tomcat6"
-  default["tomcat"]["base"] = "/var/lib/tomcat6"
-  default["tomcat"]["config_dir"] = "/etc/tomcat6"
-  default["tomcat"]["log_dir"] = "/var/log/tomcat6"
-  default["tomcat"]["tmp_dir"] = "/tmp/tomcat6-tmp"
-  default["tomcat"]["work_dir"] = "/var/cache/tomcat6"
-  default["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
-  default["tomcat"]["webapp_dir"] = "/var/lib/tomcat6/webapps"
-end
-
-default['tomcat']['6']['url'] = ''
-default['tomcat']['6']['checksum'] = ''
-default['tomcat']['7']['url'] = ''
-default['tomcat']['7']['checksum'] = ''
+# urls for arks and sha256 checksum for each
+default['tomcat']['6']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
+default['tomcat']['6']['checksum'] = 'b28c9cbc2a8ef271df646a50410bab7904953b550697efb5949c9b2d6a9f3d53'
+default['tomcat']['7']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-7/v7.0.25/bin/apache-tomcat-7.0.25.tar.gz'
+default['tomcat']['7']['checksum'] = '7ba03b6703b43da6868613fd625bfb13a791d57478b4a4e49bdb56f9fc3994b4'

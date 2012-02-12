@@ -18,17 +18,20 @@
 # limitations under the License.
 #
 
-# let's set the tomcat attributes to the ones that match the ubuntu packages
-version = node['tomcat']['version']
+# let's set the tomcat attributes to the ones that match the ubuntu
+# packages, damn the FHS
+
+version = node['tomcat']['version'].to_s
 node["tomcat"]["user"] = "tomcat#{version}"
 node["tomcat"]["group"] = "tomcat#{version}"
 node["tomcat"]["home"] = "/usr/share/tomcat#{version}"
 node["tomcat"]["base"] = "/var/lib/tomcat#{version}"
 node["tomcat"]["config_dir"] = "/etc/tomcat#{version}"
+config_dir = node["tomcat"]["config_dir"]
 node["tomcat"]["log_dir"] = "/var/log/tomcat#{version}"
 node["tomcat"]["tmp_dir"] = "/tmp/tomcat#{version}-tmp"
 node["tomcat"]["work_dir"] = "/var/cache/tomcat#{version}"
-node["tomcat"]["context_dir"] = "#{tomcat["config_dir"]}/Catalina/localhost"
+node["tomcat"]["context_dir"] = "#{config_dir}/Catalina/localhost"
 node["tomcat"]["webapp_dir"] = "/var/lib/tomcat#{version}/webapps"
 
 # this recipe only supports debian or ubuntu
@@ -36,7 +39,8 @@ unless platform? ["debian", "ubuntu"]
   Chef::Application::fatal!("This recipe only supports Ubuntu or Debian")
 end
 
-tomcat_pkgs = ["tomcat#{version}", "tomcat#{version}-admin"]
+tomcat_pkgs = [ "tomcat#{version}", "tomcat#{version}-admin"]
+
 
 tomcat_pkgs.each do |pkg|
   package pkg do
@@ -51,7 +55,7 @@ service "tomcat" do
 end
 
 template "/etc/default/tomcat#{version}" do
-  source "default_tomcat6.erb"
+  source "package_default_tomcat6.erb"
   owner "root"
   group "root"
   mode "0644"
@@ -60,7 +64,7 @@ end
 
 
 template "/etc/tomcat#{version}/server.xml" do
-  source "server.xml.erb"
+  source "server.tomcat#{version}.xml.erb"
   owner "root"
   group "root"
   mode "0644"

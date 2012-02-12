@@ -22,7 +22,7 @@ Attributes
 * prefix_dir - /usr/local/, /var/lib/, etc.
 
 Recipes
-==========
+=======
 
 * default.rb -- installs tomcat via debian package only on a
 debian based distribution. Otherwise installs via tomcat7_binary.rb
@@ -34,8 +34,19 @@ to 6. No tomcat service is installed.
 
 All of the default webapps such as "ROOT" and "manager" are removed in the tomcat::ark recipe
 
-binary
-------
+ark
+---
+
+This recipe creates a vanilla tomcat installation based on the tarball
+of bytecode available from http://tomcat.apache.org and places it in 
+${prefix_dir}. Additionally, it configures a system v
+init script and creates the symlink
+
+    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+
+
+ark_base
+--------
 
 It creates an installation of tomcat to prefix_dir. It does very
 little besides that.
@@ -46,11 +57,11 @@ This recipe is intended to be used together with the CATALINA_BASE method to ins
 multiple tomcat instances that use the same set of tomcat installation
 files. This recipe does not add any services. It is intended to be used together with the tomcat lwrp.
 
-${prefix_dir}/tomcat/tomcat{6,7}  # CATALINA_HOME
+    ${prefix_dir}/tomcat/tomcat{6,7}  # CATALINA_HOME
 
 and creates a symlink to that directory
 
-${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
+    ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
 
 
 
@@ -81,14 +92,12 @@ tomcat
 - unpack_wars: defaults to true
 - auto_deploy: defaults to true
 - version: 6 or 7 
-- webapp_url: url to tarball or to a single .war file. The tarball
-  may hold multiple war files #TODO add maven support
 - webapps_dir: location of the webapps directory
 - tmp_dir: location of temporary directory
 - work_dir: location of work directory
 - java_opts: hash of options for the JVM
 - jmx_opts: hash of JMX monitoring options
-- webapps_opts: hash of directives passed to the webapp
+- webapp_opts: hash of directives passed to the webapp
 - user: user to run the tomcat as
 - java_home: location of JDK
 
