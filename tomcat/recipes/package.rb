@@ -54,8 +54,19 @@ service "tomcat" do
   action [:enable, :start]
 end
 
+template "tomcat#{version}" do
+  path "/etc/init.d/tomcat#{version}"
+  source "tomcat.init.debian.erb"
+  owner "root"
+  group "root"
+  mode "0774"
+  variables( :name => "tomcat#{version}")
+  notifies :restart, resources(:service => "tomcat")
+end
+
+
 template "/etc/default/tomcat#{version}" do
-  source "package_default_tomcat6.erb"
+  source "default_tomcat.erb"
   owner "root"
   group "root"
   mode "0644"

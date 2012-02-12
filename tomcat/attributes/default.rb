@@ -33,8 +33,8 @@ default["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
 
 # runtime settings
 default["tomcat"]["use_security_manager"] = false
-default["tomcat"]["user"] = "tomcat"
-default["tomcat"]["group"] = "tomcat"
+default["tomcat"]["user"] = "tomcat#{version}"
+default["tomcat"]["group"] = "tomcat#{version}"
 default["tomcat"]["port"] = 8080
 default["tomcat"]["ssl_port"] = 8443
 default["tomcat"]["ajp_port"] = 8009
@@ -43,7 +43,7 @@ default["tomcat"]["unpack_wars"] = true
 default["tomcat"]["auto_deploy"] = true
 
 # all the *_opts are later combined into CATALINA_OPTS
-default["tomcat"]["java_opts"] = "-Xmx128M -Djava.awt.headless=true"
+default["tomcat"]["jvm_opts"] = "-Xmx128M -Djava.awt.headless=true"
 default["tomcat"]["jmx_opts"] = ""
 default["tomcat"]["webapp_opts"] = ""
 default["tomcat"]["more_opts"] = ""

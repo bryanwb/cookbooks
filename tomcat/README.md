@@ -95,9 +95,9 @@ tomcat
 - webapps_dir: location of the webapps directory
 - tmp_dir: location of temporary directory
 - work_dir: location of work directory
-- java_opts: hash of options for the JVM
+- jvm_opts: hash of options for the JVM
 - jmx_opts: hash of JMX monitoring options
-- webapp_opts: hash of directives passed to the webapp
+- webapp_opts: hash of directives passed to a webapp
 - user: user to run the tomcat as
 - java_home: location of JDK
 
