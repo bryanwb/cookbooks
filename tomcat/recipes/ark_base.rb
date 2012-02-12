@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: tomcat
-# Recipe:: ark
+# Recipe:: ark_base
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2010, Opscode, Inc.
 # Copyright 2012, Bryan W. Berry
@@ -19,7 +19,6 @@
 #
 
 version = node['tomcat']['version'].to_s
-distro = "debian"
 
 # the sysv init script requires an additional package
 if platform? [ "centos","redhat","fedora"]
@@ -32,29 +31,4 @@ java_ark "tomcat#{version}" do
   checksum node['tomcat'][version]['checksum']
   app_home "#{node['tomcat']['prefix_dir']}/tomcat/default"
   owner node['tomcat']['user']
-end
-  
-service "tomcat" do
-  service_name "tomcat#{version}"
-  supports :restart => true, :reload => true, :status => true
-  action [:enable, :start]
-end
-
-template "tomcat#{version}" do
-  path "/etc/init.d/tomcat#{version}"
-  source "tomcat.init.#{distro}.erb"
-  owner "root"
-  group "root"
-  mode "0774"
-  variables( :name => "tomcat#{version}")
-  notifies :restart, resources(:service => "tomcat")
-end
-
-
-template "/etc/default/tomcat#{version}" do
-  source "default_tomcat.erb"
-  owner "root"
-  group "root"
-  mode "0644"
-  notifies :restart, resources(:service => "tomcat")
-end
+end  
