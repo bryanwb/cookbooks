@@ -42,11 +42,11 @@ default["tomcat"]["shutdown_port"] = 8005
 default["tomcat"]["unpack_wars"] = true
 default["tomcat"]["auto_deploy"] = true
 
-# all the *_opts are later combined into CATALINA_OPTS
-default["tomcat"]["jvm_opts"] = "-Xmx128M -Djava.awt.headless=true"
-default["tomcat"]["jmx_opts"] = ""
-default["tomcat"]["webapp_opts"] = ""
-default["tomcat"]["more_opts"] = ""
+# all the *_opts are later combined into JAVA_OPTS
+default["tomcat"]["jvm_opts"] = ["-Xmx128M", "-Djava.awt.headless=true"]
+default["tomcat"]["jmx_opts"] = []
+default["tomcat"]["webapp_opts"] = []
+default["tomcat"]["more_opts"] = []
 
 # urls for arks and sha256 checksum for each
 default['tomcat']['6']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'

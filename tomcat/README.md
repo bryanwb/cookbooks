@@ -28,7 +28,8 @@ Recipes
 debian based distribution. Otherwise installs via tomcat7_binary.rb
 * package.rb -- installs tomcat7 unless node['tomcat']['version'] set
 to 6. The package typically installs a system service.
-* ark.rb  installs the tomcat from the binary provided by
+* ark.rb installs a vanilla tomcat and creates a service
+* base.rb  installs the tomcat from the binary provided by
 tomcat.apache.org, will use version 7 unless node['tomcat']['version'] set
 to 6. No tomcat service is installed.
 
@@ -45,8 +46,8 @@ init script and creates the symlink
     ${prefix_dir}/tomcat/default -> ${prefix_dir}/tomcat/tomcat{6,7}
 
 
-ark_base
---------
+base
+----
 
 It creates an installation of tomcat to prefix_dir. It does very
 little besides that.
@@ -74,30 +75,21 @@ tomcat
 
 - :install: install
 - :remove: remove the instance
-- :stop: stop the instance
-- :enable:
-- :disable:
-- :start: start the instance
-- :restart: restarts the tomcat instance
 - :webapps: returns location of the webapps directory, typically for
   use with a deploy or maven lwrp (coming soon)
 
 # Attribute Parameters
 
 - http_port: port_num or true/false, default to true and 8080
-- ajp_port:  port_num or true/false, default to true and ?
-- https_port: port_num or true/false, default to true and 8443
-- shutdown_port: port_num or true/false, default to true
+- ajp_port:  port_num or true/false, default to true and 8009
+- shutdown_port: port_num or true/false, default to 8005
 - host_name: name for Host element, defaults to localhost
 - unpack_wars: defaults to true
 - auto_deploy: defaults to true
 - version: 6 or 7 
-- webapps_dir: location of the webapps directory
-- tmp_dir: location of temporary directory
-- work_dir: location of work directory
-- jvm_opts: hash of options for the JVM
-- jmx_opts: hash of JMX monitoring options
-- webapp_opts: hash of directives passed to a webapp
+- jvm_opts: Array of options for the JVM
+- jmx_opts: Array of JMX monitoring options
+- webapp_opts: Array of directives passed to a webapp
 - user: user to run the tomcat as
 - java_home: location of JDK
 
@@ -105,7 +97,7 @@ tomcat
 An exception will be thrown if one of the values specified by *_port
 is already in use by another tomcat lwrp
 
-All *_OPTS attributes are combined into the variable CATALINA_OPTS.
+All *_OPTS attributes are combined into the environment variable JAVA_OPTS.
 Duplicate options are removed.
 
 # Example

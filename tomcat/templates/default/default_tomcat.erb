@@ -4,16 +4,16 @@
 # Local modifications will be overwritten by Chef.
 #
 
-TOMCAT_USER=<%= node["tomcat"]["user"] %>
-TOMCAT_GROUP=<%= node["tomcat"]["group"] %>
+TOMCAT_USER=<%= @tomcat["user"] %>
+TOMCAT_GROUP=<%= @tomcat["group"] %>
 JAVA_HOME=<%= node["java"]["java_home"] %>
-CATALINA_HOME=<%= node["tomcat"]["home"] %>
-CATALINA_BASE=<%= node["tomcat"]["base"] %>
-CATALINA_PID="/var/run/tomcat<%= node["tomcat"]["version"] %>.pid"
-JAVA_OPTS="<%= node["tomcat"]["jvm_opts"] + 
- node["tomcat"]["jmx_opts"] + 
- node["tomcat"]["webapp_opts"] + 
- node["tomcat"]["more_opts"] %>"
+CATALINA_HOME=<%= @tomcat["home"] %>
+CATALINA_BASE=<%= @tomcat["base"] %>
+CATALINA_PID="/var/run/tomcat<%= @tomcat["version"] %>.pid"
+JAVA_OPTS="<%= @tomcat['jvm_opts'].join(' ') + 
+ @tomcat['jmx_opts'].join(' ') + 
+ @tomcat['webapp_opts'].join(' ') + 
+ @tomcat['more_opts'].join(' ') %>"
 
 JAVA_ENDORSED_DIRS="$CATALINA_HOME/endorsed"
 
@@ -21,6 +21,6 @@ JAVA_ENDORSED_DIRS="$CATALINA_HOME/endorsed"
 JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
 
 # Use the Java security manager? (yes/no, default: no)
-TOMCAT6_SECURITY=<%= node["tomcat"]["use_security_manager"] ? "yes" : "no" %>
+TOMCAT6_SECURITY=<%= @tomcat["use_security_manager"] ? "yes" : "no" %>
 
-JVM_TMP=<%= node["tomcat"]["tmp_dir"] %>
+JVM_TMP=<%= @tomcat["tmp_dir"] %>
