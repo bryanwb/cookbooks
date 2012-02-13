@@ -64,8 +64,6 @@ template "tomcat#{version}" do
   notifies :restart, resources(:service => "tomcat")
 end
 
-#Hash[node['tomcat'].to_hash.map{|k, v| [k.to_sym, v]}]
-
 template "/etc/default/tomcat#{version}" do
   source "default_tomcat.erb"
   owner "root"
@@ -81,5 +79,6 @@ template "/etc/tomcat#{version}/server.xml" do
   owner "root"
   group "root"
   mode "0644"
+  variables(:tomcat => node['tomcat'].to_hash)
   notifies :restart, resources(:service => "tomcat")
 end

@@ -20,36 +20,36 @@
 
 default["tomcat"]["version"] = "7"
 version = node["tomcat"]["version"]
-default["tomcat"]["prefix_dir"] = "/usr/local"
+set["tomcat"]["prefix_dir"] = "/usr/local"
 prefix_dir = node["tomcat"]["prefix_dir"]
-default["tomcat"]["home"] = "#{prefix_dir}/tomcat/default"
-default["tomcat"]["base"] = "#{prefix_dir}/tomcat/default"
+set["tomcat"]["home"] = "#{prefix_dir}/tomcat/default"
+set["tomcat"]["base"] = "#{prefix_dir}/tomcat/default"
 tomcat_base = node["tomcat"]["base"]
-default["tomcat"]["context_dir"] = "#{tomcat_base}/conf/Catalina/localhost"
-default["tomcat"]["log_dir"] = "#{tomcat_base}/logs"
-default["tomcat"]["tmp_dir"] = "#{tomcat_base}/temp"
-default["tomcat"]["work_dir"] = "#{tomcat_base}/work"
-default["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
+set["tomcat"]["context_dir"] = "#{tomcat_base}/conf/Catalina/localhost"
+set["tomcat"]["log_dir"] = "#{tomcat_base}/logs"
+set["tomcat"]["tmp_dir"] = "#{tomcat_base}/temp"
+set["tomcat"]["work_dir"] = "#{tomcat_base}/work"
+set["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
 
 # runtime settings
-default["tomcat"]["use_security_manager"] = false
-default["tomcat"]["user"] = "tomcat#{version}"
-default["tomcat"]["group"] = "tomcat#{version}"
-default["tomcat"]["port"] = 8080
-default["tomcat"]["ssl_port"] = 8443
-default["tomcat"]["ajp_port"] = 8009
-default["tomcat"]["shutdown_port"] = 8005
-default["tomcat"]["unpack_wars"] = true
-default["tomcat"]["auto_deploy"] = true
+set["tomcat"]["use_security_manager"] = false
+set["tomcat"]["user"] = "tomcat#{version}"
+set["tomcat"]["group"] = "tomcat#{version}"
+set["tomcat"]["port"] = 8080
+set["tomcat"]["ssl_port"] = 8443
+set["tomcat"]["ajp_port"] = 8009
+set["tomcat"]["shutdown_port"] = 8005
+set["tomcat"]["unpack_wars"] = true
+set["tomcat"]["auto_deploy"] = true
 
 # all the *_opts are later combined into JAVA_OPTS
-default["tomcat"]["jvm_opts"] = ["-Xmx128M", "-Djava.awt.headless=true"]
-default["tomcat"]["jmx_opts"] = []
-default["tomcat"]["webapp_opts"] = []
-default["tomcat"]["more_opts"] = []
+set["tomcat"]["jvm_opts"] = ["-Xmx128M", "-Djava.awt.headless=true"]
+set["tomcat"]["jmx_opts"] = []
+set["tomcat"]["webapp_opts"] = []
+set["tomcat"]["more_opts"] = []
 
 # urls for arks and sha256 checksum for each
-default['tomcat']['6']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
-default['tomcat']['6']['checksum'] = 'b28c9cbc2a8ef271df646a50410bab7904953b550697efb5949c9b2d6a9f3d53'
-default['tomcat']['7']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-7/v7.0.25/bin/apache-tomcat-7.0.25.tar.gz'
-default['tomcat']['7']['checksum'] = '7ba03b6703b43da6868613fd625bfb13a791d57478b4a4e49bdb56f9fc3994b4'
+set['tomcat']['6']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
+set['tomcat']['6']['checksum'] = 'b28c9cbc2a8ef271df646a50410bab7904953b550697efb5949c9b2d6a9f3d53'
+set['tomcat']['7']['url'] = 'http://www.apache.org/dist/tomcat/tomcat-7/v7.0.25/bin/apache-tomcat-7.0.25.tar.gz'
+set['tomcat']['7']['checksum'] = '7ba03b6703b43da6868613fd625bfb13a791d57478b4a4e49bdb56f9fc3994b4'

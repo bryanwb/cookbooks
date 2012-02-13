@@ -18,6 +18,8 @@
 # limitations under the License.
 #
 
+include_recipe "java"
+
 version = node['tomcat']['version'].to_s
 distro = "debian"
 
@@ -49,6 +51,7 @@ t_default = template "/etc/default/tomcat#{version}" do
   source "default_tomcat.erb"
   owner "root"
   group "root"
+  variables(:tomcat => node['tomcat'].to_hash)
   mode "0644"
 end
 

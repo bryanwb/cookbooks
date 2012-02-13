@@ -19,8 +19,9 @@
 
 actions :install, :remove
 
-attribute :http_port, :kind_of => Integer, :default => 8080
+attribute :port, :kind_of => Integer, :default => 8080
 attribute :ajp_port, :kind_of => Integer, :default => 8009
+attribute :ajp_port, :kind_of => Integer, :default => 8443
 attribute :shutdown_port, :kind_of => Integer, :default => 8005
 attribute :host_name, :kind_of => String, :default => "localhost"
 attribute :unpack_wars, :equal_to => [true, false], :default => true
@@ -31,7 +32,7 @@ attribute :jvm_opts, :kind_of => Array, :default =>
 attribute :jmx_opts, :kind_of => Array, :default => []
 attribute :webapp_opts, :kind_of => Array, :default => []
 attribute :user, :kind_of => String, :required => true
-attribute :java_home, :kind_of => String
+
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name

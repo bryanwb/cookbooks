@@ -91,7 +91,6 @@ tomcat
 - jmx_opts: Array of JMX monitoring options
 - webapp_opts: Array of directives passed to a webapp
 - user: user to run the tomcat as
-- java_home: location of JDK
 
 
 An exception will be thrown if one of the values specified by *_port
