@@ -9,6 +9,7 @@ TOMCAT_GROUP=<%= node["tomcat"]["group"] %>
 JAVA_HOME=<%= node["java"]["java_home"] %>
 CATALINA_HOME=<%= node["tomcat"]["home"] %>
 CATALINA_BASE=<%= node["tomcat"]["base"] %>
+CATALINA_PID="/var/run/tomcat<%= node["tomcat"]["version"] %>.pid"
 JAVA_OPTS="<%= node["tomcat"]["jvm_opts"] + 
  node["tomcat"]["jmx_opts"] + 
  node["tomcat"]["webapp_opts"] + 

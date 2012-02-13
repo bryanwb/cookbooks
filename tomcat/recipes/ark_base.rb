@@ -26,6 +26,8 @@ if platform? [ "centos","redhat","fedora"]
   distro = "el"
 end
 
+user node['tomcat']['user']
+
 java_ark "tomcat#{version}" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
