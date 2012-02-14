@@ -44,18 +44,19 @@ def populate_params(resource)
   require 'pathname'
   tomcat = Hash.new
   tomcat['name'] = resource.name
-  tomcat['catalina_home'] = node['tomcat']['home']
-  catalina_parent = Pathname.new(catalina_home).parent.to_s
+  catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
+  tomcat['home'] = node['tomcat']['home']
   tomcat['base'] = "#{catalina_parent}/#{resource.name}"
   tomcat["context_dir"] = "#{tomcat['base']}/conf/Catalina/localhost"
   tomcat["log_dir"] = "#{tomcat['base']}/logs"
   tomcat["tmp_dir"] = "#{tomcat['base']}/temp"
   tomcat["work_dir"] = "#{tomcat['base']}/work"
   tomcat["webapp_dir"] = "#{tomcat['base']}/webapps"
+  tomcat["pid_file"] = "#{tomcat['name']}.pid"
   tomcat["use_security_manager"] = node['tomcat']['use_security_manager']
   tomcat["user"] = resource.user
   tomcat["group"] = resource.user
-  tomcat["port"] = resource.http_port
+  tomcat["port"] = resource.port
   tomcat["ssl_port"] = resource.ssl_port
   tomcat["ajp_port"] = resource.ajp_port
   tomcat["shutdown_port"] = resource.shutdown_port
@@ -73,61 +74,72 @@ action :install do
   tomcat = populate_params new_resource
 
   # if this is the first time this recipe run
-  unless Dir.exists? catalina_base
-    check_username! new_resource.user
-    user new_resource do
+#  unless ::File.directory? tomcat['base']
+#    check_username! new_resource.user
+    u = user tomcat['user'] do
       supports :manage_home => true
+      action :nothing
     end
-  end
+    u.run_action(:create)
+#  end
 
-  d = directory catalina_base do
-    owner new_resource.user
-    group new_resource.user
+  d = directory tomcat['base'] do
+    owner tomcat['user']
+    group tomcat['user']
     mode 0775
     action :nothing
   end
   d.run_action(:create)
   
-  %w{ conf logs temp work }.each do |dir|
-    d = directory "#{catalina_base}/#{dir}" do
-      owner new_resource.user
-      group new_resource.user
+  %w{ common conf logs server shared temp webapps work }.each do |dir|
+    d = directory "#{tomcat['base']}/#{dir}" do
+      owner tomcat['user']
+      group tomcat['user']
       mode 0775
       action :nothing
     end
     d.run_action(:create)
   end
 
+  
   t_init = template tomcat['name'] do
-    path "/etc/init.d/"
+    cookbook "tomcat"
+    path "/etc/init.d/#{tomcat['name']}"
     source "tomcat.init.#{distro}.erb"
     owner "root"
     group "root"
     mode "0774"
     variables( :name => tomcat['name'] )
+    action :nothing
   end
-
+  t_init.run_action(:create)
+  
   t_default = template "/etc/default/#{tomcat['name']}" do
+    cookbook "tomcat"
     source "default_tomcat.erb"
     owner "root"
     group "root"
     variables(:tomcat => tomcat)
     mode "0644"
+    action :nothing
   end
-
-  service tomcat['name'] do
+  t_default.run_action(:create)
+  
+  s = service tomcat['name'] do
     service_name tomcat['name']
     supports :restart => true, :reload => true, :status => true
-    action [:enable, :start]
+    action :nothing
   end
+  s.run_action(:enable)
+  s.run_action(:start)
 
   # we can't notify a service until after it has been created
-  t_init.notifies :restart, resources(:service => "tomcat")
-  t_default.notifies :restart, resources(:service => "tomcat")
+  t_init.notifies( :restart, resources(:service => tomcat['name']) )
+  t_default.notifies( :restart, resources(:service => tomcat['name']) ) 
 
 end
 
 
 action :remove do
-
+  
 end

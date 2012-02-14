@@ -30,6 +30,7 @@ set["tomcat"]["log_dir"] = "#{tomcat_base}/logs"
 set["tomcat"]["tmp_dir"] = "#{tomcat_base}/temp"
 set["tomcat"]["work_dir"] = "#{tomcat_base}/work"
 set["tomcat"]["webapp_dir"] = "#{tomcat_base}/webapps"
+set["tomcat"]["pid_file"] = "tomcat#{version}.pid"
 
 # runtime settings
 set["tomcat"]["use_security_manager"] = false

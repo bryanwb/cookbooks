@@ -9,7 +9,7 @@ TOMCAT_GROUP=<%= @tomcat["group"] %>
 JAVA_HOME=<%= node["java"]["java_home"] %>
 CATALINA_HOME=<%= @tomcat["home"] %>
 CATALINA_BASE=<%= @tomcat["base"] %>
-CATALINA_PID="/var/run/tomcat<%= @tomcat["version"] %>.pid"
+CATALINA_PID="/var/run/<%= @tomcat["pid_file"] %>"
 JAVA_OPTS="<%= @tomcat['jvm_opts'].join(' ') + 
  @tomcat['jmx_opts'].join(' ') + 
  @tomcat['webapp_opts'].join(' ') + 
@@ -23,4 +23,4 @@ JAVA_OPTS="${JAVA_OPTS} -XX:+UseConcMarkSweepGC"
 # Use the Java security manager? (yes/no, default: no)
 TOMCAT6_SECURITY=<%= @tomcat["use_security_manager"] ? "yes" : "no" %>
 
-JVM_TMP=<%= @tomcat["tmp_dir"] %>
+CATALINA_TMPDIR=<%= @tomcat["tmp_dir"] %>

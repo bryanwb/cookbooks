@@ -86,10 +86,10 @@ tomcat
 - host_name: name for Host element, defaults to localhost
 - unpack_wars: defaults to true
 - auto_deploy: defaults to true
-- version: 6 or 7 
 - jvm_opts: Array of options for the JVM
 - jmx_opts: Array of JMX monitoring options
 - webapp_opts: Array of directives passed to a webapp
+- more_opts: crap that doesn't fit anywhere else
 - user: user to run the tomcat as
 
 
