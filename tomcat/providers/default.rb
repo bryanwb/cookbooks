@@ -26,44 +26,56 @@ def get_distro
   end
 end
 
-def update_resource(resource)
+def get_resource_hash(resource)
   require 'pathname'
+  resource_h = Hash.new
   catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
-  resource.base = "#{catalina_parent}/#{resource.name}"
-  resource.context_dir = "#{resource.base}/conf/Catalina/localhost"
-  resource.log_dir = "#{resource.base}/logs"
-  resource.tmp_dir = "#{resource.base}/temp"
-  resource.work_dir = "#{resource.base}/work"
-  resource.webapp_dir = "#{resource.base}/webapps"
-  resource.pid_file = "#{resource.name}.pid"
-  resource.use_security_manager = node['tomcat']['use_security_manager']
-  resource.group = resource.owner
+  resource_h['name'] = resource.name
+  resource_h['base'] = "#{catalina_parent}/#{resource_h['name']}"
+  resource_h['context_dir'] = "#{resource_h['base']}/conf/Catalina/localhost"
+  resource_h['log_dir'] = "#{resource_h['base']}/logs"
+  resource_h['tmp_dir'] = "#{resource_h['base']}/temp"
+  resource_h['work_dir'] = "#{resource_h['base']}/work"
+  resource_h['webapp_dir'] = "#{resource_h['base']}/webapps"
+  resource_h['pid_file'] = "#{resource_h['name']}.pid"
+  resource_h['use_security_manager'] = node['tomcat']['use_security_manager']
+  resource_h['user'] = resource.user
+  resource_h['group'] = resource.user
+  resource_h['port'] = resource.port
+  resource_h['ajp_port'] = resource.ajp_port
+  resource_h['ssl_port'] = resource.ssl_port
+  resource_h['shutdown_port'] = resource.shutdown_port
+  resource_h['jvm_opts'] = resource.jvm_opts
+  resource_h['jmx_opts'] = resource.jmx_opts
+  resource_h['webapp_opts'] = resource.webapp_opts
+  resource_h['more_opts'] = resource.more_opts
+  resource_h
 end
   
 action :install do
   distro = get_distro
 
-  update_resource new_resource
+  resource_h = get_resource_hash new_resource
 
-  Chef::Log.debug("#{new_resource.to_hash}")
+  Chef::Log.debug("#{resource_h}")
 
-  u = user new_resource.owner do
+  u = user resource_h['user'] do
     action :nothing
   end
   u.run_action(:create)
 
-  d = directory new_resource.base do
-    owner new_resource.owner
-    group new_resource.owner
+  d = directory resource_h['base'] do
+    owner resource_h['user']
+    group resource_h['user']
     mode 0775
     action :nothing
   end
   d.run_action(:create)
   
   %w{ common conf logs server shared temp webapps work }.each do |dir|
-    d = directory "#{new_resource.base}/#{dir}" do
-      owner new_resource.owner
-      group new_resource.owner
+    d = directory "#{resource_h['base']}/#{dir}" do
+      owner resource_h['user']
+      group resource_h['user']
       mode 0775
       action :nothing
     end
@@ -87,18 +99,18 @@ action :install do
     source "default_tomcat.erb"
     owner "root"
     group "root"
-    variables(:tomcat => new_resource.to_hash)
+    variables(:tomcat => resource_h)
     mode "0644"
     action :nothing
   end
   t_default.run_action(:create)
 
-  t_server_xml = template "#{new_resource.base}/conf/server.xml" do
+  t_server_xml = template "#{resource_h['base']}/conf/server.xml" do
     cookbook "tomcat"
     source "server.tomcat#{node['tomcat']['version']}.xml.erb"
-    owner "#{new_resource.owner}"
-    group "#{new_resource.owner}"
-    variables(:tomcat => new_resource.to_hash)
+    owner "#{resource_h['user']}"
+    group "#{resource_h['user']}"
+    variables(:tomcat => resource_h)
     mode "0644"
     action :nothing
   end
@@ -113,9 +125,11 @@ action :install do
   s.run_action(:start)
 
   # we can't notify a service until after it has been created
-#  t_init.notifies( :restart, resources(:service => new_resource.name) )
-#  t_server_xml.notifies( :restart, resources(:service => new_resource.name) ) 
-#  t_default.notifies( :restart, resources(:service => new_resource.name) ) 
+# t_init.notifies( :restart,
+#                   resources(:service => resource_h['name']) )
+#  t_server_xml.notifies( :restart,
+ #                        t_server_xml.resources(:service => new_resource.name) ) 
+ # t_default.notifies( :restart, resources(:service => new_resource.name) ) 
   
 end
 

@@ -21,9 +21,7 @@
 include_recipe "tomcat::base"
 
 t = tomcat "liferay" do
-  owner node['liferay']['user']
+  user node['liferay']['user']
   action :nothing
 end
 t.run_action(:install)
-
-Chef::Log.debug("catalina_base is #{t.base}")
