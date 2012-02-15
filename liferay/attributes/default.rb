@@ -18,4 +18,4 @@
 # limitations under the License.
 #
 
-set['liferay']['user'] = "liferay"
+default['liferay']['user'] = "liferay"
