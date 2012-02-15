@@ -20,8 +20,8 @@
 
 include_recipe "tomcat::base"
 
-t = tomcat "liferay" do
+tomcat "liferay" do
   user node['liferay']['user']
   action :nothing
 end
-t.run_action(:install)
+

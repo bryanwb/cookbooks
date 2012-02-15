@@ -31,6 +31,7 @@ def get_resource_hash(resource)
   resource_h = Hash.new
   catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
   resource_h['name'] = resource.name
+  resource_h['home'] = node['tomcat']['home']
   resource_h['base'] = "#{catalina_parent}/#{resource_h['name']}"
   resource_h['context_dir'] = "#{resource_h['base']}/conf/Catalina/localhost"
   resource_h['log_dir'] = "#{resource_h['base']}/logs"
@@ -57,8 +58,6 @@ action :install do
 
   resource_h = get_resource_hash new_resource
 
-  Chef::Log.debug("#{resource_h}")
-
   u = user resource_h['user'] do
     action :nothing
   end
@@ -82,19 +81,19 @@ action :install do
     d.run_action(:create)
   end
   
-  t_init = template new_resource.name do
+  t_init = template "/etc/init.d/#{resource_h['name']}" do
     cookbook "tomcat"
-    path "/etc/init.d/#{new_resource.name}"
+    path "/etc/init.d/#{resource_h['name']}"
     source "tomcat.init.#{distro}.erb"
     owner "root"
     group "root"
     mode "0774"
-    variables( :name => new_resource.name )
+    variables( :name => resource_h['name'] )
     action :nothing
   end
   t_init.run_action(:create)
   
-  t_default = template "/etc/default/#{new_resource.name}" do
+  t_default = template "/etc/default/#{resource_h['name']}" do
     cookbook "tomcat"
     source "default_tomcat.erb"
     owner "root"
@@ -116,20 +115,19 @@ action :install do
   end
   t_server_xml.run_action(:create)
 
-  s = service new_resource.name do
-    service_name new_resource.name
+  s = service resource_h['name'] do
+    service_name resource_h['name']
     supports :restart => true, :reload => true, :status => true
     action :nothing
+    subscribes :restart, resources( :template =>
+                                   [
+                                    "#{resource_h['base']}/conf/server.xml",
+                                    "/etc/default/#{resource_h['name']}",
+                                    "/etc/init.d/#{resource_h['name']}"
+                                   ])
   end
   s.run_action(:enable)
   s.run_action(:start)
-
-  # we can't notify a service until after it has been created
-# t_init.notifies( :restart,
-#                   resources(:service => resource_h['name']) )
-#  t_server_xml.notifies( :restart,
- #                        t_server_xml.resources(:service => new_resource.name) ) 
- # t_default.notifies( :restart, resources(:service => new_resource.name) ) 
   
 end
 
