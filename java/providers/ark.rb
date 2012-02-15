@@ -56,6 +56,7 @@ action :install do
     
     unless ::File.exists?(app_root)
       FileUtils.mkdir app_root, :mode => new_resource.app_home_mode
+      FileUtils.chown new_resource.owner, new_resource.owner, app_root
     end
 
     r = remote_file "#{Chef::Config[:file_cache_path]}/#{tarball_name}" do
@@ -100,8 +101,7 @@ action :install do
                              ).run_command
     unless cmd.exitstatus == 0
         Chef::Application.fatal!(%Q[ Command \' mv "#{tmpdir}/#{app_dir_name}" "#{app_dir}" \' failed ])
-    end
-    FileUtils.chown_R new_resource.owner, new_resource.owner, app_dir
+      end
     FileUtils.rm_r tmpdir
     new_resource.updated_by_last_action(true)
   end

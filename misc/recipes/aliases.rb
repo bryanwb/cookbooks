@@ -4,6 +4,6 @@ end
 
 template '/etc/aliases' do
 	source 'aliases.erb'
-	variables( :aliases => [ ['root' , 'unix-system-adm@fao.org'] ] )
+	variables( :aliases => [ ['root' , node['mail_alias']] ] )
 	notifies :run, "execute[newaliases]"
 end
