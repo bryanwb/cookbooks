@@ -19,3 +19,13 @@
 #
 
 default['liferay']['user'] = "liferay"
+# each hash is name + url
+default['liferay']['extra_jars'] = [
+                                    {
+                                      "jta.jar" => "http://download.java.net/maven/2/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar",
+                                      "persistence.jar" => "http://search.maven.org/remotecontent?filepath=org/pojava/persistence/2.8.0/persistence-2.8.0.jar",
+                                      "jms.jar" => "http://search.maven.org/remotecontent?filepath=com/sun/messaging/mq/jms/4.4/jms-4.4.jar",
+                                      "mysql.jar" => " http://gd.tuwien.ac.at/db/mysql/Downloads/Connector-J/mysql-connector-java-5.0.8.tar.gz"
+
+                                    }
+                                   ]
