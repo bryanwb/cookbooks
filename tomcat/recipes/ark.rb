@@ -25,7 +25,7 @@ distro = "debian"
 
 # the sysv init script requires an additional package
 if platform? [ "centos","redhat","fedora"]
-  package "redhat-lsb"
+  package "redhat-lsb"  
   distro = "el"
 end
 

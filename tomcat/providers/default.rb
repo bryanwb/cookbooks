@@ -33,6 +33,7 @@ def get_resource_hash(resource)
   resource_h['name'] = resource.name
   resource_h['home'] = node['tomcat']['home']
   resource_h['base'] = "#{catalina_parent}/#{resource_h['name']}"
+  new_resource.base = resource_h['base']
   resource_h['context_dir'] = "#{resource_h['base']}/conf/Catalina/localhost"
   resource_h['log_dir'] = "#{resource_h['base']}/logs"
   resource_h['tmp_dir'] = "#{resource_h['base']}/temp"
@@ -55,11 +56,13 @@ end
   
 action :install do
   distro = get_distro
-
+  # I create a new hash of the attributes because new_resource.to_hash
+  # causes bizarre errors
   resource_h = get_resource_hash new_resource
 
   u = user resource_h['user'] do
     action :nothing
+    supports :manage_home => true
   end
   u.run_action(:create)
 
@@ -71,14 +74,26 @@ action :install do
   end
   d.run_action(:create)
   
-  %w{ common conf logs server shared temp webapps work }.each do |dir|
+  %w{ conf lib logs server shared temp webapps work }.each do |dir|
     d = directory "#{resource_h['base']}/#{dir}" do
       owner resource_h['user']
       group resource_h['user']
+      recursive true
       mode 0775
       action :nothing
     end
     d.run_action(:create)
+  end
+
+  # don't have a need yet to template these files
+  %w{ catalina.policy catalina.properties logging.properties context.xml web.xml tomcat-users.xml }.each do |file|
+    ckbk_f = cookbook_file "#{resource_h['base']}/conf/#{file}" do
+      cookbook "tomcat"
+      source file
+      owner resource_h['user']
+      action :nothing
+    end
+    ckbk_f.run_action(:create)
   end
   
   t_init = template "/etc/init.d/#{resource_h['name']}" do
@@ -104,6 +119,7 @@ action :install do
   end
   t_default.run_action(:create)
 
+  
   t_server_xml = template "#{resource_h['base']}/conf/server.xml" do
     cookbook "tomcat"
     source "server.tomcat#{node['tomcat']['version']}.xml.erb"
@@ -126,9 +142,10 @@ action :install do
                                     "/etc/init.d/#{resource_h['name']}"
                                    ])
   end
-  s.run_action(:enable)
-  s.run_action(:start)
-  
+  s.run_action( :enable )
+  s.run_action( :start )
+
+  new_resource.updated_by_last_action(true)
 end
 
 
