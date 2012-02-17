@@ -148,6 +148,15 @@ action :install do
   new_resource.updated_by_last_action(true)
 end
 
+action :restart do
+  ruby_block "restart the tomcat service" do
+    block do
+      r = resources(:service => new_resource.name )
+      r.run_action(:restart)
+    end
+    action :create
+  end
+end
 
 action :remove do
   
