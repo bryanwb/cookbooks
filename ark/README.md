@@ -1,6 +1,8 @@
 Overview        
 ========
 
+An '''ark''' is like an archive but '''Kewler''
+
 Does the fetch-unpack-configure-build-install dance. This is a
 modified  verion of Infochimps awesome install_from cookbook
  [http://github.com/infochimps-cookbooks/install_from](http://github.com/infochimps-cookbooks/install_from)
@@ -8,25 +10,13 @@ modified  verion of Infochimps awesome install_from cookbook
 Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
 the default :prefix of `/usr/local`, this provider will
 
-* fetch  it to Chef's Cache
+* fetch  it to to `/usr/local/src`
 * unpack it to :install_dir  (`/usr/local/pig-0.8.0`)
 * create a symlink for :home_dir (`/usr/local/pig`) pointing to :install_dir
 * configure the project
 * build the project
 * install the project
 
-
-Description
-===========
-
-An '''ark''' is like an archive but '''Kewler''
-
-This cookbook provides an LWRP for installing applications from a
-compressed file. It will make other changes to a system to make the
-application available to other applications.
-
-This is not intended for applications that require any compilation or
-build stage. For that purpose, see the tar resource from Nathan Smith https://github.com/cramerdev/cookbooks/tree/master/tar
 
 Resources/Providers
 ===================
@@ -38,10 +28,11 @@ Resources/Providers
 
 # Attribute Parameters
 
-- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, .jar,  and .zip
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
   currently supported. Also supports special syntax
   :name:version:apache_mirror: that will auto-magically construct
   download url from the apache mirrors site
+- version: software version, required
 - checksum: sha256 checksum, used for security 
 - prefix: prefix for installation, defaults to /usr/local/
 - mode: file mode for app_home, is an integer
@@ -59,10 +50,7 @@ Resources/Providers
     # install Apache Ivy dependency resolution tool
     ark "ivy" do
         url 'http://someurl.example.com/ivy.tar.gz'
-        checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
-        prefix '/usr/local/'
-        has_binaries true
-        action :install
+        version '2.2.0'        
     end
 
 

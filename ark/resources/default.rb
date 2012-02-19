@@ -105,8 +105,8 @@ def assume_defaults!
   @release_file     ||= ::File.join(prefix, 'src',   "#{name}-#{version}.#{release_ext}")
   @expand_cmd ||=
     case release_ext
-    when 'tar.gz'  then untar_cmd('xzf', release_file, install_dir)
-    when 'tar.bz2' then untar_cmd('xjf', release_file, install_dir)
+    when 'tar.gz'  then untar_cmd('xzf', release_file, install_dir, user)
+    when 'tar.bz2' then untar_cmd('xjf', release_file, install_dir, user)
     when 'zip'     then "unzip -q -u -o '#{release_file}'"
     else raise "Don't know how to expand #{url} which has extension '#{release_ext}'"
     end
@@ -114,8 +114,8 @@ def assume_defaults!
   # Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, url, prefix ].inspect )
 end
 
-def untar_cmd(sub_cmd, release_file, install_dir)
-  %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'}
+def untar_cmd(sub_cmd, release_file, install_dir, user)
+  %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'; chown -R #{user}:#{user} '#{install_dir}'}
 end
 
 def set_url

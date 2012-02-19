@@ -60,13 +60,13 @@ action :unpack do
   end
 
   bash "unpack #{new_resource.name} release" do
-    user        new_resource.user
+    user        "root"
     cwd         ::File.dirname(new_resource.install_dir)
     code        new_resource.expand_cmd
     creates     new_resource.install_dir
     environment new_resource.environment
   end
-
+  
   link new_resource.home_dir do
     to          new_resource.install_dir
     action      :create

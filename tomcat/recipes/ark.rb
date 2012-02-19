@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-include_recipe "java"
+include_recipe "ark"
 
 version = node['tomcat']['version'].to_s
 distro = "debian"
@@ -31,11 +31,13 @@ end
 
 user node['tomcat']['user']
 
-java_ark "tomcat#{version}" do
+ark "tomcat#{version}" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
-  app_home "#{node['tomcat']['home']}"
-  owner node['tomcat']['user']
+  version '7.0.25'
+  prefix  "#{node["tomcat"]["prefix_dir"]}/tomcat"
+  home_dir "#{node['tomcat']['home']}"
+  user node['tomcat']['user']
 end
 
 t_init = template "tomcat#{version}" do
