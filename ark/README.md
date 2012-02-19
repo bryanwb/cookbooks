@@ -1,3 +1,21 @@
+Overview        
+========
+
+Does the fetch-unpack-configure-build-install dance. This is a
+modified  verion of Infochimps awesome install_from cookbook
+ [http://github.com/infochimps-cookbooks/install_from](http://github.com/infochimps-cookbooks/install_from)
+
+Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
+the default :prefix of `/usr/local`, this provider will
+
+* fetch  it to Chef's Cache
+* unpack it to :install_dir  (`/usr/local/pig-0.8.0`)
+* create a symlink for :home_dir (`/usr/local/pig`) pointing to :install_dir
+* configure the project
+* build the project
+* install the project
+
+
 Description
 ===========
 
@@ -16,53 +34,43 @@ Resources/Providers
 # Actions
 
 - :install: extracts the file and makes a symlink of requested
-- :remove: removes the extracted directory and any related symlink
+- :remove: removes the extracted directory and related symlink
 
 # Attribute Parameters
 
-- url: path to tarball, .tar.gz, .bin (oracle-specific), and .zip
-  currently supported
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, .jar,  and .zip
+  currently supported. Also supports special syntax
+  :name:version:apache_mirror: that will auto-magically construct
+  download url from the apache mirrors site
 - checksum: sha256 checksum, used for security 
-- prefix: 
+- prefix: prefix for installation, defaults to /usr/local/
 - mode: file mode for app_home, is an integer
-- append_path: boolean or an array. Defaults to true
+- has_binaries: array of binary commands to symlink to /usr/local/bin/
+- add_global_bin_dir: boolean, similar to has_binaries but less granular
   - If true, append the ./bin directory of the extracted directory to
   the PATH environment  variable for all users, does this by placing a file in /etc/profile.d/ which will be read by all users
-  - If an array, assumes the members of the array are commands in extracted_directory/bin to
   be added to the path. The commands are symbolically linked to
   /usr/bin/* . Examples are mvn, java, javac, etc. This option
   provides more granularity than the boolean option
-- friendly_name: String, creates a symlink in '''prefix''' directory
-  that points to the extracted directory, use with care
-- owner: owner of extracted directory, set to "root" by default
+- user: owner of extracted directory, set to "root" by default
 
 # Examples
 
-    # installs maven2
-    ark "maven2" do
-        url "http://www.apache.org/dist/maven/binaries/apache-maven-2.2.1-bin.tar.gz"
-        prefix "/usr/local"
-        append_path true
-    end
-
-    # install jdk6 from Oracle
-    ark "jdk" do
-        url 'http://download.oracle.com/otn-pub/java/jdk/6u29-b11/jdk-6u29-linux-x64.bin'
+    # install Apache Ivy dependency resolution tool
+    ark "ivy" do
+        url 'http://someurl.example.com/ivy.tar.gz'
         checksum  'a8603fa62045ce2164b26f7c04859cd548ffe0e33bfc979d9fa73df42e3b3365'
-        prefix '/usr/local/jvm'
-        friendly_name "default"
-        bin_cmds ["java", "javac"]
+        prefix '/usr/local/'
+        has_binaries true
         action :install
     end
 
 
-License and Author
-==================
+## License and Author
 
-
+Author::                Philip (flip) Kromer - Infochimps, Inc (<coders@infochimps.com>)
 Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
-
-Copyright:: 2012, Bryan W. Berry (<bryan.berry@gmail.com>)
+Copyright::             2011, Philip (flip) Kromer - Infochimps, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -1,10 +1,8 @@
 #
-# Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Author:: Bryan Berry (<bryan.berry@gmail.com>)
-# Cookbook Name:: java
-# Recipe:: default
-#
-# Copyright 2008-2011, Opscode, Inc.
+# Cookbook Name:: ivy
+# Attributes:: default
+# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Copyright 2012, Bryan W. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,4 +17,5 @@
 # limitations under the License.
 #
 
-include_recipe "java::#{node['java']['install_flavor']}"
+default['ivy']['url'] = 'http://apache.mirrors.tds.net/ant/ivy/2.2.0/apache-ivy-2.2.0-bin.tar.gz'
+default['ivy']['checksum'] = 'ff1e40094a4e65878efd1a31589b492752b7f18c810839db3119dbf296086d69'
