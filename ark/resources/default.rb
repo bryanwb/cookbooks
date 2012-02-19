@@ -86,7 +86,7 @@ attribute :autoconf_opts, :kind_of => Array, :default => []
 
 def initialize(*args)
   super
-  @action ||= :install
+  @action = :install
 end
 
 def assume_defaults!

@@ -26,6 +26,11 @@ liferay_user = node['liferay']['user']
 catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
 base = "#{catalina_parent}/#{liferay_user}"
 
+user liferay_user do
+  action :create
+  supports :manage_home => true
+end
+
 t = tomcat "liferay" do
   user liferay_user
   action :install

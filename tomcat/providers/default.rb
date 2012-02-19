@@ -60,12 +60,6 @@ action :install do
   # causes bizarre errors
   resource_h = get_resource_hash new_resource
 
-  u = user resource_h['user'] do
-    action :nothing
-    supports :manage_home => true
-  end
-  u.run_action(:create)
-
   d = directory resource_h['base'] do
     owner resource_h['user']
     group resource_h['user']
