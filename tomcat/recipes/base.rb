@@ -28,9 +28,10 @@ end
 
 user node['tomcat']['user']
 
-java_ark "tomcat#{version}" do
+ark "tomcat#{version}" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
-  app_home "#{node['tomcat']['prefix_dir']}/tomcat/default"
-  owner node['tomcat']['user']
+  version '7.0.25'
+  prefix "#{node['tomcat']['prefix_dir']}/tomcat"
+  home_dir "#{node['tomcat']['prefix_dir']}/tomcat/default"
 end  
