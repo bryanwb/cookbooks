@@ -59,17 +59,26 @@ action :unpack do
     recursive true
   end
 
-  bash "unpack #{new_resource.name} release" do
-    user        "root"
-    cwd         ::File.dirname(new_resource.install_dir)
-    code        new_resource.expand_cmd
-    creates     new_resource.install_dir
-    environment new_resource.environment
+  ruby_block "unpack #{new_resource.name} release" do
+    block do
+      if Dir["#{new_resource.install_dir}/*"].empty? ||
+             ( !!new_resource.stop_file && File.exist?(new_resource.stop_file))
+        not_yet_extracted = true
+      else
+        not_yet_extracted = false
+      end
+      !!Dir[#{new_resource.install_dir}/*].empty? ||
+                 ( !!new_resource.stop_file && File.exist?(new_resource.stop_file))
+      eval new_resource.expand_cmd
+    end
+    only_if { not_yet_extracted }
   end
-  
-  link new_resource.home_dir do
-    to          new_resource.install_dir
-    action      :create
+
+  unless new_resource.home_dir ==  new_resource.install_dir
+    link new_resource.home_dir do
+      to          new_resource.install_dir
+      action      :create
+    end
   end
 end
 

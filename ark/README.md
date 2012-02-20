@@ -44,6 +44,16 @@ Resources/Providers
   /usr/bin/* . Examples are mvn, java, javac, etc. This option
   provides more granularity than the boolean option
 - user: owner of extracted directory, set to "root" by default
+- strip_leading_dir: by default, strip the leading directory from the
+  extracted archive this can cause unexpected results if there is more
+  than one subdirectory in the archive
+- junk_paths: The archive's  directory structure is not recreated; all files are
+  deposited in the extraction directory. Only applies to zip archives
+- stop_file: if you are appending files to a given directory, ark
+  needs a condition to test whether the file has already been
+  extracted. You can specify a stop_file, a file whose existence
+  indicates the ark has previously been extracted and does not need to
+  be extracted again
 
 # Examples
 

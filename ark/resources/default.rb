@@ -19,6 +19,8 @@
 # limitations under the License.
 #
 
+require 'fileutils'
+
 actions(
   :download,
   :unpack,
@@ -84,20 +86,32 @@ attribute :add_global_bin_dir, :kind_of => [TrueClass, FalseClass], :default => 
 # options to pass to the ./configure command for the configure_with_autoconf action
 attribute :autoconf_opts, :kind_of => Array, :default => []
 
+# by default, strip the leading directory from the extracted archive,
+# this can cause unexpected results if there is more than one
+# subdirectory in the archive
+attribute :strip_leading_dir, :kind_of => [TrueClass, FalseClass], :default => true
+
+# The  archive's  directory structure is not recreated;
+# all files are deposited in the extraction directory
+# only applies to zip archives
+attribute :junk_paths, :kind_of => [TrueClass, FalseClass], :default => false
+
+
 def initialize(*args)
   super
   @action = :install
 end
 
 def assume_defaults!
-  # construct the url if we use the auto-magic apache pattern
+  # construct the url if we use the auto-magic apache patterns
   unless @url =~ /^(http|ftp).*$/
     set_url
   end
   # the url 'http://apache.org/pig/pig-0.8.0.tar.gz' has
   # release_basename 'pig-0.8.0' and release_ext 'tar.gz'
   release_basename = ::File.basename(url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
-  release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip)}
+  # (\?.*)? accounts for a trailing querystring
+  release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
   @release_ext      ||= $2
 
   @home_dir         ||= ::File.join(prefix, name)
@@ -107,15 +121,44 @@ def assume_defaults!
     case release_ext
     when 'tar.gz'  then untar_cmd('xzf', release_file, install_dir, user)
     when 'tar.bz2' then untar_cmd('xjf', release_file, install_dir, user)
-    when 'zip'     then "unzip -q -u -o '#{release_file}'"
+    when /zip|war|jar/ then unzip_cmd(release_file, install_dir, user)
     else raise "Don't know how to expand #{url} which has extension '#{release_ext}'"
     end
 
-  # Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, url, prefix ].inspect )
+  Chef::Log.info("at end of assume_defaults!")
+  Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, url, prefix ].inspect )
+end
+
+def unzip_cmd(release_file, install_dir, user)
+  %Q{FileUtils.mkdir_p '#{install_dir}'
+  if '#{@strip_leading_dir.to_s}' == true
+    require 'tmpdir'
+    tmpdir = Dir.mktmpdir
+    system("unzip  -q -u -o '#{release_file}' -d '\#\{tmpdir\}'")
+    subdirectory = Dir.glob(tmpdir + "/**")[0]
+    subdirectory_children = Dir.glob(subdirectory + "/**")
+    FileUtils.mv subdirectory_children, '#{install_dir}'
+    FileUtils.rm_r [subdirectory, tmpdir]
+  elsif '#{@junk_paths.to_s}' == "true"
+    system("unzip  -q -u -o -j #{release_file} -d #{install_dir}")
+  else
+    system("unzip  -q -u -o #{release_file} -d #{install_dir}")
+  end 
+  FileUtils.chown_R '#{user}', '#{user}', '#{install_dir}'
+}
 end
 
 def untar_cmd(sub_cmd, release_file, install_dir, user)
-  %Q{mkdir -p '#{install_dir}' ; tar #{sub_cmd} '#{release_file}' --strip-components=1 -C '#{install_dir}'; chown -R #{user}:#{user} '#{install_dir}'}
+  FileUtils.mkdir_p install_dir
+  if @strip_leading_dir
+    strip_argument = "--strip-components=1"
+  else
+    strip_argument = ""
+  end
+  %Q{
+     tar #{sub_cmd} '#{release_file}' '#{strip_argument}' -C '#{install_dir}';
+     chown -R #{user}:#{user} #{install_dir}
+    }
 end
 
 def set_url
