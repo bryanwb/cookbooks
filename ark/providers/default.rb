@@ -43,7 +43,7 @@ action :download do
   end
 
   remote_file new_resource.release_file do
-    source      new_resource.url
+    source      new_resource.release_url
     mode        "0644"
     action      :create
     checksum    new_resource.checksum if new_resource.checksum
@@ -61,20 +61,12 @@ action :unpack do
 
   ruby_block "unpack #{new_resource.name} release" do
     block do
-      if Dir["#{new_resource.install_dir}/*"].empty? ||
-             ( !!new_resource.stop_file && File.exist?(new_resource.stop_file))
-        not_yet_extracted = true
-      else
-        not_yet_extracted = false
-      end
-      !!Dir[#{new_resource.install_dir}/*].empty? ||
-                 ( !!new_resource.stop_file && File.exist?(new_resource.stop_file))
-      eval new_resource.expand_cmd
+      new_resource.expand_cmd.call
     end
-    only_if { not_yet_extracted }
+    not_if { new_resource.ark_check_cmd.call }
   end
 
-  unless new_resource.home_dir ==  new_resource.install_dir
+  unless new_resource.home_dir == new_resource.install_dir
     link new_resource.home_dir do
       to          new_resource.install_dir
       action      :create
@@ -128,7 +120,7 @@ end
 
 action :install_binaries do
   new_resource.has_binaries.each do |bin|
-    link ::File.join(new_resource.prefix, 'bin', ::File.basename(bin)) do
+    link ::File.join(new_resource.prefix_root, 'bin', ::File.basename(bin)) do
       to        ::File.join(new_resource.home_dir, bin)
       action    :create
     end

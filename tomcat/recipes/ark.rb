@@ -32,10 +32,10 @@ end
 user node['tomcat']['user']
 
 ark "tomcat#{version}" do
-  url node['tomcat'][version]['url']
+  release_url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
   version '7.0.25'
-  prefix  "#{node["tomcat"]["prefix_dir"]}/tomcat"
+  prefix_root  "#{node["tomcat"]["prefix_dir"]}/tomcat"
   home_dir "#{node['tomcat']['home']}"
   user node['tomcat']['user']
 end

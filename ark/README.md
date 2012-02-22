@@ -8,7 +8,7 @@ modified  verion of Infochimps awesome install_from cookbook
  [http://github.com/infochimps-cookbooks/install_from](http://github.com/infochimps-cookbooks/install_from)
 
 Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
-the default :prefix of `/usr/local`, this provider will
+the default :prefix_root of `/usr/local`, this provider will
 
 * fetch  it to to `/usr/local/src`
 * unpack it to :install_dir  (`/usr/local/pig-0.8.0`)
@@ -28,13 +28,13 @@ Resources/Providers
 
 # Attribute Parameters
 
-- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
+- release_url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
   currently supported. Also supports special syntax
   :name:version:apache_mirror: that will auto-magically construct
   download url from the apache mirrors site
 - version: software version, required
 - checksum: sha256 checksum, used for security 
-- prefix: prefix for installation, defaults to /usr/local/
+- prefix_root: prefix_root for installation, defaults to /usr/local/
 - mode: file mode for app_home, is an integer
 - has_binaries: array of binary commands to symlink to /usr/local/bin/
 - add_global_bin_dir: boolean, similar to has_binaries but less granular
@@ -59,7 +59,7 @@ Resources/Providers
 
     # install Apache Ivy dependency resolution tool
     ark "ivy" do
-        url 'http://someurl.example.com/ivy.tar.gz'
+        release_url 'http://someurl.example.com/ivy.tar.gz'
         version '2.2.0'        
     end
 

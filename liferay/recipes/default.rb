@@ -55,7 +55,7 @@ end
 
 # unpack the main .war file
 ark "liferay_war" do
-  url node['liferay']['war_url']
+  release_url node['liferay']['war_url']
   checksum node['liferay']['war_checksum']
   install_dir "#{base}/webapps/ROOT"
   home_dir "#{base}/webapps/ROOT"
@@ -65,7 +65,7 @@ ark "liferay_war" do
 end
 
 # ark "liferay_dependencies" do
-#   url node['liferay']['dependencies_url']
+#   release_url node['liferay']['dependencies_url']
 #   checksum node['liferay']['dependencies_checksum']
 #   user liferay_user
 #   junk_paths true
@@ -73,7 +73,7 @@ end
 # end
 
 # ark "liferay_client_dependencies" do
-#   url node['liferay']['client_dependencies_url']
+#   release_url node['liferay']['client_dependencies_url']
 #   checksum node['liferay']['client_dependencies_checksum']
 #   user liferay_user
 #   junk_paths true

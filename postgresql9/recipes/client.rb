@@ -27,7 +27,8 @@ when "fedora","suse","amazon"
 when "redhat","centos","scientific"
   case
   when node['platform_version'].to_f >= 6.0
-    %w{postgresql90-devel}
+    #    %w{postgresql90-devel}
+    puts foobar
   else
     [ "postgresql#{node['postgresql']['version'].split('.').join}-devel" ]
   end
