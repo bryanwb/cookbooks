@@ -52,10 +52,10 @@ attribute :prefix_root,   :kind_of => String, :default  => "/usr/local"
 # version slug, appended to the name to get the install_dir
 attribute :version,       :kind_of => String, :required => true
 
-# Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0. default: {prefix_root}/{name}-#{version}
+# Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0. default: {prefix_root}/share/{name}-#{version}
 attribute :install_dir,   :kind_of => String
 
-# Directory as the project is referred to, eg /usr/local/share/pig. default: {prefix_root}/{name}
+# Directory as the project is referred to, eg /usr/local/share/pig. default: {prefix_root}/share/{name}
 attribute :home_dir,      :kind_of => String
 
 # Checksum for the release file
@@ -122,64 +122,68 @@ def assume_defaults!
   # (\?.*)? accounts for a trailing querystring
   release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
   @release_ext      ||= $2
-
   @home_dir         ||= ::File.join(prefix_root, node[:ark][:prefix_home], name)
   @install_dir      ||= ::File.join(prefix_root, node[:ark][:prefix_install], "#{name}-#{version}")
   @release_file     ||= ::File.join(prefix_root, node[:ark][:prefix_src],  "#{name}-#{version}.#{release_ext}")
   @expand_cmd ||=
     case release_ext
-    when 'tar.gz'  then untar_cmd('xzf', release_file, install_dir, user)
-    when 'tar.bz2' then untar_cmd('xjf', release_file, install_dir, user)
-    when /zip|war|jar/ then unzip_cmd(release_file, install_dir, user)
+    when 'tar.gz'  then untar_cmd('xzf')
+    when 'tar.bz2' then untar_cmd('xjf')
+    when /zip|war|jar/ then unzip_cmd
     else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
     end
-  @ark_check_cmd || = ark_opened?
+  @ark_check_cmd ||= ark_opened?
   
   Chef::Log.info("at end of assume_defaults!")
   Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
 end
 
-def unzip_cmd(release_file, install_dir, user)
-  Proc.new {
-    FileUtils.mkdir_p install_dir
-    if @strip_leading_dir
+def unzip_cmd
+  ::Proc.new {|r|
+    FileUtils.mkdir_p r.install_dir
+    if r.strip_leading_dir
       require 'tmpdir'
       tmpdir = Dir.mktmpdir
-      system("unzip  -q -u -o '#{release_file}' -d '#{tmpdir}'")
+      system("unzip  -q -u -o '#{r.release_file}' -d '#{tmpdir}'")
       subdirectory = Dir.glob(tmpdir + "/**")[0]
       subdirectory_children = Dir.glob(subdirectory + "/**")
-      FileUtils.mv subdirectory_children, install_dir
-      FileUtils.rm_r [subdirectory, tmpdir]
-    elsif @junk_paths
-      system("unzip  -q -u -o -j #{release_file} -d #{install_dir}")
+      FileUtils.mv subdirectory_children, r.install_dir
+      FileUtils.rm_rf tmpdir
+    elsif r.junk_paths
+      system("unzip  -q -u -o -j #{r.release_file} -d #{r.install_dir}")
     else
-      system("unzip  -q -u -o #{release_file} -d #{install_dir}")
+      system("unzip  -q -u -o #{r.release_file} -d #{r.install_dir}")
     end 
-    FileUtils.chown_R user, user, install_dir
+    FileUtils.chown_R r.user, r.user, r.install_dir
   }
 end
 
-def untar_cmd(sub_cmd, release_file, install_dir, user)
-  FileUtils.mkdir_p install_dir
-  if @strip_leading_dir
-    strip_argument = "--strip-components=1"
-  else
-    strip_argument = ""
-  end
-  Proc.new {
-    system(%Q{tar #{sub_cmd} '#{release_file}' '#{strip_argument}' -C '#{install_dir}';})
-    FileUtils.chown_r user, user, install_dir
+def untar_cmd(sub_cmd)
+  ::Proc.new {|r|
+    FileUtils.mkdir_p r.install_dir
+    if r.strip_leading_dir
+      strip_argument = "--strip-components=1"
+    else
+      strip_argument = ""
+    end
+    system(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{install_dir}';})
+    FileUtils.chown_R r.user, r.user, r.install_dir
   }
 end
 
 def ark_opened?
-  Proc.new {
-    if !@stop_file.empty? && File.exist?(@stop_file)
-      true
-    elsif Dir["#{@install_dir}/*"].empty?
+  ::Proc.new {|r|
+    if !(r.stop_file.empty?)
+      if  ::File.exist?(::File.join(r.install_dir, r.stop_file))
+        true
+      else
+        false
+      end
+    elsif ::Dir["#{r.install_dir}/*"].empty?
+      Chef::Log.debug("ark is empty")
       false
     else
-      false
+      true
     end
   }
 end

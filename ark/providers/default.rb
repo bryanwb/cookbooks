@@ -61,9 +61,9 @@ action :unpack do
 
   ruby_block "unpack #{new_resource.name} release" do
     block do
-      new_resource.expand_cmd.call
+      new_resource.expand_cmd.call(new_resource)
     end
-    not_if { new_resource.ark_check_cmd.call }
+    not_if { new_resource.ark_check_cmd.call(new_resource) }
   end
 
   unless new_resource.home_dir == new_resource.install_dir
@@ -128,7 +128,7 @@ action :install_binaries do
   if new_resource.add_global_bin_dir
     file "/etc/profile.d/#{new_resource.name}.sh" do
       content <<EOF
-export PATH=$PATH:#{File.join(new_resource.home_dir, bin).to_s}
+export PATH=$PATH:#{::File.join(new_resource.home_dir, 'bin').to_s}
 EOF
       mode 0755
       owner 'root'
