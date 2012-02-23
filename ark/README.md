@@ -88,13 +88,13 @@ unpacks its contents to /usr/local/share/ivy-2.2.0/ -- stripping the
 leading directory, and symlinks /usr/local/share/ivy to /usr/local/shary/ivy-2.2.0
 
 
-ark 'jdk' do
-  release_url 'http://download.oracle.com/otn-pub/java/jdk/7u2-b13/jdk-7u2-linux-x64.tar.gz'
-  version '7.2'
-  home_dir "/usr/local/jvm/default" 
-  add_global_bin_dir true
-  user 'foobar'
-end
+     ark 'jdk' do
+       release_url 'http://download.oracle.com/otn-pub/java/jdk/7u2-b13/jdk-7u2-linux-x64.tar.gz'
+       version '7.2'
+       home_dir "/usr/local/jvm/default" 
+       add_global_bin_dir true
+       user 'foobar'
+     end
 
 This example copies jdk-7u2-linux-x64.tar.gz to /usr/local/src/jdk-7.2.tar.gz,
 unpacks its contents to /usr/local/share/jdk-7.2/ -- stripping the
@@ -103,14 +103,14 @@ leading directory, symlinks /usr/local/jvm/default to
 the global PATH for all users. The user 'foobar' is the owner of the
 /usr/local/share/jdk-7.2 directory
 
-ark 'liferay-client' do
-  release_url "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.1.0%20GA1/liferay-portal-client-6.1.0-ce-ga1-20120106155615760.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Flportal%2Ffiles%2FLiferay%2520Portal%2F6.1.0%2520GA1%2F&ts=1329490764&use_mirror=ignum"
-  version "6.1.0"
-  install_dir "/usr/local/share/tomcat/lib"
-  home_dir "/usr/local/share/tomcat/lib"
-  user "hitman"
-  stop_file "portal-client.jar"
-end
+     ark 'liferay-client' do
+       release_url "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.1.0%20GA1/liferay-portal-client-6.1.0-ce-ga1-20120106155615760.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Flportal%2Ffiles%2FLiferay%2520Portal%2F6.1.0%2520GA1%2F&ts=1329490764&use_mirror=ignum"
+       version "6.1.0"
+       install_dir "/usr/local/share/tomcat/lib"
+       home_dir "/usr/local/share/tomcat/lib"
+       user "hitman"
+       stop_file "portal-client.jar"
+     end
 
 
 
