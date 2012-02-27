@@ -5,7 +5,7 @@ An '''ark''' is like an archive but '''Kewler''
 
 Does the fetch-unpack-configure-build-install dance. This is a
 modified  verion of Infochimps awesome install_from cookbook
- [http://github.com/infochimps-cookbooks/install_from](http://github.com/infochimps-cookbooks/install_from)
+ [http://github.com/infochimps-cookbooks/install_from](install_dir "/usr/local/share/tomcat/lib")
 
 Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
 the default :prefix_root of `/usr/local`, this provider will

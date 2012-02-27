@@ -25,7 +25,7 @@ command[check_mem]=<%= node['nagios']['plugin_dir'] %>/custom_check_mem $ARG1$
 command[check_yum]=<%= node['nagios']['plugin_dir'] %>/check_yum
 
 ### DISK ###
-command[check_disk]=<%= node['nagios']['plugin_dir'] %>/check_disk $ARG1$
+command[check_disk]=<%= node['nagios']['plugin_dir'] %>/check_disk $ARG1$  -x /data/techcdr/pg_xlog
 command[check_ide_smart]=<%= node['nagios']['plugin_dir'] %>/check_ide_smart $ARG1$
 
 ### PROCESSES ###

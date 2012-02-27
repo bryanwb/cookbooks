@@ -37,8 +37,8 @@ t = tomcat "liferay" do
   action :install
   jvm_opts [
             "-Djava.awt.headless=true",
-            "-Xmx1526m", "-Xms512m",
-            "-XX:MaxPermSize=256m" ]
+            "-Xmx2048m", "-Xms512m",
+            "-XX:MaxPermSize=512m" ]
   webapp_opts [
                 "-Dfile.encoding=UTF8",
                 "-Duser.timezone=Europe/Rome",
@@ -53,16 +53,16 @@ cookbook_file "#{base}/conf/jaas.config" do
 end
 
 
-# unpack the main .war file
-ark "liferay_war" do
-  release_url node['liferay']['war_url']
-  checksum node['liferay']['war_checksum']
-  install_dir "#{base}/webapps/ROOT"
-  home_dir "#{base}/webapps/ROOT"
-  version "6.1.0"
-  strip_leading_dir false
-  user liferay_user
-end
+# # unpack the main .war file
+# ark "liferay_war" do
+#   release_url node['liferay']['war_url']
+#   checksum node['liferay']['war_checksum']
+#   install_dir "#{base}/webapps/ROOT"
+#   home_dir "#{base}/webapps/ROOT"
+#   version "6.1.0"
+#   strip_leading_dir false
+#   user liferay_user
+# end
 
 # ark "liferay_dependencies" do
 #   release_url node['liferay']['dependencies_url']
@@ -102,10 +102,10 @@ end
 #   end
 # end
 
-# this lousy file properly sets liferay.home to CATALINA_BASE
-cookbook_file "#{base}/webapps/ROOT/WEB-INF/classes/portal-ext.properties" do
-  source "portal-ext.properties"
-  owner liferay_user
-  notifies :restart, t, :immediately
-end
+# # this lousy file properly sets liferay.home to CATALINA_BASE
+# cookbook_file "#{base}/webapps/ROOT/WEB-INF/classes/portal-ext.properties" do
+#   source "portal-ext.properties"
+#   owner liferay_user
+#   notifies :restart, t, :immediately
+# end
 
