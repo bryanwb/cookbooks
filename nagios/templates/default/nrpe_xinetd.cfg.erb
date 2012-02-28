@@ -25,7 +25,7 @@ command[check_mem]=<%= node['nagios']['plugin_dir'] %>/custom_check_mem $ARG1$
 command[check_yum]=<%= node['nagios']['plugin_dir'] %>/check_yum
 
 ### DISK ###
-command[check_disk]=<%= node['nagios']['plugin_dir'] %>/check_disk $ARG1$  -x /data/techcdr/pg_xlog
+command[check_disk]=<%= node['nagios']['plugin_dir'] %>/check_disk $ARG1$ <%= node['nagios']['checks']['check_disk']['exclusions'].map{|x| "-x #{x}"  }.join(' ')  %>
 command[check_ide_smart]=<%= node['nagios']['plugin_dir'] %>/check_ide_smart $ARG1$
 
 ### PROCESSES ###
@@ -43,3 +43,9 @@ command[check_hpasm]=sudo <%= node['nagios']['plugin_dir'] %>/check_hpasm -v
 
 ### Check if in sync with ntp servers ###
 command[check_ntp_sync]=<%= node['nagios']['plugin_dir'] %>/check_ntp_sync $ARG1$
+
+## additional checks
+
+<% node['nagios']['checks']['additional_checks'].each do |check| -%>
+command[<%= check['name'] %>]=<%= node['nagios']['plugin_dir'] %>/<%= check['command'] %>
+<% end -%>

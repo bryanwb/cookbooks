@@ -49,5 +49,7 @@ default['nagios']['checks']['memory']['warning']  = 250
 default['nagios']['checks']['load']['critical']   = "30,20,10"
 default['nagios']['checks']['load']['warning']    = "15,10,5"
 default['nagios']['checks']['smtp_host'] = String.new
+default['nagios']['checks']['check_disk']['exclusions'] = []
+default['nagios']['checks']['additional_checks'] = []
 
 default['nagios']['server_role'] = "monitoring"
