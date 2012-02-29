@@ -91,5 +91,5 @@ cron "pgbouncer" do
   minute "0"
   user "postgres"
   shell "/bin/bash"
-  command "/usr/local/bin/cron_userlist.sh"
+  command "/home/postgres/cron_userlist.sh"
 end

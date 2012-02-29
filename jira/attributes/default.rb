@@ -1,7 +1,9 @@
 #
-# Cookbook Name:: ivy
-# Attributes:: default
-# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Cookbook Name::       jira
+# Description::         installs jira
+# Attributes::              default
+# Author::              Bryan W. Berry
+#
 # Copyright 2012, Bryan W. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +19,5 @@
 # limitations under the License.
 #
 
-default['ivy']['url'] = 'http://apache.mirrors.tds.net/ant/ivy/2.2.0/apache-ivy-2.2.0-bin.tar.gz'
-default['ivy']['checksum'] = 'ff1e40094a4e65878efd1a31589b492752b7f18c810839db3119dbf296086d69'
-default['ivy']['version'] = "2.2.0"
-default['ivy']['command'] = ""
+default['jira']['user'] = "jira"
+default['jira']['war_url'] = "http://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-5.0-war.zip"

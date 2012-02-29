@@ -35,6 +35,8 @@ actions(
   :install_python
   )
 
+attr_reader :home_dir
+
 attribute :name,          :name_attribute => true
 
 # URL for the tarball/zip file to install from. If it is named something like

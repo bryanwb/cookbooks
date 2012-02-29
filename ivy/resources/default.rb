@@ -1,7 +1,8 @@
 #
 # Cookbook Name:: ivy
-# Recipe:: default
-# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Resource::      default
+#
+# Author:: Bryan W. Berry <bryan.berry@gmail.com>
 # Copyright 2012, Bryan W. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,19 +18,19 @@
 # limitations under the License.
 #
 
-include_recipe "ark"
+actions :install
 
-a = ark "ivy" do
-  release_url node['ivy']['url']
-  checksum node['ivy']['checksum']
-  version node['ivy']['version']
-end
+attribute :artifactId, :kind_of => String
+attribute :groupId, :kind_of => String, :required => true
+attribute :version, :kind_of => String, :required => true
+attribute :dest, :kind_of => String
+attribute :dest_attr, :kind_of => String
+attribute :owner, :kind_of => String, :default => "root"
+attribute :mode, :kind_of => [String, Integer], :default => "0755"
 
-ruby_block "build the ivy command" do
-  block do
-    java_cmd = "#{node['java']['java_home']}/bin/java"
-    ivy_jar = "#{a.home_dir}/ivy-#{node['ivy']['version']}.jar"
-    node['ivy']['command'] = "#{java_cmd} -jar #{ivy_jar} "
-    Chef::Log.debug("ivy command is #{node['ivy']['command']}")
-  end
+def initialize(*args)
+  super
+  # we can't use the node properties when initially specifying the resource
+  @artifactId ||= @name
+  @action = :install
 end

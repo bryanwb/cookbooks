@@ -56,6 +56,9 @@ Resources/Providers
 - checksum: sha256 checksum, used for security 
 - prefix_root: prefix_root for installation, defaults to /usr/local/
 - mode: file mode for app_home, is an integer
+- install_dir:
+- home_dir:
+- no_symlink: install_dir and home_dir are the same, no symlink used
 - has_binaries: array of binary commands to symlink to /usr/local/bin/
 - add_global_bin_dir: boolean, similar to has_binaries but less granular
   - If true, append the ./bin directory of the extracted directory to
@@ -64,6 +67,7 @@ Resources/Providers
   /usr/bin/* . Examples are mvn, java, javac, etc. This option
   provides more granularity than the boolean option
 - user: owner of extracted directory, set to "root" by default
+
 - strip_leading_dir: by default, strip the leading directory from the
   extracted archive this can cause unexpected results if there is more
   than one subdirectory in the archive

@@ -1,7 +1,9 @@
 #
-# Cookbook Name:: ivy
-# Recipe:: default
-# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Cookbook Name::       jira
+# Description::         installs jira
+# Recipe::              default
+# Author::              Bryan W. Berry
+#
 # Copyright 2012, Bryan W. Berry
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +20,25 @@
 #
 
 include_recipe "ark"
+include_recipe "tomcat::base"
+include_recipe "ivy"
+base = "/tmp/"
 
-a = ark "ivy" do
-  release_url node['ivy']['url']
-  checksum node['ivy']['checksum']
-  version node['ivy']['version']
+t = tomcat "jira" do
+  user node['jira']['user']
+  action :install
 end
 
-ruby_block "build the ivy command" do
-  block do
-    java_cmd = "#{node['java']['java_home']}/bin/java"
-    ivy_jar = "#{a.home_dir}/ivy-#{node['ivy']['version']}.jar"
-    node['ivy']['command'] = "#{java_cmd} -jar #{ivy_jar} "
-    Chef::Log.debug("ivy command is #{node['ivy']['command']}")
-  end
+# get mysql connector
+ivy "mysql-connector-java" do
+  groupId "mysql"
+  version "5.1.18"
+  dest_attr  ":tomcat:base:/lib"
 end
+
+# ark "jira_war" do
+#   release_url node['jira']['war_url']
+#   version "5.0"
+#   install_dir     "/usr/local/tomcat/jira/webapps/ROOT"
+#   no_symlink      true
+# end
