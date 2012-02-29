@@ -22,7 +22,6 @@
 include_recipe "ark"
 include_recipe "tomcat::base"
 include_recipe "ivy"
-base = "/tmp/"
 
 t = tomcat "jira" do
   user node['jira']['user']
@@ -33,7 +32,7 @@ end
 ivy "mysql-connector-java" do
   groupId "mysql"
   version "5.1.18"
-  dest_attr  ":tomcat:base:/lib"
+  dest  "#{t.base}/lib"
 end
 
 # ark "jira_war" do

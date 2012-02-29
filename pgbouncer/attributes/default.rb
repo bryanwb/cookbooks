@@ -23,7 +23,7 @@ end
 
 
 # Where to wait for clients 
-default[:pgbouncer][:listen_addr] = "#{node.network.interfaces.eth0.addresses.current_automatic.keys[0]}"
+default[:pgbouncer][:listen_addr] = "*"
 default[:pgbouncer][:listen_port] = "6432"
 
 # Authentication settings

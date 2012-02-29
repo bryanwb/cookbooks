@@ -42,8 +42,12 @@ attribute :user, :kind_of => String, :required => true
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name
-def initialize(*args)
+def initialize(*args)s
+  require 'pathname'
   super
   @action = :install
+  catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
+  @base = "#{catalina_parent}/#{@name}"
+  Chef::Log.debug("base_is #{@base}")
   @supports = {:report => true, :exception => true}
 end

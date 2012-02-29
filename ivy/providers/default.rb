@@ -18,24 +18,11 @@
 # limitations under the License.
 #
 
-def resolve_dest(resource)
-  # use a glob because file can have different extensions
-  file_glob = "#{resource.artifactId}-#{resource.version}\.*"
-  if resource.dest_attr
-    dest_attrs = resource.dest_attr.split(':')
-    subdirectory = dest_attrs[-1].match('/') ? dest_attrs.pop : ""
-    node_attr = eval( "node['#{self.cookbook_name}']" +
-                      dest_attrs.map{ |attr| "['" + attr + "']" }.join('') )
-    dest = "#{node_attr}/#{subdirectory}"
-  else
-    dest = "#{resource.dest}"
-  end
-  "#{dest}/#{file_glob}"
-end
-  
 action :install do
-  full_name = [ new_resource.groupId, new_resource.artifactId, new_resource.version ].join(' ')  
-  dest = resolve_dest new_resource
+  full_name = [ new_resource.groupId, new_resource.artifactId, new_resource.version ].join(' ')
+  # use a glob because file can have different extensions
+  file_glob = "#{new_resource.artifactId}-#{new_resource.version}\.*"
+  dest = new_resource.dest
   Chef::Log.debug("dest is #{dest}")
   dest_pattern = "#{dest}/[artifact]-[revision].[ext]"
   full_command = %Q{#{node['ivy']['command']} -dependency #{full_name} -retrieve #{dest_pattern} }
@@ -46,6 +33,6 @@ action :install do
     chown #{new_resource.owner}:#{new_resource.owner} #{dest}
     chmod #{new_resource.mode.to_s} #{dest}
     EOH
-    only_if { Dir.glob("#{dest}\.*").empty? }
+    only_if { Dir.glob("#{dest}/#{file_glob}").empty? }
   end
 end

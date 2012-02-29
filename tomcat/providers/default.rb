@@ -29,14 +29,9 @@ end
 def get_resource_hash(resource)
   require 'pathname'
   resource_h = Hash.new
-  catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
   resource_h['name'] = resource.name
   resource_h['home'] = node['tomcat']['home']
-  resource_h['base'] = "#{catalina_parent}/#{resource_h['name']}"
-  new_resource.base = resource_h['base']
-  Chef::Log.debug("cookbook_name is #{self.cookbook_name}")
-  node[self.cookbook_name]['tomcat'] = {}
-  node[self.cookbook_name]['tomcat']['base'] = resource_h['base']
+  resource_h['base'] = resource.base
   resource_h['context_dir'] = "#{resource_h['base']}/conf/Catalina/localhost"
   resource_h['log_dir'] = "#{resource_h['base']}/logs"
   resource_h['tmp_dir'] = "#{resource_h['base']}/temp"
@@ -140,7 +135,6 @@ action :install do
                                    ])
   end
   s.run_action( :enable )
-  #s.run_action( :start )
 
   new_resource.updated_by_last_action(true)
 end
