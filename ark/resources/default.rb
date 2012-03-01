@@ -35,7 +35,7 @@ actions(
   :install_python
   )
 
-attr_reader :home_dir
+attr_accessor :home_dir, :install_dir
 
 attribute :name,          :name_attribute => true
 
@@ -52,13 +52,17 @@ attribute :release_url,   :kind_of => String, :required => true
 attribute :prefix_root,   :kind_of => String, :default  => "/usr/local"
 
 # version slug, appended to the name to get the install_dir
-attribute :version,       :kind_of => String, :required => true
+attribute :version,       :kind_of => String, :default => ""
 
 # Directory for the unreleased contents,   eg /usr/local/share/pig-0.8.0. default: {prefix_root}/share/{name}-#{version}
 attribute :install_dir,   :kind_of => String
 
 # Directory as the project is referred to, eg /usr/local/share/pig. default: {prefix_root}/share/{name}
 attribute :home_dir,      :kind_of => String
+
+# don't create symlink home_dir to install_dir as home_dir and
+# install_dir are the same directory
+attribute :no_symlink,     :kind_of => [FalseClass, TrueClass], :default => false
 
 # Checksum for the release file
 attribute :checksum,      :kind_of => String, :default => nil
@@ -124,8 +128,9 @@ def assume_defaults!
   # (\?.*)? accounts for a trailing querystring
   release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
   @release_ext      ||= $2
-  @home_dir         ||= ::File.join(prefix_root, node[:ark][:prefix_home], name)
+  
   @install_dir      ||= ::File.join(prefix_root, node[:ark][:prefix_install], "#{name}-#{version}")
+  @home_dir         ||= ::File.join(prefix_root, node[:ark][:prefix_home], name)
   @release_file     ||= ::File.join(prefix_root, node[:ark][:prefix_src],  "#{name}-#{version}.#{release_ext}")
   @expand_cmd ||=
     case release_ext

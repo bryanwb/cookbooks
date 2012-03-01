@@ -48,6 +48,7 @@ Resources/Providers
 
 # Attribute Parameters
 
+- name: name of the package, defaults to the resource name
 - release_url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
   currently supported. Also supports special syntax
   :name:version:apache_mirror: that will auto-magically construct
@@ -56,9 +57,12 @@ Resources/Providers
 - checksum: sha256 checksum, used for security 
 - prefix_root: prefix_root for installation, defaults to /usr/local/
 - mode: file mode for app_home, is an integer
-- install_dir:
-- home_dir:
-- no_symlink: install_dir and home_dir are the same, no symlink used
+- install_dir: path to extract the ark to, by default is
+  node['ark']['prefix_root']['prefix_install'] or /usr/local/share/<name>-<version>
+- home_dir: symbolic link to the install_dir
+  node['ark']['prefix_root']['prefix_home'] or /usr/local/share/<name>
+- no_symlink: install_dir and home_dir are the same, no symlink used,
+  install_dir is used and home_dir attribute is ignored
 - has_binaries: array of binary commands to symlink to /usr/local/bin/
 - add_global_bin_dir: boolean, similar to has_binaries but less granular
   - If true, append the ./bin directory of the extracted directory to

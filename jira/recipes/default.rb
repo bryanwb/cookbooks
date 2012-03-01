@@ -23,8 +23,10 @@ include_recipe "ark"
 include_recipe "tomcat::base"
 include_recipe "ivy"
 
+jira_user = node['jira']['user']
+
 t = tomcat "jira" do
-  user node['jira']['user']
+  user jira_user
   action :install
 end
 
@@ -32,12 +34,28 @@ end
 ivy "mysql-connector-java" do
   groupId "mysql"
   version "5.1.18"
+  owner jira_user
   dest  "#{t.base}/lib"
 end
 
-# ark "jira_war" do
-#   release_url node['jira']['war_url']
-#   version "5.0"
-#   install_dir     "/usr/local/tomcat/jira/webapps/ROOT"
-#   no_symlink      true
+ark "jira_war" do
+  release_url node['jira']['war_url']
+  version "5.0"
+  install_dir     "#{t.base}/webapps/ROOT"
+  user jira_user
+  no_symlink      true
+end
+
+remote_file "balsamiq" do
+  source node['jira']['balsamiq_url']
+  path "#{t.base}/webapps/ROOT/webapp/WEB-INF/lib/mockups-2.1.13.jar"
+  owner jira_user
+end
+
+# ark "additional jars" do
+#   release_url node['jira']['jars_url']
+#   install_dir  "#{t.base}/webapps/ROOT/webapp/WEB-INF/lib"
+#   user jira_user
+#   stop_file "commons-logging-1.1.1.jar"
+#   no_symlink  true
 # end

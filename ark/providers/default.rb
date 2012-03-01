@@ -61,16 +61,18 @@ action :unpack do
 
   ruby_block "unpack #{new_resource.name} release" do
     block do
+      if new_resource.no_symlink
+        new_resource.home_dir = new_resource.install_dir
+      end
       new_resource.expand_cmd.call(new_resource)
+      unless new_resource.home_dir == new_resource.install_dir
+        run_context = Chef::RunContext.new(node, {})
+        l = Chef::Resource::Link.new(new_resource.home_dir, run_context)
+        l.to new_resource.install_dir
+        l.run_action(:create)
+      end
     end
     not_if { new_resource.ark_check_cmd.call(new_resource) }
-  end
-
-  unless new_resource.home_dir == new_resource.install_dir
-    link new_resource.home_dir do
-      to          new_resource.install_dir
-      action      :create
-    end
   end
 end
 

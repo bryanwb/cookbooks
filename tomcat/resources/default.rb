@@ -42,7 +42,7 @@ attribute :user, :kind_of => String, :required => true
 
 # we have to set default for the supports attribute
 # in initializer since it is a 'reserved' attribute name
-def initialize(*args)s
+def initialize(*args)
   require 'pathname'
   super
   @action = :install

@@ -21,3 +21,5 @@
 
 default['jira']['user'] = "jira"
 default['jira']['war_url'] = "http://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-5.0-war.zip"
+default['jira']['jars_url'] = "http://www.atlassian.com/software/jira/downloads/binary/jira-jars-tomcat-distribution-4.4-tomcat-6x.zip"
+default['jira']['balsamiq_url'] = 'http://builds.balsamiq.com/b/2.1/mockups-jira-4x/mockupsJIRA4x-2.1.13.jar'
