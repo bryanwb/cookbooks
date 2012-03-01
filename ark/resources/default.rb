@@ -152,8 +152,7 @@ def unzip_cmd
       require 'tmpdir'
       tmpdir = Dir.mktmpdir
       system("unzip  -q -u -o '#{r.release_file}' -d '#{tmpdir}'")
-      subdirectory = Dir.glob(tmpdir + "/**")[0]
-      subdirectory_children = Dir.glob(subdirectory + "/**")
+      subdirectory_children = Dir.glob("#{tmpdir}/**")
       FileUtils.mv subdirectory_children, r.install_dir
       FileUtils.rm_rf tmpdir
     elsif r.junk_paths
@@ -173,7 +172,7 @@ def untar_cmd(sub_cmd)
     else
       strip_argument = ""
     end
-    system(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{install_dir}';})
+    system(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.install_dir}';})
     FileUtils.chown_R r.user, r.user, r.install_dir
   }
 end

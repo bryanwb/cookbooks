@@ -52,10 +52,10 @@ remote_file "balsamiq" do
   owner jira_user
 end
 
-# ark "additional jars" do
-#   release_url node['jira']['jars_url']
-#   install_dir  "#{t.base}/webapps/ROOT/webapp/WEB-INF/lib"
-#   user jira_user
-#   stop_file "commons-logging-1.1.1.jar"
-#   no_symlink  true
-# end
+ark "additional_jars" do
+  release_url node['jira']['jars_url']
+  install_dir  "#{t.base}/webapps/ROOT/webapp/WEB-INF/lib"
+  user jira_user
+  stop_file "commons-logging-1.1.1.jar"
+  no_symlink  true
+end
