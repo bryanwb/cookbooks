@@ -149,6 +149,17 @@ action :restart do
   end
 end
 
+action :start do
+  ruby_block "start the tomcat service" do
+    block do
+      r = resources(:service => new_resource.name )
+      r.run_action(:start)
+    end
+    action :create
+  end
+end
+
+
 action :remove do
   
 end

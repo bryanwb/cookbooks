@@ -18,7 +18,7 @@
 # limitations under the License.
 
 
-actions :install, :remove, :restart
+actions :install, :remove, :restart, :start
 
 attr_accessor :port, :ajp_port, :ssl_port, :shutdown_port, :host_name
 attr_accessor :unpack_wars, :auto_deploy, :jvm_opts, :jmx_opts, :webapp_opts

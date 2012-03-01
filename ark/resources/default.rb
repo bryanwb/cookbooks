@@ -185,7 +185,7 @@ def ark_opened?
       else
         false
       end
-    elsif ::Dir["#{r.install_dir}/*"].empty?
+    elsif !::File.exists?(r.install_dir) or ::File.stat("#{r.install_dir}/").nlink == 2
       Chef::Log.debug("ark is empty")
       false
     else
