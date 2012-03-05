@@ -72,12 +72,17 @@ ruby_block "move jira war into place" do
   not_if { ::File.exists?("#{t.base}/webapps/jira") && File.stat("#{t.base}/webapps/jira").nlink > 2 }
 end
 
-remote_file "balsamiq" do
-  source node['jira']['balsamiq_url']
-  path "#{t.base}/webapps/jira/WEB-INF/lib/mockups-2.1.13.jar"
-  checksum node['jira']['balsamiq_checksum']
-  owner jira_user
+# GET ALL THE PLUGINS
+%w{ balsamiq bonfire fisheye bamboo calendar importers }.each do |plugin|
+  remote_file plugin do
+    source node['jira']["#{plugin}_url"]
+    path "/home/jira/plugins/installed-plugins/#{plugin}.jar"
+    checksum node['jira']["#{plugin}_checksum"]
+    mode 0755
+    owner jira_user
+  end
 end
+
 
 ark "additional_jars" do
   release_url node['jira']['jars_url']
