@@ -25,13 +25,7 @@ when "ubuntu","debian"
 when "fedora","suse","amazon"
   %w{postgresql-devel}
 when "redhat","centos","scientific"
-  case
-  when node['platform_version'].to_f >= 6.0
-    #    %w{postgresql90-devel}
-    puts foobar
-  else
     [ "postgresql#{node['postgresql']['version'].split('.').join}-devel" ]
-  end
 end
 
 pg_packages.each do |pg_pack|
@@ -42,4 +36,5 @@ end
 
 gem_package "pg" do
   action :nothing
+  options("-- --with-pg-config=/usr/pgsql-#{node['postgresql']['version']}/bin/pg_config")
 end.run_action(:install)

@@ -19,16 +19,14 @@
 # limitations under the License.
 #
 
-include_recipe "postgresql::client"
+include_recipe "postgresql9::client"
 
 # Create a group and user like the package will.
 # Otherwise the templates fail.
 
-package "postgis90"
+#package "postgis90"
 
-group "postgres" do
-  gid 26
-end
+group "postgres"
 
 user "postgres" do
   shell "/bin/bash"
@@ -36,19 +34,13 @@ user "postgres" do
   home "/home/postgres"
   gid "postgres"
   system true
-  uid 26
   supports :manage_home => true
 end
 
 package "postgresql90" do
   case node.platform
   when "redhat","centos","scientific"
-    case 
-    when node.platform_version.to_f >= 6.0
-      package_name "postgresql"
-    else
       package_name "postgresql#{node['postgresql']['version'].split('.').join}"
-    end
   else
     package_name "postgresql"
   end
@@ -56,12 +48,7 @@ end
 
 case node.platform
 when "redhat","centos","scientific"
-  case
-  when node.platform_version.to_f >= 6.0
-    package "postgresql-server"
-  else
     package "postgresql#{node['postgresql']['version'].split('.').join}-server"
-  end
 when "fedora","suse"
   package "postgresql-server"
 end
@@ -90,13 +77,13 @@ template "/var/lib/pgsql/.bash_profile" do
 #  notifies :restart, resources(:service => "postgresql")
 end
 
-template "/etc/sysconfig/pgsql/postgresql" do
-  source "sysconfig.postgresql.erb"
-  owner "root"
-  group "root"
-  mode 0755
-#  notifies :restart, resources(:service => "postgresql")
-end
+# template "/etc/sysconfig/pgsql/postgresql" do
+#   source "sysconfig.postgresql.erb"
+#   owner "root"
+#   group "root"
+#   mode 0755
+# #  notifies :restart, resources(:service => "postgresql")
+# end
 
 
 # template "#{node[:postgresql][:dir]}/postgresql.conf" do

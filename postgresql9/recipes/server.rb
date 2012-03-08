@@ -21,11 +21,11 @@
 
 ::Chef::Recipe.send(:include, Opscode::OpenSSL::Password)
 
-include_recipe "postgresql::client"
+include_recipe "postgresql9::client"
 
 # randomly generate postgres password
-node.set_unless[:postgresql][:password][:postgres] = secure_password
-node.save unless Chef::Config[:solo]
+# node.set_unless[:postgresql][:password][:postgres] = secure_password
+# node.save unless Chef::Config[:solo]
 
 case node[:postgresql][:version]
 when "8.3"
@@ -38,9 +38,9 @@ end
 # since they do things slightly differently.
 case node.platform
 when "redhat", "centos", "fedora", "suse", "scientific", "amazon"
-  include_recipe "postgresql::server_redhat"
+  include_recipe "postgresql9::server_redhat"
 when "debian", "ubuntu"
-  include_recipe "postgresql::server_debian"
+  include_recipe "postgresql90::server_debian"
 end
 
 # template "#{node[:postgresql][:dir]}/pg_hba.conf" do
