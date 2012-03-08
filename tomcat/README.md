@@ -90,6 +90,7 @@ tomcat
 - jmx_opts: Array of JMX monitoring options
 - webapp_opts: Array of directives passed to a webapp
 - more_opts: crap that doesn't fit anywhere else
+- env: environment variables to export in init script
 - user: user to run the tomcat as
 
 

@@ -130,8 +130,8 @@ shutdown="SHUTDOWN">
       </Realm>
 
      <Host name="localhost"  appBase="webapps"
-            unpackWARs="<%= @tomcat['unpack_wars'].to_s %>"
-            autoDeploy="<%= @tomcat['auto_deploy'].to_s %>"
+            unpackWARs="<%= @tomcat["unpack_wars"].to_s %>"
+            autoDeploy="<%= @tomcat["auto_deploy"].to_s %>"
             xmlValidation="false" xmlNamespaceAware="false">
 
         <!-- SingleSignOn valve, share authentication between web applications

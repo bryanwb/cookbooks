@@ -36,6 +36,8 @@ attribute :jvm_opts, :kind_of => Array, :default => ["-Djava.awt.headless=true",
 attribute :jmx_opts, :kind_of => Array, :default => []
 attribute :webapp_opts, :kind_of => Array, :default => []
 attribute :more_opts, :kind_of => Array, :default => []
+attribute :env, :kind_of => Array, :default => []
+attribute :unpack_wars
 attribute :user, :kind_of => String, :required => true
   
 # we have to set default for the supports attribute

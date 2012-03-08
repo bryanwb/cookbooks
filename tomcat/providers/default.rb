@@ -49,6 +49,10 @@ def get_resource_hash(resource)
   resource_h['jmx_opts'] = resource.jmx_opts
   resource_h['webapp_opts'] = resource.webapp_opts
   resource_h['more_opts'] = resource.more_opts
+  resource_h['unpack_wars'] = resource.unpack_wars
+  resource_h['auto_deploy'] = resource.auto_deploy
+  resource_h['env'] = resource.env
+  
   resource_h
 end
   

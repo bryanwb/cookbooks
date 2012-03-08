@@ -15,6 +15,10 @@ JAVA_OPTS="<%= @tomcat['jvm_opts'].join(' ') +
  @tomcat['webapp_opts'].join(' ') + " " +
  @tomcat['more_opts'].join(' ') %>"
 
+<% @tomcat['env'].each do |envvar| -%>
+export <%= envvar %>
+<% end -%>
+
 JAVA_ENDORSED_DIRS="$CATALINA_HOME/endorsed"
 
 # Use a CMS garbage collector for improved response time
