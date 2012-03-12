@@ -42,6 +42,13 @@ ruby_block  "set-env-java-home" do
   end
 end
 
+file "/etc/profile.d/jdk.sh" do
+  content <<-EOS
+    export JAVA_HOME=#{node['java']["java_home"]}
+  EOS
+  mode 0755
+end
+
 java_ark "jdk" do
   url tarball_url
   checksum tarball_checksum

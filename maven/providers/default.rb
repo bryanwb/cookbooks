@@ -19,6 +19,11 @@
 #
 
 action :install do
+  require 'fileutils'
+  # create the destination path if it doesn't already exist
+  unless ::File.exists?(new_resource.dest)
+    FileUtils.mkdir_p new_resource.dest, { :mode => 0755 }
+  end
   artifact_file = ::File.join new_resource.dest, "#{new_resource.artifactId}-#{new_resource.version}.#{new_resource.packaging}"
   groupId = "-DgroupId=" + new_resource.groupId
   artifactId = "-DartifactId=" + new_resource.artifactId
@@ -30,7 +35,6 @@ action :install do
   plugin = "org.apache.maven.plugins:maven-dependency-plugin:#{plugin_version}:get"
   command = %Q{mvn #{plugin} #{groupId} #{artifactId} #{version} #{packaging} #{dest} #{repos}}
   unless ::File.exists?("#{artifact_file}")
-    require 'fileutils'
     Chef::Log.debug('command is')
     Chef::Log.debug(command)
     cmd = Chef::ShellOut.new(command)

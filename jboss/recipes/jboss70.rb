@@ -12,8 +12,37 @@ include_recipe "java::oracle"
 jboss_home = node['jboss']['jboss_home']
 jboss_user = node['jboss']['jboss_user']
 
-include_recipe "jboss::_user"
-include_recipe "jboss::_group"
+# find all members of the jboss group, so we can make them members
+jboss_members = Array.new
+jboss_members << jboss_user
+
+search(:users, "groups:jboss").each do |u|
+  jboss_members << u.id
+end
+
+tarball_name = node['jboss']['dl_url'].
+  split('/')[-1].
+  sub!('.tar.gz', '')
+path_arr = jboss_home.split('/')
+path_arr.delete_at(-1)
+jboss_parent = path_arr.join('/')
+
+# create user
+user jboss_user
+
+
+group jboss_user do
+  # find all users that currently exist on the machine
+  # then only add those jboss_members that already have
+  # user accounts
+  local_users = Array.new
+  node['etc']['passwd'].each do |name,values|
+    local_users << name
+  end
+  jboss_members = jboss_members & local_users
+  members jboss_members
+  action :modify
+end
 
 directory jboss_parent do
   group jboss_user

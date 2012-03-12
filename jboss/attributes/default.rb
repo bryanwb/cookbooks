@@ -1,6 +1,15 @@
 
 
-default['jboss']['jboss_home'] = "/usr/local/jboss/default"
-default['jboss']['version'] = "7.0.2"
-default['jboss']['dl_url'] = "http://download.jboss.org/jbossas/7.0/jboss-as-7.0.2.Final/jboss-as-7.0.2.Final.tar.gz"
-default['jboss']['jboss_user'] = "jboss"
+default['jboss']['home'] = "/usr/local/jboss"
+default['jboss']['version'] = "7.1.0"
+default['jboss']['url'] = "http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.Final/jboss-as-7.1.0.Final.tar.gz"
+default['jboss']['checksum'] = "3a8ee8e3ab10003a5330e27d87e5ba38b90fbf8d6132055af4dd9a288d459bb7"
+default['jboss']['user'] = "jboss"
+
+default['jboss']['jdbc']['user'] = 'sa'
+default['jboss']['jdbc']['passwd_data_bag'] = 'secret/jboss_passwd'
+default['jboss']['jdbc']['name'] = 'h2'
+default['jboss']['jdbc']['host'] = 'localhost'
+default['jboss']['jdbc']['transaction_isolation'] = nil
+default['jboss']['jdbc']['driver']['module'] = 'com.h2database.h2' 
+default['jboss']['jdbc']['driver']['class'] = 'org.h2.jdbcx.JdbcDataSource'

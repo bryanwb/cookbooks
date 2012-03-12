@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: postgresql
+# Cookbook Name:: postgresql9
 # Recipe:: client
 #
 # Author:: Joshua Timberman (<joshua@opscode.com>)
@@ -29,12 +29,9 @@ when "redhat","centos","scientific"
 end
 
 pg_packages.each do |pg_pack|
-  package pg_pack do
-    action :nothing
-  end.run_action(:install)
+  package pg_pack 
 end
 
 gem_package "pg" do
-  action :nothing
   options("-- --with-pg-config=/usr/pgsql-#{node['postgresql']['version']}/bin/pg_config")
-end.run_action(:install)
+end

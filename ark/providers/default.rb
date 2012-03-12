@@ -136,6 +136,11 @@ EOF
       owner 'root'
       group 'root'
     end
+    ruby_block "export path" do
+      block do
+        ENV['PATH'] = ENV['PATH'] + ":" + ::File.join(new_resource.home_dir, 'bin').to_s
+      end
+    end
   end
 end
 
