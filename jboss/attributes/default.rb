@@ -8,8 +8,10 @@ default['jboss']['user'] = "jboss"
 
 default['jboss']['jdbc']['user'] = 'sa'
 default['jboss']['jdbc']['passwd_data_bag'] = 'secret/jboss_passwd'
-default['jboss']['jdbc']['name'] = 'h2'
+default['jboss']['jdbc']['schema'] = ''
 default['jboss']['jdbc']['host'] = 'localhost'
 default['jboss']['jdbc']['transaction_isolation'] = nil
-default['jboss']['jdbc']['driver']['module'] = 'com.h2database.h2' 
+default['jboss']['jdbc']['driver']['name'] = 'h2'
+default['jboss']['jdbc']['driver']['module'] = 'com.h2database.h2'
+default['jboss']['jdbc']['driver']['version'] = ''
 default['jboss']['jdbc']['driver']['class'] = 'org.h2.jdbcx.JdbcDataSource'

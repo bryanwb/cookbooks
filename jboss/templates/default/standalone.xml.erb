@@ -94,11 +94,11 @@
         <subsystem xmlns="urn:jboss:domain:datasources:1.0">
             <datasources>
                 <datasource 
-                    jndi-name="java:jboss/datasources/<%= node['jboss']['jdbc']['name'].capitalize %>DS" 
-                    pool-name="<%= node['jboss']['jdbc']['name'].capitalize %>DS" enabled="true" use-java-context="true">
+                    jndi-name="java:jboss/datasources/<%= node['jboss']['jdbc']['schema'].capitalize %>DS" 
+                    pool-name="<%= node['jboss']['jdbc']['schema'].capitalize %>Pool" enabled="true" use-java-context="true">
                     <connection-url>jdbc:<%=
                     node['jboss']['jdbc']['driver']['name'] +
-                  '://' + node['jboss']['jdbc']['host'] + '/' + node['jboss']['jdbc']['name'] %></connection-url>
+                  '://' + node['jboss']['jdbc']['host'] + '/' + node['jboss']['jdbc']['schema'] %></connection-url>
                     <driver><%= node['jboss']['jdbc']['driver']['name'] %></driver>
                     <% if
                     tr = node['jboss']['jdbc']['transaction_isolation'] -%> 
