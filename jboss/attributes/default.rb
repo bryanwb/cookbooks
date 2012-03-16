@@ -5,9 +5,10 @@ default['jboss']['version'] = "7.1.0"
 default['jboss']['url'] = "http://download.jboss.org/jbossas/7.1/jboss-as-7.1.0.Final/jboss-as-7.1.0.Final.tar.gz"
 default['jboss']['checksum'] = "3a8ee8e3ab10003a5330e27d87e5ba38b90fbf8d6132055af4dd9a288d459bb7"
 default['jboss']['user'] = "jboss"
+default['jboss']['application'] = 'jboss'
 
 default['jboss']['jdbc']['user'] = 'sa'
-default['jboss']['jdbc']['passwd_data_bag'] = 'secret/jboss_passwd'
+default['jboss']['jdbc']['passwd'] = ''
 default['jboss']['jdbc']['schema'] = ''
 default['jboss']['jdbc']['host'] = 'localhost'
 default['jboss']['jdbc']['transaction_isolation'] = nil

@@ -69,7 +69,7 @@ service "postgresql" do
   action  :enable
 end
 
-template "/var/lib/pgsql/.bash_profile" do
+template "/home/postgres/.bash_profile" do
   source "profile.erb"
   owner "root"
   group "root"

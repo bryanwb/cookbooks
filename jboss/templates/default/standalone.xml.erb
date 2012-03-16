@@ -93,20 +93,20 @@
         <subsystem xmlns="urn:jboss:domain:configadmin:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:1.0">
             <datasources>
-                <datasource 
-                    jndi-name="java:jboss/datasources/<%= node['jboss']['jdbc']['schema'].capitalize %>DS" 
+                <datasource
+                    jndi-name="java:jboss/datasources/<%= node['jboss']['jdbc']['schema'].capitalize %>DS"
                     pool-name="<%= node['jboss']['jdbc']['schema'].capitalize %>Pool" enabled="true" use-java-context="true">
                     <connection-url>jdbc:<%=
                     node['jboss']['jdbc']['driver']['name'] +
                   '://' + node['jboss']['jdbc']['host'] + '/' + node['jboss']['jdbc']['schema'] %></connection-url>
                     <driver><%= node['jboss']['jdbc']['driver']['name'] %></driver>
                     <% if
-                    tr = node['jboss']['jdbc']['transaction_isolation'] -%> 
+                    tr = node['jboss']['jdbc']['transaction_isolation'] -%>
                     <transaction-isolation><%= tr %></transaction-isolation>
                     <% end -%>
                     <security>
                         <user-name><%= node['jboss']['jdbc']['user'] %></user-name>
-                        <password><%= @password %></password>
+                        <password><%= node['jboss']['jdbc']['password'] %></password>
                     </security>
                 </datasource>
                 <drivers>

@@ -15,6 +15,11 @@ JBOSS_HOME=<%= node['jboss']['home'] %>
 JBOSS_PIDFILE=/var/run/<%= node['jboss']['user'] %>.pid
 
 JBOSS_CONFIG=standalone.xml
+
+<% if node['jboss']['java_opts'] -%>
+export JAVA_OPTS="$JAVA_OPTS <%= node['jboss']['java_opts'].join(' ') %>"
+<% end -%>
+
 # Location to keep the console log
 #
 JBOSS_CONSOLE_LOG=<%= node['jboss']['home'] %>/standalone/log/console.log
