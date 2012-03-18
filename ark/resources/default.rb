@@ -46,7 +46,7 @@ attribute :name,          :name_attribute => true
 #   :version:       -- value of resource's version
 #   :apache_mirror: -- node[:install_from][:apache_mirror]
 #
-attribute :release_url,   :kind_of => String, :required => true
+attribute :url,   :kind_of => String, :required => true
 
 # Prefix_Root directory -- other _dir attributes hang off this by default
 attribute :prefix_root,   :kind_of => String, :default  => "/usr/local"
@@ -77,7 +77,7 @@ attribute :release_file,  :kind_of => String
 attribute :release_ext,   :kind_of => String
 
 # User to run as
-attribute :user,          :kind_of => String, :default => 'root'
+attribute :owner,          :kind_of => String, :default => 'root'
 
 # Environment to pass on to commands
 attribute :environment,   :kind_of => Hash, :default => {}
@@ -87,7 +87,7 @@ attribute :environment,   :kind_of => Hash, :default => {}
 attribute :has_binaries,  :kind_of => Array,  :default => []
 
 # similar to has_binaries but less granular
-attribute :add_global_bin_dir, :kind_of => [TrueClass, FalseClass], :default => false
+attribute :append_env_path, :kind_of => [TrueClass, FalseClass], :default => false
 
 # options to pass to the ./configure command for the configure_with_autoconf action
 attribute :autoconf_opts, :kind_of => Array, :default => []
@@ -119,12 +119,12 @@ end
 
 def assume_defaults!
   # construct the url if we use the auto-magic apache patterns
-  unless @release_url =~ /^(http|ftp).*$/
+  unless @url =~ /^(http|ftp).*$/
     set_url
   end
   # the url 'http://apache.org/pig/pig-0.8.0.tar.gz' has
   # release_basename 'pig-0.8.0' and release_ext 'tar.gz'
-  release_basename = ::File.basename(@release_url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
+  release_basename = ::File.basename(@url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
   # (\?.*)? accounts for a trailing querystring
   release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
   @release_ext      ||= $2
@@ -137,12 +137,12 @@ def assume_defaults!
     when 'tar.gz'  then untar_cmd('xzf')
     when 'tar.bz2' then untar_cmd('xjf')
     when /zip|war|jar/ then unzip_cmd
-    else raise "Don't know how to expand #{release_url} which has extension '#{release_ext}'"
+    else raise "Don't know how to expand #{url} which has extension '#{release_ext}'"
     end
   @ark_check_cmd ||= ark_opened?
   
   Chef::Log.info("at end of assume_defaults!")
-  Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, release_url, prefix_root ].inspect )
+  Chef::Log.info( [environment, install_dir, home_dir, release_file, release_basename, release_ext, url, prefix_root ].inspect )
 end
 
 def unzip_cmd
@@ -160,7 +160,7 @@ def unzip_cmd
     else
       system("unzip  -q -u -o #{r.release_file} -d #{r.install_dir}")
     end 
-    FileUtils.chown_R r.user, r.user, r.install_dir
+    FileUtils.chown_R r.owner, r.owner, r.install_dir
   }
 end
 
@@ -173,7 +173,7 @@ def untar_cmd(sub_cmd)
       strip_argument = ""
     end
     system(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.install_dir}';})
-    FileUtils.chown_R r.user, r.user, r.install_dir
+    FileUtils.chown_R r.owner, r.owner, r.install_dir
   }
 end
 
@@ -195,8 +195,8 @@ def ark_opened?
 end
 
 def set_url
-  raise "Missing required resource attribute url" unless @release_url
-  @release_url.gsub!(/:name:/,          name.to_s)
-  @release_url.gsub!(/:version:/,       version.to_s)
-  @release_url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
+  raise "Missing required resource attribute url" unless @url
+  @url.gsub!(/:name:/,          name.to_s)
+  @url.gsub!(/:version:/,       version.to_s)
+  @url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
 end

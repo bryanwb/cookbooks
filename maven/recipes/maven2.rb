@@ -23,12 +23,12 @@ include_recipe "ark"
 maven_home = node['maven']["m2_home"]
 
 ark "maven" do
-  release_url node['maven']['2']['url']
+  url node['maven']['2']['url']
   checksum node['maven']['2']['checksum']
   version '2.2.1'
   install_dir maven_home
   no_symlink true
-  add_global_bin_dir true
+  append_env_path true
 end
 
 template "/etc/mavenrc" do

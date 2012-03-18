@@ -20,11 +20,11 @@ user node['jboss']['user']
 group node['jboss']['user']
 
 ark 'jboss' do
-  release_url node['jboss']['url']
+  url node['jboss']['url']
   checksum node['jboss']['checksum']
   home_dir jboss_home
   version "7.1.0"
-  user jboss_user
+  owner jboss_user
 end
 
 # template environment variables used by init file

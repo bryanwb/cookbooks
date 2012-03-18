@@ -96,9 +96,9 @@ end
 
 
 ark "additional_jars" do
-  release_url node['jira']['jars_url']
+  url node['jira']['jars_url']
   install_dir  "#{t.base}/webapps/jira/WEB-INF/lib"
-  user jira_user
+  owner jira_user
   stop_file "commons-logging-1.1.1.jar"
   checksum node['jira']['jars_checksum']
   no_symlink  true

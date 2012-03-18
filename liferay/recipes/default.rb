@@ -55,27 +55,27 @@ end
 
 # # unpack the main .war file
 # ark "liferay_war" do
-#   release_url node['liferay']['war_url']
+#   url node['liferay']['war_url']
 #   checksum node['liferay']['war_checksum']
 #   install_dir "#{base}/webapps/ROOT"
 #   home_dir "#{base}/webapps/ROOT"
 #   version "6.1.0"
 #   strip_leading_dir false
-#   user liferay_user
+#   owner liferay_user
 # end
 
 # ark "liferay_dependencies" do
-#   release_url node['liferay']['dependencies_url']
+#   url node['liferay']['dependencies_url']
 #   checksum node['liferay']['dependencies_checksum']
-#   user liferay_user
+#   owner liferay_user
 #   junk_paths true
 #   version "6.1.0"
 # end
 
 # ark "liferay_client_dependencies" do
-#   release_url node['liferay']['client_dependencies_url']
+#   url node['liferay']['client_dependencies_url']
 #   checksum node['liferay']['client_dependencies_checksum']
-#   user liferay_user
+#   owner liferay_user
 #   junk_paths true
 #   version "6.1.0"
 # end

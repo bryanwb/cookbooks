@@ -1,11 +1,14 @@
 Overview        
 ========
-
+ 
 An '''ark''' is like an archive but '''Kewler''
 
 Does the fetch-unpack-configure-build-install dance. This is a
 modified  verion of Infochimps awesome install_from cookbook
- [http://github.com/infochimps-cookbooks/install_from](install_dir "/usr/local/share/tomcat/lib")
+ [http://github.com/infochimps-cookbooks/install_from](install_dir
+ "/usr/local/share/tomcat/lib"). The main ark is fairly complex as it
+ encompasses a lot of functionality. Simpler LWRPs such as ark_put,
+ ark_dump, and ark_extract have been added.
 
 Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
 the default :prefix_root of `/usr/local`, this provider will
@@ -41,15 +44,69 @@ You can customize the basic attributes to meet your organization's conventions
 Resources/Providers
 ===================
 
-# Actions
+* ark_put: extract a tarball to a directory that matches the name of
+  the resource, simplest case
+* ark_dump: strips all directory paths and dumps files to a specified
+  path. Creates that path if it doesn't exist. (Zip only)
+* ark_cherry_pick: extract a specified file from tarball and place it in
+  the specified path
+* ark: the macdaddy or extractors, opinionated unpacker and installer
+
+# Actions for all LWRPs
 
 - :install: extracts the file and makes a symlink of requested
 - :remove: removes the extracted directory and related symlink #TODO
 
+ark_put
+=======
+
+# Attribute Parameters
+
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
+  currently supported.
+- owner: owner of extracted directory, set to "root" by default
+- path: path to extract to, defaults to 
+- checksum: sha256 checksum, used for security 
+- append_env_path: boolean, if true, append the ./bin directory of the
+  extracted directory to the global PATH variable for all users
+- mode: file mode for app_home, is an integer
+
+ark_dump
+========
+
+# Attribute Parameters
+
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
+  currently supported.
+- path: path to dump files to 
+- owner: owner of extracted directory, set to "root" by default
+- mode: file mode for app_home, is an integer
+- stop_file: if you are appending files to a given directory, ark
+  needs a condition to test whether the file has already been
+  extracted. You can specify a stop_file, a file whose existence
+  indicates the ark has previously been extracted and does not need to
+  be extracted again
+
+ark_cherry_pick
+===============
+
+# Attribute Parameters
+
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
+  currently supported.
+- owner: owner of extracted directory, set to "root" by default
+- path: directory to place file in
+- file: specific file to cherry-pick, defaults to resource name
+- mode: file mode for app_home, is an integer
+
+
+ark
+===
+
 # Attribute Parameters
 
 - name: name of the package, defaults to the resource name
-- release_url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
+- url: url for tarball, .tar.gz, .bin (oracle-specific), .war, and .zip
   currently supported. Also supports special syntax
   :name:version:apache_mirror: that will auto-magically construct
   download url from the apache mirrors site
@@ -64,14 +121,13 @@ Resources/Providers
 - no_symlink: install_dir and home_dir are the same, no symlink used,
   install_dir is used and home_dir attribute is ignored
 - has_binaries: array of binary commands to symlink to /usr/local/bin/
-- add_global_bin_dir: boolean, similar to has_binaries but less granular
+- append_env_path: boolean, similar to has_binaries but less granular
   - If true, append the ./bin directory of the extracted directory to
   the PATH environment  variable for all users, does this by placing a file in /etc/profile.d/ which will be read by all users
   be added to the path. The commands are symbolically linked to
   /usr/bin/* . Examples are mvn, java, javac, etc. This option
   provides more granularity than the boolean option
-- user: owner of extracted directory, set to "root" by default
-
+- owner: owner of extracted directory, set to "root" by default
 - strip_leading_dir: by default, strip the leading directory from the
   extracted archive this can cause unexpected results if there is more
   than one subdirectory in the archive
@@ -87,7 +143,7 @@ Resources/Providers
 
     # install Apache Ivy dependency resolution tool
     ark "ivy" do
-        release_url 'http://someurl.example.com/ivy.tar.gz'
+        url 'http://someurl.example.com/ivy.tar.gz'
         version '2.2.0'        
     end
     
@@ -97,11 +153,12 @@ leading directory, and symlinks /usr/local/share/ivy to /usr/local/shary/ivy-2.2
 
 
      ark 'jdk' do
-       release_url 'http://download.oracle.com/otn-pub/java/jdk/7u2-b13/jdk-7u2-linux-x64.tar.gz'
+       url 'http://download.oracle.com/jdk-7u2-linux-x64.tar.gz'
        version '7.2'
-       home_dir "/usr/local/jvm/default" 
-       add_global_bin_dir true
-       user 'foobar'
+       prefix_root "/usr/local/jvm/"
+       home_dir    "/usr/local/jvm/default" 
+       append_env_path true
+       owner 'foobar'
      end
 
 This example copies jdk-7u2-linux-x64.tar.gz to /usr/local/src/jdk-7.2.tar.gz,
@@ -111,17 +168,34 @@ leading directory, symlinks /usr/local/jvm/default to
 the global PATH for all users. The user 'foobar' is the owner of the
 /usr/local/share/jdk-7.2 directory
 
-     ark 'liferay-client' do
-       release_url "http://downloads.sourceforge.net/project/lportal/Liferay%20Portal/6.1.0%20GA1/liferay-portal-client-6.1.0-ce-ga1-20120106155615760.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Flportal%2Ffiles%2FLiferay%2520Portal%2F6.1.0%2520GA1%2F&ts=1329490764&use_mirror=ignum"
-       version "6.1.0"
-       install_dir "/usr/local/share/tomcat/lib"
-       home_dir "/usr/local/share/tomcat/lib"
-       user "hitman"
-       stop_file "portal-client.jar"
+    # install Apache Ivy dependency resolution tool
+    # in PREFIX_ROOT/resource_name in this case
+    # /usr/local/ivy, no symlink created
+    # it does strip any leading directory if one exists
+     ark_put "ivy" do
+        url 'http://someurl.example.com/ivy.tar.gz'
      end
 
+    # strip all directories and dump files into path specified by 
+    # the path attribute, you must specify the stop_file
+    # in order to keep the extraction from running every time
+    # the directory path will be created if it doesn't already exist
+     ark_dump "my_jars"
+       url  "http://example.com/bunch_of_jars.zip"
+       path "/usr/local/tomcat/lib"
+       stop_file "mysql.jar"
+       owner "tomcat"       
+     end
 
+    # extract specific files from a tarball, currently only handles
+    # one named file
+     ark_cherry_pick 'mysql-connector-java' do
+       url 'http://oracle.com/mysql-connector.zip'
+       file 'mysql-connector-java.jar'
+       path '/usr/local/tomcat/lib'
+     end
 
+     
 ## License and Author
 
 Author::                Philip (flip) Kromer - Infochimps, Inc (<coders@infochimps.com>)

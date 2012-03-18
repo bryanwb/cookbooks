@@ -20,7 +20,7 @@
 include_recipe "ark"
 
 a = ark "ivy" do
-  release_url node['ivy']['url']
+  url node['ivy']['url']
   checksum node['ivy']['checksum']
   version node['ivy']['version']
 end

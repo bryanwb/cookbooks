@@ -43,7 +43,7 @@ action :download do
   end
 
   remote_file new_resource.release_file do
-    source      new_resource.release_url
+    source      new_resource.url
     mode        "0644"
     action      :create
     checksum    new_resource.checksum if new_resource.checksum
@@ -92,7 +92,7 @@ end
 action :build_with_ant do
   action_build
   bash "build #{new_resource.name} with ant" do
-    user        new_resource.user
+    user        new_resource.owner
     cwd         new_resource.install_dir
     code        "ant"
     environment new_resource.environment
@@ -102,7 +102,7 @@ end
 action :configure_with_autoconf do
   action_configure
   bash "configure #{new_resource.name} with configure" do
-    user        new_resource.user
+    user        new_resource.owner
     cwd         new_resource.install_dir
     code        "./configure #{new_resource.autoconf_opts.join(' ')}"
     environment new_resource.environment
@@ -113,7 +113,7 @@ end
 action :build_with_make do
   action_build
   bash "build #{new_resource.name} with make" do
-    user        new_resource.user
+    user        new_resource.owner
     cwd         new_resource.install_dir
     code        "make"
     environment new_resource.environment
@@ -127,7 +127,7 @@ action :install_binaries do
       action    :create
     end
   end
-  if new_resource.add_global_bin_dir
+  if new_resource.append_env_path
     file "/etc/profile.d/#{new_resource.name}.sh" do
       content <<EOF
 export PATH=$PATH:#{::File.join(new_resource.home_dir, 'bin').to_s}
@@ -157,7 +157,7 @@ action :install_with_make do
   action_build_with_make
   action_install
   bash "install #{new_resource.name} with make" do
-    user        new_resource.user
+    user        new_resource.owner
     cwd         new_resource.install_dir
     code        "make install"
     environment new_resource.environment
