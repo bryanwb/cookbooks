@@ -52,5 +52,5 @@ set["tomcat"]["more_opts"] = []
 # urls for arks and sha256 checksum for each
 set['tomcat']['6']['url'] = 'http://apache.mirrors.tds.net/tomcat/tomcat-6/v6.0.35/bin/apache-tomcat-6.0.35.tar.gz'
 set['tomcat']['6']['checksum'] = 'b28c9cbc2a8ef271df646a50410bab7904953b550697efb5949c9b2d6a9f3d53'
-set['tomcat']['7']['url'] = 'http://apache.mirrors.tds.net/tomcat/tomcat-7/v7.0.25/bin/apache-tomcat-7.0.25.tar.gz'
-set['tomcat']['7']['checksum'] = '7ba03b6703b43da6868613fd625bfb13a791d57478b4a4e49bdb56f9fc3994b4'
+set['tomcat']['7']['url'] = 'http://apache.mirrors.tds.net/tomcat/tomcat-7/v7.0.26/bin/apache-tomcat-7.0.26.tar.gz'
+set['tomcat']['7']['checksum'] = '89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5'

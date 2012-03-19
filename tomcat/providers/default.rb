@@ -19,7 +19,6 @@
 
 def get_distro
   if platform? [ "centos","redhat","fedora"]
-    package "redhat-lsb"
     "el"
   else
     "debian"
