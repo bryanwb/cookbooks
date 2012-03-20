@@ -52,7 +52,7 @@ class Chef
 
       def action_unpack
         run_context = Chef::RunContext.new(node, {})
-        d = Chef::Resource::Directory.new(new_resource.install_dir, run_context)
+        d = Chef::Resource::Directory.new(new_resource.path, run_context)
         d.mode '0755'
         d.recursive true
         d.run_action(:create)
@@ -61,7 +61,7 @@ class Chef
 
       def action_set_owner
         require 'fileutils'
-        FileUtils.chown_R new_resource.owner, new_resource.owner, new_resource.install_dir
+        FileUtils.chown_R new_resource.owner, new_resource.owner, new_resource.path
       end
 
       def action_install_binaries
@@ -71,11 +71,11 @@ class Chef
             run_context = Chef::RunContext.new(node, {})
             l = Chef::Resource::Link.new(file_name, run_context)
             
-            l.to ::File.join(new_resource.install_dir, bin)
+            l.to ::File.join(new_resource.path, bin)
             l.run_action(:create)
           end
         elsif new_resource.append_env_path
-          new_path = "$PATH:#{::File.join(new_resource.install_dir, 'bin').to_s}"
+          new_path = "$PATH:#{::File.join(new_resource.path, 'bin').to_s}"
           Chef::Log.debug("new_path is #{new_path}")
           run_context = Chef::RunContext.new(node, {})
           path = "/etc/profile.d/#{new_resource.name}.sh"
@@ -95,15 +95,14 @@ class Chef
 
       def exists?
         if new_resource.stop_file and !(new_resource.stop_file.empty?)
-          if  ::File.exist?(::File.join(new_resource.install_dir,
+          if  ::File.exist?(::File.join(new_resource.path,
                                         new_resource.stop_file))
             true
           else
             false
           end
-        elsif !::File.exists?(new_resource.install_dir) or
-            ::File.stat("#{new_resource.install_dir}/").nlink == 2
-          Chef::Log.debug("ark")
+        elsif !::File.exists?(new_resource.path) or
+            ::File.stat("#{new_resource.path}/").nlink == 2
           false
         else
           true

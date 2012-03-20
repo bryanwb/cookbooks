@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: ark
-# Resource:: ArkPut
+# Provider:: ArkDump
 #
 # Author:: Bryan W. Berry <bryan.berry@gmail.com>
 # Copyright 2012, Bryan W. Berry
@@ -18,16 +18,34 @@
 # limitations under the License.
 #
 
-require 'chef/resource'
+require 'chef/provider'
 
 class Chef
-  class Resource
-    class ArkPut < Chef::Resource::ArkBase
+  class Provider
+    class ArkDump < Chef::Provider::ArkBase
 
-      def initialize(name, run_context=nil)
-        super
-        @resource_name = :ark_put
-        @provider = Chef::Provider::ArkPut
+      def action_install
+        new_resource.set_paths
+        unless exists?
+          action_download
+          action_unpack
+        else
+          Chef::Log.debug("Ark already exists")
+        end
+        action_set_owner
+      end
+
+      
+      private
+      
+      def exists?
+        stop_file_path = ::File.join(new_resource.path,
+                    new_resource.stop_file)
+        if new_resource.stop_file and ::File.exist?(stop_file_path)
+            true
+        else
+          false
+        end
       end
 
     end

@@ -35,7 +35,7 @@ class Chef
         @strip_leading_dir = true
         @checksum = nil
         @release_ext = ''
-        @install_dir = '/usr/local'
+        @path = '/usr/local'
         @expand_cmd = nil
         @has_binaries = []
         @stop_file = nil
@@ -64,6 +64,14 @@ class Chef
                       :required => true)
       end
 
+      def path(arg=nil)
+        set_or_return(
+                      :path,
+                      arg,
+                      :kind_of => String)
+      end
+
+      
       def append_env_path(arg=nil)
         set_or_return(
                       :append_env_path,
@@ -113,10 +121,6 @@ class Chef
               end
       end
 
-      def install_dir
-        @install_dir
-      end
-
       def strip_leading_dir(arg=nil)
         set_or_return(
                       :strip_leading_dir,
@@ -125,11 +129,10 @@ class Chef
                       )
       end
 
-      
       def set_paths
         parse_file_name
-        @install_dir      = ::File.join(@install_dir, "#{@name}")
-        Chef::Log.debug("install_dir is #{@install_dir}")
+        @path      = ::File.join(@path, "#{@name}")
+        Chef::Log.debug("path is #{@path}")
         @release_file     = ::File.join(Chef::Config[:file_cache_path],  "#{@name}.#{@release_ext}")
       end
       
@@ -153,19 +156,17 @@ class Chef
       
       def unzip_cmd
         ::Proc.new {|r|
-          FileUtils.mkdir_p r.install_dir
+          FileUtils.mkdir_p r.path
           if r.strip_leading_dir
             require 'tmpdir'
             tmpdir = Dir.mktmpdir
-            system("unzip  -q -u -o '#{r.release_file}' -d '#{tmpdir}'")
-            subdirectory_children = Dir.glob("#{tmpdir}/**")
-            FileUtils.mv subdirectory_children, r.install_dir
-            FileUtils.rm_rf tmpdir
-          elsif r.junk_paths
-            cmd = Chef::ShellOut.new("unzip  -q -u -o -j #{r.release_file} -d #{r.install_dir}")
+            cmd = Chef::ShellOut.new("unzip  -q -u -o '#{r.release_file}' -d '#{tmpdir}'")
             cmd.run_command
+            subdirectory_children = Dir.glob("#{tmpdir}/**")
+            FileUtils.mv subdirectory_children, r.path
+            FileUtils.rm_rf tmpdir
           else
-            cmd = Chef::ShellOut.new("unzip  -q -u -o #{r.release_file} -d #{r.install_dir}")
+            cmd = Chef::ShellOut.new("unzip  -q -u -o #{r.release_file} -d #{r.path}")
             cmd.run_command
           end 
         }
@@ -173,13 +174,13 @@ class Chef
 
       def untar_cmd(sub_cmd)
         ::Proc.new {|r|
-          FileUtils.mkdir_p r.install_dir
+          FileUtils.mkdir_p r.path
           if r.strip_leading_dir
             strip_argument = "--strip-components=1"
           else
             strip_argument = ""
           end
-          cmd = Chef::ShellOut.new(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.install_dir}';})
+          cmd = Chef::ShellOut.new(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.path}';})
           cmd.run_command
         }
       end
