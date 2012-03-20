@@ -1,7 +1,10 @@
 ark_put 'java' do
   url 'http://download.oracle.com/otn-pub/java/jdk/7u2-b13/jdk-7u2-linux-x64.tar.gz'
-  append_env_path true
+  checksum '411a204122c5e45876d6edae1a031b718c01e6175833740b406e8aafc37bc82d'
+  owner 'root'
+  has_binaries [ '/bin/javaws' ]
 end
+
 
 
 # ark 'java' do

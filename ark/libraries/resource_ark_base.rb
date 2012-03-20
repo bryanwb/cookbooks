@@ -24,24 +24,25 @@ class Chef
   class Resource
     class ArkBase < Chef::Resource
 
+      include Chef::Mixin::ShellOut
+
       def initialize(name, run_context=nil)
         super
-        @resource_name = :ark
-        @owner = :owner
-        @url = :url
-        @append_env_path = :append_env_path
+        @resource_name = :ark_base
+        @owner = 'root'
+        @url = nil
+        @append_env_path = false
         @strip_leading_dir = true
-        @checksum = :checksum
-        @release_ext = parse_file_name
-        set_paths
-        @expand_cmd = :expand_cmd
-        @has_binaries = :has_binaries
+        @checksum = nil
+        @release_ext = ''
+        @install_dir = '/usr/local'
+        @expand_cmd = nil
+        @has_binaries = []
+        @stop_file = nil
         @allowed_actions.push(:install)
         @action = :install
         @provider = Chef::Provider::ArkBase
       end
-
-      attr_reader @install_dir, @release_file
 
       def owner(arg=nil)
         set_or_return(
@@ -49,6 +50,28 @@ class Chef
                       arg,
                       :kind_of => String)
       end
+
+      def url(arg=nil)
+        if arg
+          unless arg =~ /^(http|ftp).*$/
+            arg = set_apache_url(url)
+          end
+        end
+        set_or_return(
+                      :url,
+                      arg,
+                      :kind_of => String,
+                      :required => true)
+      end
+
+      def append_env_path(arg=nil)
+        set_or_return(
+                      :append_env_path,
+                      arg,
+                      :kind_of => [TrueClass, FalseClass]
+                      )
+      end
+
       
       def checksum(arg=nil)
         set_or_return(
@@ -61,48 +84,24 @@ class Chef
         set_or_return(
                       :has_binaries,
                       arg,
-                      :kind_of => Array)
+                      :kind_of => Array
+                      )
       end
 
-      def append_env_path(arg=nil)
+      def stop_file(arg=nil)
         set_or_return(
-                      :append_env_path,
+                      :stop_file,
                       arg,
-                      :kind_of => [TrueClass, FalseClass])
+                      :kind_of => String
+                      )
       end
-      
-      def url(arg=nil)
-        if arg
-          unless @url =~ /^(http|ftp).*$/
-            arg = set_apache_url
-          end
-        end
+
+      def release_file(arg=nil)
         set_or_return(
-                      :url,
+                      :release_file,
                       arg,
-                      :kind_of => String,
-                      :required => true)
-      end
-
-      def parse_file_name
-        release_basename = ::File.basename(@url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
-        # (\?.*)? accounts for a trailing querystring
-        release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
-        @release_ext      = $2
-      end
-      
-      def set_paths
-        parse_file_name(@url)
-        @install_dir      = ::File.join(@install_dir, "#{@name}")
-        @release_file     = ::File.join(@install_dir,  "#{@name}.#{@release_ext}")
-      end
-
-      def set_apache_url(url)
-        raise "Missing required resource attribute url" unless url
-        url.gsub!(/:name:/,          name.to_s)
-        url.gsub!(/:version:/,       version.to_s)
-        url.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
-        url
+                      :kind_of => String
+                      )
       end
 
       def expand_cmd
@@ -114,7 +113,43 @@ class Chef
               end
       end
 
+      def install_dir
+        @install_dir
+      end
+
+      def strip_leading_dir(arg=nil)
+        set_or_return(
+                      :strip_leading_dir,
+                      arg,
+                      :kind_of => String
+                      )
+      end
+
+      
+      def set_paths
+        parse_file_name
+        @install_dir      = ::File.join(@install_dir, "#{@name}")
+        Chef::Log.debug("install_dir is #{@install_dir}")
+        @release_file     = ::File.join(Chef::Config[:file_cache_path],  "#{@name}.#{@release_ext}")
+      end
+      
       private
+
+      def parse_file_name
+        release_basename = ::File.basename(@url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
+        # (\?.*)? accounts for a trailing querystring
+        release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
+        @release_ext      = $2
+      end
+      
+      def set_apache_url(url_ref)
+        raise "Missing required resource attribute url" unless url_ref
+        url_ref.gsub!(/:name:/,          name.to_s)
+        url_ref.gsub!(/:version:/,       version.to_s)
+        url_ref.gsub!(/:apache_mirror:/, node['install_from']['apache_mirror'])
+        url_ref
+      end
+
       
       def unzip_cmd
         ::Proc.new {|r|
@@ -127,11 +162,12 @@ class Chef
             FileUtils.mv subdirectory_children, r.install_dir
             FileUtils.rm_rf tmpdir
           elsif r.junk_paths
-            system("unzip  -q -u -o -j #{r.release_file} -d #{r.install_dir}")
+            cmd = Chef::ShellOut.new("unzip  -q -u -o -j #{r.release_file} -d #{r.install_dir}")
+            cmd.run_command
           else
-            system("unzip  -q -u -o #{r.release_file} -d #{r.install_dir}")
+            cmd = Chef::ShellOut.new("unzip  -q -u -o #{r.release_file} -d #{r.install_dir}")
+            cmd.run_command
           end 
-          FileUtils.chown_R r.owner, r.owner, r.install_dir
         }
       end
 
@@ -143,8 +179,8 @@ class Chef
           else
             strip_argument = ""
           end
-          system(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.install_dir}';})
-          FileUtils.chown_R r.owner, r.owner, r.install_dir
+          cmd = Chef::ShellOut.new(%Q{tar '#{sub_cmd}' '#{r.release_file}' '#{strip_argument}' -C '#{r.install_dir}';})
+          cmd.run_command
         }
       end
 
