@@ -44,10 +44,13 @@ class Chef
 
       def unzip_cmd
         ::Proc.new {|r|
+          require 'mixlib/shellout'
           FileUtils.mkdir_p r.path
-          cmd = Chef::ShellOut.new("unzip  -q -u -o -j #{r.release_file} -d #{r.path}")
+          cmd = Chef::ShellOut.new(%Q{unzip  -j -q -u -o '#{r.release_file}' -d '#{r.path}'})
           cmd.run_command
+          cmd.error!
         }
+        
       end
 
       def untar_cmd(sub_cmd)

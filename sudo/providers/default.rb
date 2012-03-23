@@ -29,6 +29,10 @@ def check_inputs user, group, foreign_template, foreign_vars
 end
 
 def sudo_test tmpl_name
+  run_context = Chef::RunContext.new(node, {})
+  b = Chef::Resource::Script::Bash.new(new_resource.release_file, run_context)
+
+  
   cmd = Chef::ShellOut.new(
                            %Q[ visudo -cf #{tmpl_name} ]
                            ).run_command
@@ -55,6 +59,7 @@ end
 
 def render_sudo_template new_resource
   ::Dir.mktmpdir do |tmpdir|
+    Chef::Log.debug("tmpdir_is #{tmpdir}")
     tmpfile_path = "#{tmpdir}/#{new_resource.name}"
     tmpl = template tmpfile_path do
       source new_resource.template
@@ -65,6 +70,12 @@ def render_sudo_template new_resource
       action :nothing
     end
     tmpl.run_action(:create)
+    if ::File.exists? tmpfile_path
+      Chef::Log.debug("tmpfile_path exists at #{tmpfile_path}")
+    else
+      Chef::Log.debug("tmpfile_path doesn't exist at #{tmpfile_path}")
+    end
+      
     sudo_test tmpfile_path
     # check if the sudoers file already exists, and only
     # overwrite if the sudoers file has been changed

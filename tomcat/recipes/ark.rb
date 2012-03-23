@@ -35,9 +35,9 @@ ark "tomcat#{version}" do
   url node['tomcat'][version]['url']
   checksum node['tomcat'][version]['checksum']
   version '7.0.25'
-  prefix_root  "#{node["tomcat"]["prefix_dir"]}/tomcat"
+  path  "/usr/local/tomcat"
   home_dir "#{node['tomcat']['home']}"
-  user node['tomcat']['user']
+  owner node['tomcat']['user']
 end
 
 t_init = template "tomcat#{version}" do

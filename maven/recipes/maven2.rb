@@ -26,8 +26,7 @@ ark "maven" do
   url node['maven']['2']['url']
   checksum node['maven']['2']['checksum']
   version '2.2.1'
-  install_dir maven_home
-  no_symlink true
+  path maven_home
   append_env_path true
 end
 

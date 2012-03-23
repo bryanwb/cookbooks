@@ -11,14 +11,12 @@ modified  verion of Infochimps awesome install_from cookbook
  ark_dump, and ark_extract have been added.
 
 Given a project `pig`, with url `http://apache.org/pig/pig-0.8.0.tar.gz`, and
-the default :prefix_root of `/usr/local`, this provider will
+the default :path of `/usr/local`, this provider will
 
-* fetch  it to to `/usr/local/src`
-* unpack it to :install_dir  (`/usr/local/share/pig-0.8.0`)
-* create a symlink for :home_dir (`/usr/local/share/pig`) pointing to :install_dir
-* configure the project
-* build the project
-* install the project
+* fetch  it to to `/var/cache/chef/`
+* unpack it to :path  (`/usr/local/pig-0.8.0`)
+* create a symlink for :home_dir (`/usr/local/pig`) pointing to :path
+* add specified binary commands to the enviroment PATH variable
 
 By default, the ark will not run again if the :install_dir is not
 empty. You can specify a more granular condition by using :stop_file
@@ -35,10 +33,6 @@ Attributes
 You can customize the basic attributes to meet your organization's conventions
 
 * default[:ark][:apache_mirror] = 'http://apache.mirrors.tds.net'
-* default[:ark][:prefix_root] = "/usr/local"
-* default[:ark][:prefix_home] = "share"
-* default[:ark][:prefix_install] = "share"
-* default[:ark][:prefix_src] = "src"
 
 
 Resources/Providers
@@ -67,12 +61,16 @@ ark_put
 - owner: owner of extracted directory, set to "root" by default
 - path: path to extract to, defaults to 
 - checksum: sha256 checksum, used for security 
+- has_binaries: array of binary commands to symlink to
+  /usr/local/bin/, you must specify the relative path example: [ 'bin/java', 'bin/javaws' ]
 - append_env_path: boolean, if true, append the ./bin directory of the
   extracted directory to the global PATH variable for all users
 - mode: file mode for app_home, is an integer
 
 ark_dump
 ========
+
+NOTE: This currently only works for zip archives
 
 # Attribute Parameters
 
@@ -113,14 +111,13 @@ ark
 - version: software version, required
 - checksum: sha256 checksum, used for security 
 - prefix_root: prefix_root for installation, defaults to /usr/local/
-- mode: file mode for app_home, is an integer
+- mode: file mode for app_home, is an integer TODO
 - install_dir: path to extract the ark to, by default is
   node['ark']['prefix_root']['prefix_install'] or /usr/local/share/<name>-<version>
 - home_dir: symbolic link to the install_dir
-  node['ark']['prefix_root']['prefix_home'] or /usr/local/share/<name>
-- no_symlink: install_dir and home_dir are the same, no symlink used,
-  install_dir is used and home_dir attribute is ignored
-- has_binaries: array of binary commands to symlink to /usr/local/bin/
+  node['ark']['prefix_root']['prefix_home'] or /usr/local/<name>
+- has_binaries: array of binary commands to symlink to
+  /usr/local/bin/, you must specify the relative path example: [ 'bin/java', 'bin/javaws' ]
 - append_env_path: boolean, similar to has_binaries but less granular
   - If true, append the ./bin directory of the extracted directory to
   the PATH environment  variable for all users, does this by placing a file in /etc/profile.d/ which will be read by all users
@@ -128,58 +125,62 @@ ark
   /usr/bin/* . Examples are mvn, java, javac, etc. This option
   provides more granularity than the boolean option
 - owner: owner of extracted directory, set to "root" by default
-- strip_leading_dir: by default, strip the leading directory from the
-  extracted archive this can cause unexpected results if there is more
-  than one subdirectory in the archive
-- junk_paths: The archive's  directory structure is not recreated; all files are
-  deposited in the extraction directory. Only applies to zip archives
-- stop_file: if you are appending files to a given directory, ark
-  needs a condition to test whether the file has already been
-  extracted. You can specify a stop_file, a file whose existence
-  indicates the ark has previously been extracted and does not need to
-  be extracted again
 
 # Examples
 
-    # install Apache Ivy dependency resolution tool
-    ark "ivy" do
-        url 'http://someurl.example.com/ivy.tar.gz'
-        version '2.2.0'        
-    end
+     # install Apache Ivy dependency resolution tool
+     ark "ivy" do
+       url 'http://someurl.example.com/ivy.tar.gz'
+       version '2.2.0'        
+       checksum '89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5'
+     end
     
-This example copies ivy.tar.gz to /usr/local/src/ivy-2.2.0.tar.gz,
-unpacks its contents to /usr/local/share/ivy-2.2.0/ -- stripping the
-leading directory, and symlinks /usr/local/share/ivy to /usr/local/shary/ivy-2.2.0
+This example copies ivy.tar.gz to /var/cache/chef/ivy-2.2.0.tar.gz,
+unpacks its contents to /usr/local/ivy-2.2.0/ -- stripping the
+leading directory, and symlinks /usr/local/ivy to /usr/local/ivy-2.2.0
 
 
      ark 'jdk' do
        url 'http://download.oracle.com/jdk-7u2-linux-x64.tar.gz'
        version '7.2'
-       prefix_root "/usr/local/jvm/"
+       path "/usr/local/jvm/"
        home_dir    "/usr/local/jvm/default" 
+       checksum  '89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5'
        append_env_path true
        owner 'foobar'
      end
 
-This example copies jdk-7u2-linux-x64.tar.gz to /usr/local/src/jdk-7.2.tar.gz,
-unpacks its contents to /usr/local/share/jdk-7.2/ -- stripping the
+This example copies jdk-7u2-linux-x64.tar.gz to /var/cache/chef/jdk-7.2.tar.gz,
+unpacks its contents to /usr/local/jvm/jdk-7.2/ -- stripping the
 leading directory, symlinks /usr/local/jvm/default to
-/usr/local/share/jkd-7.2, and adds /usr/local/share/jdk-7.2/bin/ to
+/usr/local/jvm/jdk-7.2, and adds /usr/local/jvm/jdk-7.2/bin/ to
 the global PATH for all users. The user 'foobar' is the owner of the
-/usr/local/share/jdk-7.2 directory
+/usr/local/jvm/jdk-7.2 directory
 
-    # install Apache Ivy dependency resolution tool
-    # in PREFIX_ROOT/resource_name in this case
-    # /usr/local/ivy, no symlink created
-    # it does strip any leading directory if one exists
+     # install Apache Ivy dependency resolution tool
+     # in <path>/resource_name in this case
+     # /usr/local/ivy, no symlink created
+     # it does strip any leading directory if one exists
      ark_put "ivy" do
         url 'http://someurl.example.com/ivy.tar.gz'
+        checksum '89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5'
      end
 
-    # strip all directories and dump files into path specified by 
-    # the path attribute, you must specify the stop_file
-    # in order to keep the extraction from running every time
-    # the directory path will be created if it doesn't already exist
+     # install Apache Ivy dependency resolution tool
+     # in /home/foobar/ivy 
+     # it does strip any leading directory if one exists
+     ark_put "ivy" do
+       path "/home/foobar/
+       url 'http://someurl.example.com/ivy.tar.gz'
+       checksum '89ba5fde0c596db388c3bbd265b63007a9cc3df3a8e6d79a46780c1a39408cb5'
+     end
+
+     
+
+     # strip all directories and dump files into path specified by 
+     # the path attribute, you must specify the stop_file
+     # in order to keep the extraction from running every time
+     # the directory path will be created if it doesn't already exist
      ark_dump "my_jars"
        url  "http://example.com/bunch_of_jars.zip"
        path "/usr/local/tomcat/lib"
@@ -187,11 +188,11 @@ the global PATH for all users. The user 'foobar' is the owner of the
        owner "tomcat"       
      end
 
-    # extract specific files from a tarball, currently only handles
-    # one named file
+     # extract specific files from a tarball, currently only handles
+     # one named file
      ark_cherry_pick 'mysql-connector-java' do
        url 'http://oracle.com/mysql-connector.zip'
-       file 'mysql-connector-java.jar'
+       file 'mysql-connector-java-5.0.8-bin.jar'
        path '/usr/local/tomcat/lib'
      end
 
