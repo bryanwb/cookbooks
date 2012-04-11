@@ -42,4 +42,5 @@ cron "pgbouncer" do
   user "postgres"
   shell "/bin/bash"
   command "/home/postgres/cron_userlist.sh"
+  mailto ""
 end

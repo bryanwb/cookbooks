@@ -21,31 +21,8 @@ include_recipe "sudo"
 
 artifactory_user = "artifactory"
 
-# find all members of the artifactory group, so we can make them members
-artifactory_members = Array.new
-artifactory_members << artifactory_user
-
-search(:users, "groups:artifactory").each do |u|
-  artifactory_members << u.id
-end
-
-# create user
-user artifactory_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    artifactory_members = artifactory_members & local_users
-  end
-  action :create
-end
-
-group artifactory_user do
-  members artifactory_members
-  action :modify
+users_manage_noid artifactory_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

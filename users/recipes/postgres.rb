@@ -19,34 +19,8 @@
 
 postgres_user = "postgres"
 
-# find all members of the postgres group, so we can make them members
-postgres_members = Array.new
-postgres_members << postgres_user
-
-search(:users, "groups:postgres").each do |u|
-  postgres_members << u.id
-end
-
-# create user
-user postgres_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    postgres_members = postgres_members & local_users
-  end
-  action :create
-end
-
-group postgres_user do
-  # find all users that currently exist on the machine
-  # then only add those postgres_members that already have
-  # user accounts
-   members postgres_members
-  action :modify
+users_manage_noid postgres_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

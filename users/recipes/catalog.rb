@@ -21,32 +21,10 @@ include_recipe "sudo"
 
 catalog_user = "catalog"
 
-# find all members of the catalog group, so we can make them members
-catalog_members = Array.new
-catalog_members << catalog_user
-
-search(:users, "groups:catalog").each do |u|
-  catalog_members << u.id
+users_manage_noid catalog_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user catalog_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    catalog_members = catalog_members & local_users
-  end
-  action :create
-end
-
-group catalog_user do
-  members catalog_members
-  action :modify
-end
 
 # add sudoers
 sudo catalog_user do

@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: jboss
-# Recipe:: jdbc_standalone
+# Recipe:: standalone_jdbc
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2012, Food and Agriculture Organization of the United Nations
 #

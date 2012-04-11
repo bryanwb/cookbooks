@@ -20,34 +20,8 @@ include_recipe "sudo"
 
 dam_user = "dam"
 
-# find all members of the dam group, so we can make them members
-dam_members = Array.new
-dam_members << dam_user
-
-search(:users, "groups:dam").each do |u|
-  dam_members << u.id
-end
-
-# create user
-user dam_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    dam_members = dam_members & local_users
-  end
-  action :create
-end
-
-group dam_user do
-  # find all users that currently exist on the machine
-  # then only add those dam_members that already have
-  # user accounts
-   members dam_members
-  action :modify
+users_manage_noid dam_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

@@ -21,40 +21,10 @@ include_recipe "sudo"
 
 liferay_user = "liferay"
 
-# find all members of the liferay group, so we can make them members
-liferay_members = Array.new
-liferay_members << liferay_user
-
-search(:users, "groups:liferay").each do |u|
-  liferay_members << u.id
+users_manage_noid liferay_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user liferay_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    liferay_members = liferay_members & local_users
-  end
-  action :create
-end
-
-group liferay_user do
-  # find all users that currently exist on the machine
-  # then only add those liferay_members that already have
-  # user accounts
-  local_users = Array.new
-  node['etc']['passwd'].each do |name,values|
-    local_users << name
-  end
-  liferay_members = liferay_members & local_users
-  members liferay_members
-  action :modify
-end
 
 # add sudoers
 sudo liferay_user do

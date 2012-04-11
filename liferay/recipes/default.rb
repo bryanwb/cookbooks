@@ -22,6 +22,7 @@ require 'pathname'
 require 'fileutils'
 include_recipe "tomcat::base"
 include_recipe "ark"
+include_recipe 'maven'
 
 liferay_user = node['liferay']['user']
 catalina_parent = Pathname.new(node['tomcat']['home']).parent.to_s
@@ -52,60 +53,61 @@ cookbook_file "#{base}/conf/jaas.config" do
   owner liferay_user 
 end
 
+# jta, persistence, jms, postgresql
+maven "javax.persistence"  do
+  groupId "org.eclipse.persistence"
+  version "2.0.0"
+  dest "#{base}/lib"
+end
 
-# # unpack the main .war file
-# ark "liferay_war" do
-#   url node['liferay']['war_url']
-#   checksum node['liferay']['war_checksum']
-#   install_dir "#{base}/webapps/ROOT"
-#   home_dir "#{base}/webapps/ROOT"
-#   version "6.1.0"
-#   strip_leading_dir false
-#   owner liferay_user
-# end
+maven "jta"  do
+  groupId "javax.transaction"
+  version "1.1"
+  dest "#{base}/lib"
+end
 
-# ark "liferay_dependencies" do
-#   url node['liferay']['dependencies_url']
-#   checksum node['liferay']['dependencies_checksum']
-#   owner liferay_user
-#   junk_paths true
-#   version "6.1.0"
-# end
+maven "jms" do
+  groupId "com.sun.messaging.mq"
+  version "4.4"
+  dest "#{base}/lib"
+end
 
-# ark "liferay_client_dependencies" do
-#   url node['liferay']['client_dependencies_url']
-#   checksum node['liferay']['client_dependencies_checksum']
-#   owner liferay_user
-#   junk_paths true
-#   version "6.1.0"
-# end
+maven "postgresql" do
+  groupId "postgresql"
+  version "9.0-801.jdbc4"
+  dest "#{base}/lib"
+end
 
-# remote_file "#{Chef::Config[:file_cache_path]}/mysql-jar.tar.gz" do
-#   source "http://gd.tuwien.ac.at/db/mysql/Downloads/Connector-J/mysql-connector-java-5.0.8.tar.gz"
-# end
-  
-# # unpack the main .war
-# ruby_block "unpack_mysql_jar" do
-#   block do
-#     system("tar xvzf #{Chef::Config[:file_cache_path]}/mysql-jar.tar.gz --wildcards --no-anchored 'mysql-*bin.jar' -C #{base}/lib/")
-#     FileUtils.chown_R  liferay_user, liferay_user, "#{base}/lib"
-#   end
-#   action :create
-#   not_if { File.exist? "#{base}/lib/mysql.jar" }
-# end
+# unpack the main .war file
+ark_put "ROOT" do
+  url node['liferay']['war_url']
+  checksum node['liferay']['war_checksum']
+  path "#{base}/webapps"
+  strip_leading_dir false
+  owner liferay_user
+end
 
-# # add ALL THE JARS
-# node['liferay']['extra_jars'].each do |jar,url|
-#   remote_file "#{base}/lib/#{jar}" do
-#     source url
-#     owner liferay_user
-#   end
-# end
+ark_dump "liferay_dependencies" do
+  url node['liferay']['dependencies_url']
+  checksum node['liferay']['dependencies_checksum']
+  owner liferay_user
+  path   "#{base}/lib" 
+  creates "portlet.jar"
+end
 
-# # this lousy file properly sets liferay.home to CATALINA_BASE
-# cookbook_file "#{base}/webapps/ROOT/WEB-INF/classes/portal-ext.properties" do
-#   source "portal-ext.properties"
-#   owner liferay_user
-#   notifies :restart, t, :immediately
-# end
+ark_dump "liferay_client_dependencies" do
+  url node['liferay']['client_dependencies_url']
+  checksum node['liferay']['client_dependencies_checksum']
+  owner liferay_user
+  path   "#{base}/lib"
+  creates "wsdl4j.jar"
+end
+
+
+# this lousy file properly sets liferay.home to CATALINA_BASE
+cookbook_file "#{base}/webapps/ROOT/WEB-INF/classes/portal-ext.properties" do
+  source "portal-ext.properties"
+  owner liferay_user
+  notifies :restart, t, :immediately
+end
 

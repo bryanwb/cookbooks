@@ -21,32 +21,10 @@ include_recipe "sudo"
 
 jboss_user = "jboss"
 
-# find all members of the jboss group, so we can make them members
-jboss_members = Array.new
-jboss_members << jboss_user
-
-search(:users, "groups:jboss").each do |u|
-  jboss_members << u.id
+users_manage_noid jboss_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user jboss_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    jboss_members = jboss_members & local_users
-  end
-  action :create
-end
-
-group jboss_user do
-   members jboss_members
-  action :modify
-end
 
 # add sudoers
 sudo jboss_user do

@@ -21,39 +21,8 @@ include_recipe "sudo"
 
 pentaho_user = "pentaho"
 
-# find all members of the pentaho group, so we can make them members
-pentaho_members = Array.new
-pentaho_members << pentaho_user
-
-search(:users, "groups:pentaho").each do |u|
-  pentaho_members << u.id
-end
-
-# create user
-user pentaho_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    pentaho_members = pentaho_members & local_users
-  end
-  action :create
-end
-
-group pentaho_user do
-  # find all users that currently exist on the machine
-  # then only add those pentaho_members that already have
-  # user accounts
-  local_users = Array.new
-  node['etc']['passwd'].each do |name,values|
-    local_users << name
-  end
-  pentaho_members = pentaho_members & local_users
-  members pentaho_members
-  action :modify
+users_manage_noid pentaho_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

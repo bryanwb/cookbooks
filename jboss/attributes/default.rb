@@ -1,3 +1,11 @@
+#
+# Cookbook Name:: jboss
+# Attributes:: default
+# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Copyright 2011, UN Food and Agriculture Organization
+#
+# license Apache v2.0
+#
 
 
 default['jboss']['home'] = "/usr/local/jboss"

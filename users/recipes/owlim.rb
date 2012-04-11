@@ -21,32 +21,10 @@ include_recipe "sudo"
 
 owlim_user = "owlim"
 
-# find all members of the owlim group, so we can make them members
-owlim_members = Array.new
-owlim_members << owlim_user
-
-search(:users, "groups:owlim").each do |u|
-  owlim_members << u.id
+users_manage_noid owlim_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user owlim_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    owlim_members = owlim_members & local_users
-  end
-  action :create
-end
-
-group owlim_user do
-  members owlim_members
-  action :modify
-end
 
 # add sudoers
 sudo owlim_user do

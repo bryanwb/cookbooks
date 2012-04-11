@@ -20,21 +20,27 @@
 #
 
 require 'chef/resource'
+require File.expand_path('resource_ark.rb',      File.dirname(__FILE__))
+
 
 class Chef
   class Resource
     class Ark < Chef::Resource::ArkBase
 
-      include Chef::Mixin::ShellOut
-
       def initialize(name, run_context=nil)
         super
         @resource_name = :ark
-        @prefix_root = "/usr/local"
         @action = :install
+        @home_dir = nil
         @provider = Chef::Provider::Ark
+        @environment = {}
+        @allowed_actions.push(:install_with_make)
+        @autoconf_opts = []
+        @make_opts = []
       end
 
+      attr_accessor :prefix_root, :home_dir
+      
       def version(arg=nil)
         set_or_return(
                       :version,
@@ -52,22 +58,30 @@ class Chef
                       )
       end
 
-      def set_paths
-        parse_file_name
-        @path      = ::File.join(@path, "#{@name}-#{@version}")
-        @home_dir  ||= ::File.join(@path, "#{@name}")
-        Chef::Log.debug("path is #{@path}")
-        @release_file     = ::File.join(Chef::Config[:file_cache_path],  "#{@name}-#{@version}.#{@release_ext}")
+      def environment(arg=nil)
+        set_or_return(
+                      :environment,
+                      arg,
+                      :kind_of => Hash
+                      )
       end
-      
-      private
 
-      def parse_file_name
-        release_basename = ::File.basename(@url.gsub(/\?.*\z/, '')).gsub(/-bin\b/, '')
-        # (\?.*)? accounts for a trailing querystring
-        release_basename =~ %r{^(.+?)\.(tar\.gz|tar\.bz2|zip|war|jar)(\?.*)?}
-        @release_ext      = $2
+      def autoconf_opts(arg=nil)
+        set_or_return(
+                      :autoconf_opts,
+                      arg,
+                      :kind_of => Array
+                      )
       end
+
+      def make_opts(arg=nil)
+        set_or_return(
+                      :make_opts,
+                      arg,
+                      :kind_of => Array
+                      )
+      end
+
       
     end
   end

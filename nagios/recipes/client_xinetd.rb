@@ -104,7 +104,7 @@ end
 
 logrotate_app "nrpe" do
   cookbook "logrotate"
-  path "/var/log/pgbouncer.log"
+  path "/var/log/nrpe.log"
   frequency "daily"
   create "644 root root"
   rotate 30

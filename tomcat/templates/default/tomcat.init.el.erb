@@ -20,14 +20,7 @@
 # - like catalina.sh while still working with the system v 
 # - init system  Bryan W. Berry (<bryan.berry@gmail.com>)
 #
-
 #
-# Source LSB function library.
-if [ -r /lib/lsb/init-functions ]; then
-    . /lib/lsb/init-functions
-else
-    exit 1
-fi
 
 DISTRIB_ID=`lsb_release -i -s 2>/dev/null`
 
@@ -37,6 +30,11 @@ if [ "${NAME:0:1}" = "S" -o "${NAME:0:1}" = "K" ]; then
     NAME="${NAME:3}"
     ISBOOT="1"
 fi
+
+if [ -r "/etc/init.d/functions" ]; then
+   . /etc/init.d/functions
+fi
+
 
 # need to use runuser if selinux is turned on
 if [ -x "/usr/sbin/getsebool" ]; then
@@ -214,16 +212,16 @@ function status()
 {
    checkpidfile 
    if [ "$RETVAL" -eq "0" ]; then
-      log_success_msg "${NAME} (pid ${kpid}) is running..."
+      success "${NAME} (pid ${kpid}) is running..."
    elif [ "$RETVAL" -eq "1" ]; then
-      log_failure_msg "PID file exists, but process is not running"
+      failure "PID file exists, but process is not running"
    else 
       pid="$(/usr/bin/pgrep -d , -u ${TOMCAT_USER} -G ${TOMCAT_USER} java)"
       if [ -z "$pid" ]; then
-	  log_success_msg "${NAME} is stopped"
+	  success "${NAME} is stopped"
 	  RETVAL="3"
       else
-	  log_success_msg "${NAME} (pid $pid) is running..."
+	  success "${NAME} (pid $pid) is running..."
 	  RETVAL="0"
       fi
    fi

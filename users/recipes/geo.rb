@@ -21,35 +21,10 @@ include_recipe "sudo"
 
 geo_user = "geo"
 
-# find all members of the geo group, so we can make them members
-geo_members = Array.new
-geo_members << geo_user
-
-search(:users, "groups:geo").each do |u|
-  geo_members << u.id
+users_manage_noid geo_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user geo_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    geo_members = geo_members & local_users
-  end
-  action :create
-end
-
-group geo_user do
-  # find all users that currently exist on the machine
-  # then only add those geo_members that already have
-  # user accounts
-   members geo_members
-  action :modify
-end
 
 # add sudoers
 sudo geo_user do

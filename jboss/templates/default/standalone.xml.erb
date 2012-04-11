@@ -92,6 +92,7 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:configadmin:1.0"/>
         <subsystem xmlns="urn:jboss:domain:datasources:1.0">
+          <% if node['jboss']['jdbc'] -%>
             <datasources>
                 <datasource
                     jndi-name="java:jboss/datasources/<%= node['jboss']['jdbc']['schema'].capitalize %>DS"
@@ -116,6 +117,7 @@
                     </driver>
                 </drivers>
             </datasources>
+            <% end -%>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:deployment-scanner:1.1">
             <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="5000"/>

@@ -1,7 +1,7 @@
 #
 # Cookbook Name:: maven
 # Recipe:: maven2
-#
+# Author:: Scott Chisamore (<scott@opscode.com>)
 # Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
 # Copyright 2011, Opscode Inc.
 #
@@ -20,13 +20,11 @@
 
 include_recipe "ark"
 
-maven_home = node['maven']["m2_home"]
-
 ark "maven" do
   url node['maven']['2']['url']
   checksum node['maven']['2']['checksum']
   version '2.2.1'
-  path maven_home
+  home_dir node['maven']["m2_home"]
   append_env_path true
 end
 

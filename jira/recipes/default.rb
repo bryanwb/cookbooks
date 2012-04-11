@@ -21,7 +21,7 @@
 
 include_recipe "ark"
 include_recipe "tomcat::base"
-include_recipe "ivy"
+include_recipe "maven"
 
 jira_user = node['jira']['user']
 jira_tarball = node['jira']['war_url'].split('/')[-1]
@@ -44,7 +44,7 @@ t = tomcat "jira" do
 end
 
 # get mysql connector
-ivy "mysql-connector-java" do
+maven "mysql-connector-java" do
   groupId "mysql"
   version "5.1.18"
   owner jira_user
@@ -95,13 +95,12 @@ remote_file "balsamiq" do
 end
 
 
-ark "additional_jars" do
+ark_dump "additional_jars" do
   url node['jira']['jars_url']
-  install_dir  "#{t.base}/webapps/jira/WEB-INF/lib"
+  path  "#{t.base}/webapps/jira/WEB-INF/lib"
   owner jira_user
-  stop_file "commons-logging-1.1.1.jar"
+  creates "commons-logging-1.1.1.jar"
   checksum node['jira']['jars_checksum']
-  no_symlink  true
 end
 
 template "jira properties" do

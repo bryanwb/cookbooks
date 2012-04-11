@@ -24,9 +24,8 @@ include_recipe "postgresql9::client"
 # Create a group and user like the package will.
 # Otherwise the templates fail.
 
-#package "postgis90"
+package "postgis90"
 
-group "postgres"
 
 user "postgres" do
   shell "/bin/bash"
@@ -36,6 +35,8 @@ user "postgres" do
   system true
   supports :manage_home => true
 end
+
+group "postgres"
 
 package "postgresql90" do
   case node.platform
@@ -53,16 +54,27 @@ when "fedora","suse"
   package "postgresql-server"
 end
 
-# execute "/sbin/service postgresql initdb" do
-#   not_if { ::FileTest.exist?(File.join(node.postgresql.dir, "PG_VERSION")) }
-# end
-
 template "/etc/rc.d/init.d/postgresql" do
   source "init.el.erb"
   owner "root"
   group "root"
   mode 0755
 end
+
+template "/etc/sysconfig/pgsql/postgresql" do
+  source "sysconfig.postgresql.erb"
+  owner "root"
+  group "root"
+  mode 0755
+end
+
+directory node['postgresql']['dir'] do
+  owner "postgres"
+  group "postgres"
+  recursive true
+  mode 0775
+end
+
 
 service "postgresql" do
   supports :restart => true, :status => true, :reload => true
@@ -77,19 +89,3 @@ template "/home/postgres/.bash_profile" do
 #  notifies :restart, resources(:service => "postgresql")
 end
 
-# template "/etc/sysconfig/pgsql/postgresql" do
-#   source "sysconfig.postgresql.erb"
-#   owner "root"
-#   group "root"
-#   mode 0755
-# #  notifies :restart, resources(:service => "postgresql")
-# end
-
-
-# template "#{node[:postgresql][:dir]}/postgresql.conf" do
-#   source "redhat.postgresql.conf.erb"
-#   owner "postgres"
-#   group "postgres"
-#   mode 0600
-# #  notifies :restart, resources(:service => "postgresql")
-# end

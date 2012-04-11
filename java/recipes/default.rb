@@ -1,6 +1,5 @@
 #
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
-# Author:: Bryan Berry (<bryan.berry@gmail.com>)
 # Cookbook Name:: java
 # Recipe:: default
 #

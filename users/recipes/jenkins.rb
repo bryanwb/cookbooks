@@ -21,31 +21,8 @@ include_recipe "sudo"
 
 hudson_user = "hudson"
 
-# find all members of the hudson group, so we can make them members
-hudson_members = Array.new
-hudson_members << hudson_user
-
-search(:users, "groups:hudson").each do |u|
-  hudson_members << u.id
-end
-
-# create user
-user hudson_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    hudson_members = hudson_members & local_users
-  end
-  action :create
-end
-
-group hudson_user do
-  members hudson_members
-  action :modify
+users_manage_noid hudson_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

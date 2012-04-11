@@ -17,44 +17,6 @@
 # limitations under the License.
 #
 
-tcdr_group = Array.new
-
-search(:users, 'groups:tcdr') do |u|
-  tcdr_group << u['id']
-  home_dir = "/home/#{u[:id]}"
-  
-  user u['id'] do
-    if u['uid']
-      uid u['uid']
-    end
-    shell u['shell']
-    comment u['comment']
-    supports :manage_home => true
-    home home_dir
-   end
-
-  directory "#{home_dir}" do
-    owner u['id']
-    group u['id']
-    mode "0700"
-  end
-  
-  directory "#{home_dir}/.ssh" do
-    owner u['id']
-    group u['id']
-    mode "0700"
-  end
-
-  template "#{home_dir}/.ssh/authorized_keys" do
-    source "authorized_keys.erb"
-    owner u['id']
-    group u['id']
-    mode "0600"
-    variables :ssh_keys => u['ssh_keys']
-  end
+users_manage_noid "tcdr" do
+  action [ :remove, :create ]
 end
-
-group "tcdr" do
-  members tcdr_group
-end
-

@@ -21,32 +21,10 @@ include_recipe "sudo"
 
 as_user = "as"
 
-# find all members of the as group, so we can make them members
-as_members = Array.new
-as_members << as_user
-
-search(:users, "groups:as").each do |u|
-  as_members << u.id
+users_manage_noid as_user do
+  action [ :remove, :create ]
 end
 
-# create user
-user as_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    as_members = as_members & local_users
-  end
-  action :create
-end
-
-group as_user do
-  members as_members
-  action :modify
-end
 
 # add sudoers
 sudo as_user do

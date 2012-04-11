@@ -21,31 +21,8 @@ include_recipe "sudo"
 
 jira_user = "jira"
 
-# find all members of the jira group, so we can make them members
-jira_members = Array.new
-jira_members << jira_user
-
-search(:users, "groups:jira").each do |u|
-  jira_members << u.id
-end
-
-# create user
-user jira_user
-
-ruby_block "find_local_users" do
-  block do
-    local_users = Array.new
-    node['etc']['passwd'].each do |name,values|
-      local_users << name
-    end
-    jira_members = jira_members & local_users
-  end
-  action :create
-end
-
-group jira_user do
-  members jira_members
-  action :modify
+users_manage_noid jira_user do
+  action [ :remove, :create ]
 end
 
 # add sudoers

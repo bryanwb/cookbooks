@@ -1,8 +1,8 @@
 #
 # Cookbook Name:: jboss
 # Recipe:: default
-#
-# Copyright 2011, Bryan W. Berry
+# Author:: Bryan W. Berry (<bryan.berry@gmail.com>)
+# Copyright 2011, UN Food and Agriculture Organization
 #
 # license Apache v2.0
 #
@@ -14,7 +14,7 @@ jboss_user = node['jboss']['jboss_user']
 
 include_recipe "jboss::_user"
 include_recipe "jboss::_group"
-
+y
 directory jboss_parent do
   group jboss_user
   owner jboss_user
@@ -58,14 +58,7 @@ end
 # template jboss-log4j.xml
 
 # start service
-service "jboss" do
+service jboss_user do
   action [ :enable, :start ]
 end
 
-# add sudoers
-template "/etc/sudoers.d/jboss" do
-  source "jboss_sudoers"
-  mode 0440
-  owner "root"
-  group "root"
-end
